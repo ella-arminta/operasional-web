@@ -8,6 +8,7 @@
         :key="index"
         :data="item.children"
         :label="item.label"
+        :path="item.path"
         :icon="item.icon"
         :depth="0"
         :smallMenu="smallMenu"
@@ -34,14 +35,16 @@ const menuTree = ref([
             label: "level 1.1.1",
             children: [
               {
-                label: "level 1.1.1.1"
+                label: "level 1.1.1.1",
+                path: '/home/level-1-1-1-1'
               }
             ]
           }
         ]
       },
       {
-        label: "level 1.2"
+        label: "level 1.2",
+        path: "/home/level-1-2"
       }
     ]
   },
@@ -51,18 +54,27 @@ const menuTree = ref([
     children: [
       {
         label: "level 2.1",
+        path: "/dashboard/level-2-1"
       },
       {
-        label: "level 2.2"
+        label: "level 2.2",
+        path: "/dashboard/level-2-2"
       },
       {
-        label: "level 2.3"
+        label: "level 2.3",
+        path: "/dashboard/level-2-3"
       }
     ]
   },
   {
     label: "Settings",
-    icon: "settings"
+    icon: "settings",
+    path: "/settings"
+  },
+  {
+    label: 'Logout',
+    icon: 'logout',
+    path: '/logout'
   }
 ]);
 </script>

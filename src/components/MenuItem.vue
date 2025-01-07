@@ -3,7 +3,7 @@
     <div
       class="label"
       :class="{ activated: isActive }"
-      @click="toggleMenu"
+      @click="path != '' ? $router.push(path) : toggleMenu()"
       :style="{ paddingLeft: depth * 20 + 20 + 'px' }"
     >
       <div class="left">
@@ -29,6 +29,7 @@
         :data="item.children"
         :label="item.label"
         :icon="item.icon"
+        :path="item.path"
         :depth="depth + 1"
         :smallMenu="smallMenu"
       />
@@ -64,6 +65,10 @@
       type: Boolean,
       default: false,
     },
+    path : {
+      type: String,
+      default: ''
+    }
   });
   
   // State
