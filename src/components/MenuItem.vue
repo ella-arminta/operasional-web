@@ -22,7 +22,7 @@
       :style="{ height: containerHeight }"
       ref="container"
     >
-      <SidebarItem
+      <MenuItem
         :class="{ opened: showChildren }"
         v-for="(item, index) in data"
         :key="index"
@@ -39,8 +39,8 @@
   
 <script setup>
   import { ref, computed, nextTick } from 'vue';
-  import SidebarItem from './MenuItem.vue';
-    import Sidebar from './Menu.vue';
+  import MenuItem from './MenuItem.vue';
+    import Sidebar from './MenuSidebar.vue';
   
   // Props
   const props = defineProps({

@@ -1,10 +1,8 @@
 <script setup>
-import Menu from './components/Menu.vue';
 </script>
 
 <template>
   <div class="app">
-    <Menu/>
     <router-view/>
   </div>
 </template>

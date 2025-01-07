@@ -3,7 +3,7 @@
       <div class="logo">
         <img src="https://inspiraworld.com/favicon.png" alt="">
       </div>
-      <SidebarItem
+      <MenuItem
         v-for="(item, index) in menuTree"
         :key="index"
         :data="item.children"
@@ -18,7 +18,7 @@
   
 <script setup>
 import { ref } from 'vue';
-import SidebarItem from './MenuItem.vue';
+import MenuItem from './MenuItem.vue';
 
 // Reactive state variables
 const smallMenu = ref(false);
@@ -72,7 +72,7 @@ const menuTree = ref([
 <style lang="scss" scoped>
 
 .menu {
-  position: fixed;
+  position: relative;
   height: 100vh;
   background-color: var(--bg-white);
   color: var(--pink-dark);
@@ -83,9 +83,10 @@ const menuTree = ref([
   border-right: 1px solid #ececec;
   transition: all .3s ease;
   overflow: auto;
+  padding-top: 20px;
   i {
     position: fixed;
-    left: 200px;
+    left: 170px;
     font-size: 20px;
     top: 15px;
     user-select: none;
