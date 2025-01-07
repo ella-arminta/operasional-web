@@ -61,8 +61,12 @@ export default {
                     console.log('Token saved in cookie');
 
                     store.dispatch('triggerAlert', {
-                        message: 'This is a success alert!',
-                        type: 'success',
+                        type: "success",
+                        title: "Berhasil!",
+                        message: "Anda berhasil login.",
+                        actions: [
+                            { label: "close", type: "secondary", handler: () => store.dispatch('hideAlert') },
+                        ],
                     });
 
 

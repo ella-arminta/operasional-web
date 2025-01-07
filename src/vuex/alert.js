@@ -6,25 +6,32 @@ export default createStore({
       message: '',
       visible: false,
       type: 'info', // Can be 'info', 'success', 'error', or 'warning'
+      actions: [], // [{ label: 'Close', type: 'secondary', handler: () => {} }]
     },
   },
   mutations: {
-    showAlert(state, { message, type }) {
-      state.alert.message = message;
-      state.alert.type = type;
-      state.alert.visible = true;
+    showAlert(state, payload) {
+      // state.alert.message = message;
+      // state.alert.type = type;
+      // state.alert.visible = true;
+
+      state.alert = { ...payload, visible: true };
     },
     hideAlert(state) {
       state.alert.visible = false;
     },
   },
   actions: {
-    triggerAlert({ commit }, { message, type }) {
-      commit('showAlert', { message, type });
+    triggerAlert({ commit }, payload) {
+      commit('showAlert', payload);
       setTimeout(() => {
         commit('hideAlert');
       }, 5000); // Hide the alert after 5 seconds
     },
+    hideAlert({ commit }) {
+      commit('hideAlert');
+    },
+
   },
   getters: {
     alert: (state) => state.alert,
