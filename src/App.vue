@@ -1,8 +1,11 @@
 <script setup>
+import Alert from './components/Alert.vue';
+
 </script>
 
 <template>
   <div class="app">
+    <Alert />
     <router-view/>
   </div>
 </template>
