@@ -98,7 +98,7 @@ const menuTree = ref([
   padding-top: 20px;
   i {
     position: fixed;
-    left: 170px;
+    left: 200px;
     font-size: 20px;
     top: 15px;
     user-select: none;
