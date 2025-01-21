@@ -70,7 +70,7 @@ export default {
                     });
 
 
-                    router.push('/about');
+                    router.push('/home');
                 }
             } catch (error) {
                 alert('Login failed', error);

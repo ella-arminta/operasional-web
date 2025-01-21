@@ -12,7 +12,7 @@ const router = createRouter({
     history: createWebHistory(),
     routes: [
         {
-            path: '/login',
+            path: '/',
             component: Login
         },
         {
@@ -25,7 +25,7 @@ const router = createRouter({
             meta: { requiresAuth: true },
             children: [
                 {
-                    path: '', // Path kosong sebagai default
+                    path: 'home', // Path kosong sebagai default
                     component: Home,
                 },
                 {

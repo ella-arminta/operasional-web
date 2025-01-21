@@ -27,7 +27,7 @@ const menuTree = ref([
   {
     label: "Home",
     icon: "home",
-    path: "/",
+    path: "/home",
   },
   {
     label: "Master",
