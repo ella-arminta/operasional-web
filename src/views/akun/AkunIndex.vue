@@ -2,6 +2,7 @@
 import DataTable from 'datatables.net-vue3';
 import DataTablesCore from 'datatables.net';
 import Select from 'datatables.net-select';
+import PageTitle from '../../components/PageTitle.vue';
 DataTable.use(DataTablesCore);
 DataTable.use(Select);
 
@@ -17,8 +18,8 @@ const columns = [
 
 <template>
   <div class="content">
-    <h1 class="text-5xl text-center w-full">Home</h1>
-    <!-- <DataTable
+    <PageTitle />
+    <DataTable
       :columns="columns"
       ajax="/data.json"
       class="display"
@@ -44,7 +45,7 @@ const columns = [
           <th>Salary</th>
         </tr>
       </tfoot>
-    </DataTable> -->
+    </DataTable>
   </div>
 </template>
 

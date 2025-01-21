@@ -18,7 +18,7 @@ const columns = [
 <template>
   <div class="content">
     <h1 class="text-5xl text-center w-full">Home</h1>
-    <!-- <DataTable
+    <DataTable
       :columns="columns"
       ajax="/data.json"
       class="display"
@@ -44,7 +44,7 @@ const columns = [
           <th>Salary</th>
         </tr>
       </tfoot>
-    </DataTable> -->
+    </DataTable>
   </div>
 </template>
 

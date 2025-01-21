@@ -38,6 +38,9 @@ body {
 }
 .app {
   display: flex;
+  width: 100%;
+  position: relative;
+  background-color: #F9F9F9;
   main {
     flex: 1 1 0;
     padding: 2rem;
@@ -46,5 +49,21 @@ body {
       padding-left: 6rem;
     }
   }
+}
+.content {
+  width: 100%;
+  padding: 47px 51px;
+}
+.app.internal::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 230px;
+  background-image: url('assets/bg.png');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
 }
 </style>
