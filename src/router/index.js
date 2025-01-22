@@ -7,6 +7,8 @@ import Logout from '../components/Logout.vue'
 import Cookies from 'js-cookie'
 import AkunIndex from '../views/akun/AkunIndex.vue'
 import AkunForm from '../views/akun/AkunForm.vue'
+import CompanyIndex from '../views/company/CompanyIndex.vue'
+import CompanyAdd from '../views/company/CompanyAdd.vue'
 
 const router = createRouter({
     history: createWebHistory(),
@@ -40,6 +42,14 @@ const router = createRouter({
                                 component: AkunForm, // Komponen untuk form akun
                             },
                         ],
+                    },
+                    {
+                      path: 'company',
+                      component: CompanyIndex,
+                    },
+                    {
+                      path: 'company/add',
+                      component: CompanyAdd,
                     },
                   ]
                 }

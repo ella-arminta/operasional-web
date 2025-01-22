@@ -4,7 +4,7 @@ import PageTitle from '../components/PageTitle.vue';
 </script>
 
 <template>
-  <div class="content">
+  <div class="content min-h-screen">
     <PageTitle />
   </div>
 </template>

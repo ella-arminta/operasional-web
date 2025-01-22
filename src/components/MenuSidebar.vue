@@ -38,8 +38,8 @@ const menuTree = ref([
         path: "/master/akun"
       },
       {
-        label: "level 2.2",
-        path: "/dashboard/level-2-2"
+        label: "Company",
+        path: "/master/company"
       },
       {
         label: "level 2.3",
