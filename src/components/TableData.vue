@@ -54,6 +54,12 @@ const onSearch = (event: Event) => {
         dt.search('').draw();
     }
 };
+const reloadData = () => {
+  if (dt) {
+    dt.ajax.reload(null, false); // Reload data without resetting pagination
+  }
+};
+
 const baseUrl = import.meta.env.VITE_BASE_URL;
 </script>
 
@@ -88,7 +94,7 @@ const baseUrl = import.meta.env.VITE_BASE_URL;
                     <div><i class="material-icons text-3xl">border_all</i></div>
                     <div>Export</div>
                 </div>
-                <div v-if="reload" class="bg-pinkDark hover:bg-pinkMed text-white  cursor-pointer font-bold py-2 px-3 flex justify-evenly items-center rounded-lg">
+                <div v-if="reload" class="bg-pinkDark hover:bg-pinkMed text-white  cursor-pointer font-bold py-2 px-3 flex justify-evenly items-center rounded-lg" @click="reloadData">
                     <div><i class="material-icons text-3xl">sync</i></div>
                     <div>Reload</div>
                 </div>
@@ -121,7 +127,14 @@ const baseUrl = import.meta.env.VITE_BASE_URL;
                 headers: {
                 'Authorization': `Bearer ${bearerToken}`, // Replace with dynamic token
                 'Content-Type': 'application/json'
-                }
+                },
+                dataSrc: function (json) {
+                    json.data = json.data.map((item, index) => {
+                        item.no = index + 1;
+                        return item;
+                    });
+                    return json.data;
+                },
             }"
             class="display"
             width="100%"
