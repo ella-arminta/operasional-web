@@ -1,54 +1,23 @@
 <script setup lang="ts">
-import DataTable from 'datatables.net-vue3';
-import DataTablesCore from 'datatables.net';
-import Select from 'datatables.net-select';
 import PageTitle from '../../components/PageTitle.vue';
-DataTable.use(DataTablesCore);
-DataTable.use(Select);
+import TableData from '../../components/TableData.vue';
 
 const columns = [
-  { data: 'name' },
-  { data: 'position' },
-  { data: 'office' },
-  { data: 'extn' },
-  { data: 'start_date' },
-  { data: 'salary' },
+  { data: 'company.name', title: 'Company' },
+  { data: 'account_type.name', title: 'Account Type' },
+  // Add other columns as needed
 ];
 </script>
 
 <template>
   <div class="content">
     <PageTitle />
-    <DataTable
+    <TableData 
       :columns="columns"
-      ajax="/data.json"
-      class="display"
-      width="100%"
-    >
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Position</th>
-          <th>Office</th>
-          <th>Extn.</th>
-          <th>Start date</th>
-          <th>Salary</th>
-        </tr>
-      </thead>
-      <tfoot>
-        <tr>
-          <th>Name</th>
-          <th>Position</th>
-          <th>Office</th>
-          <th>Extn.</th>
-          <th>Start date</th>
-          <th>Salary</th>
-        </tr>
-      </tfoot>
-    </DataTable>
+      :addPath="'/akun/tambah'"
+      :export="true"
+      :reload="true"
+      ajaxPath="/finance/account"
+    />
   </div>
 </template>
-
-<style>
-@import 'datatables.net-dt';
-</style>

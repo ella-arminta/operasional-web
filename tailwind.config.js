@@ -13,10 +13,14 @@ export default {
         sidebar: '#F9F9F9', // Custom color for sidebar width
         light: '#f5f5f5',
         pinkDark: '#C58189',
+        pinkDark2: '#c36d77',
         pinkMed: '#D19499',
         pinkLight: '#F0BAB3',
         bgWhite: '#F9F9F9',
         pinkGray: '#FAF1EC',
+      },
+      backgroundImage: {
+        'gradient-pink': 'linear-gradient(45deg, #C58189, #F0BAB3)',
       },
     },
   },

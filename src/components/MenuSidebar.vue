@@ -77,9 +77,10 @@ const menuTree = ref([
   transition: all .3s ease;
   overflow: auto;
   padding-top: 20px;
+  box-shadow: 0px 4px 35.2px 0px #0000001A;
   z-index: 99;
   i {
-    position: fixed;
+    position: absolute;
     left: 200px;
     font-size: 20px;
     top: 15px;

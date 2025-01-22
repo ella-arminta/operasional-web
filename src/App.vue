@@ -52,11 +52,12 @@ body {
 }
 .content {
   width: 100%;
-  padding: 47px 51px;
+  padding: 30px 51px;
+  z-index: 2;
 }
 .app.internal::before {
   content: '';
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
   width: 100%;

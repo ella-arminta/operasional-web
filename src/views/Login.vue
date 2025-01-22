@@ -56,7 +56,7 @@ export default {
                 // Check if response contains token
                 if (response.data) {
                     // Save JWT token in a cookie for 5 hours
-                    Cookies.set('token', response.data.token, { expires: 5 / 24 });
+                    Cookies.set('token', response.data.data.token, { expires: 5 / 24 });
                     Cookies.set('userdata', JSON.stringify(response.data.data), { expires: 5 / 24 }); // 5 hours
                     console.log('Token saved in cookie');
 
