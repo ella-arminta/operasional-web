@@ -66,7 +66,7 @@ const menuTree = ref([
 
 .menu {
   position: relative;
-  height: 100vh;
+  height: 100%;
   background-color: var(--bg-white);
   color: var(--pink-dark);
   width: 300px;
