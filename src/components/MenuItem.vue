@@ -41,8 +41,9 @@
 <script setup>
   import { ref, computed, nextTick } from 'vue';
   import MenuItem from './MenuItem.vue';
-    import Sidebar from './MenuSidebar.vue';
-  
+  import Sidebar from './MenuSidebar.vue';
+  import { useRoute } from 'vue-router';
+
   // Props
   const props = defineProps({
     data: {
@@ -75,6 +76,7 @@
   const showChildren = ref(false);
   const expanded = ref(false);
   const containerHeight = ref('0px');
+  const route = useRoute();
   
   // Computed
   const showLabel = computed(() => {
@@ -82,7 +84,7 @@
   });
 
   const isActive = computed(() => {
-    return props.label == 'Home';
+    return props.path === route.path;
   });
   
   // Methods

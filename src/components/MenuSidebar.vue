@@ -27,34 +27,15 @@ const menuTree = ref([
   {
     label: "Home",
     icon: "home",
-    children: [
-      {
-        label: "level 1.1",
-        children: [
-          {
-            label: "level 1.1.1",
-            children: [
-              {
-                label: "level 1.1.1.1",
-                path: '/home/level-1-1-1-1'
-              }
-            ]
-          }
-        ]
-      },
-      {
-        label: "level 1.2",
-        path: "/home/level-1-2"
-      }
-    ]
+    path: "/home",
   },
   {
-    label: "Dashboard",
+    label: "Master",
     icon: "dashboard",
     children: [
       {
-        label: "level 2.1",
-        path: "/dashboard/level-2-1"
+        label: "Akun",
+        path: "/master/akun"
       },
       {
         label: "level 2.2",
@@ -85,10 +66,10 @@ const menuTree = ref([
 
 .menu {
   position: relative;
-  height: 100vh;
+  height: 100%;
   background-color: var(--bg-white);
   color: var(--pink-dark);
-  width: 240px;
+  width: 300px;
   padding: 0 20px;
   left: 0;
   top: 0;
@@ -96,8 +77,10 @@ const menuTree = ref([
   transition: all .3s ease;
   overflow: auto;
   padding-top: 20px;
+  box-shadow: 0px 4px 35.2px 0px #0000001A;
+  z-index: 99;
   i {
-    position: fixed;
+    position: absolute;
     left: 200px;
     font-size: 20px;
     top: 15px;

@@ -5,12 +5,14 @@ import Login from '../views/Login.vue'
 import InternalLayout from '../layouts/InternalLayout.vue'
 import Logout from '../components/Logout.vue'
 import Cookies from 'js-cookie'
+import AkunIndex from '../views/akun/AkunIndex.vue'
+import AkunForm from '../views/akun/AkunForm.vue'
 
 const router = createRouter({
     history: createWebHistory(),
     routes: [
         {
-            path: '/login',
+            path: '/',
             component: Login
         },
         {
@@ -19,19 +21,30 @@ const router = createRouter({
         },
         {
             path: '/',
-            component: InternalLayout, // Wraps internal pages
+            component: InternalLayout, // Tetap menggunakan InternalLayout sebagai pembungkus
             meta: { requiresAuth: true },
             children: [
-              {
-                path: '/',
-                component: Home,
-              },
-              {
-                path: 'about',
-                component: About,
-              },
+                {
+                    path: 'home', // Path kosong sebagai default
+                    component: Home,
+                },
+                {
+                  path: 'master',
+                  children: [
+                    {
+                        path: 'akun', // Path untuk akun
+                        component: AkunIndex, // Komponen utama untuk `/akun`
+                        children: [
+                            {
+                                path: 'form', // Path relatif untuk form
+                                component: AkunForm, // Komponen untuk form akun
+                            },
+                        ],
+                    },
+                  ]
+                }
             ],
-        },
+        },      
    ]
 })
 

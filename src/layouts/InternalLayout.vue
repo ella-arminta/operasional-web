@@ -1,5 +1,5 @@
 <template>
-    <div class="app">
+    <div class="app internal">
       <Alert />
       <MenuSidebar />
       <router-view /> <!-- Loads the child routes -->
