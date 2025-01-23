@@ -136,16 +136,27 @@ const baseUrl = import.meta.env.VITE_BASE_URL;
                     return json.data;
                 },
             }"
-            class="display"
+            class="display rounded-lg border border-gray-100 overflow-hidden"
             width="100%"
         >
             <thead>
-                <tr>
+                <tr class="bg-pinkDark text-white">
                 <th v-for="column in columns" :key="column.data">
                     {{ column.data.replace('_', ' ').toUpperCase() }}
                 </th>
                 </tr>
             </thead>
+            <tbody>
+                <tr v-for="row in tableData" :key="column.data">
+                    <td 
+        v-for="column in columns" 
+        :key="column.data" 
+        class="px-4 py-2 border-t border-gray-200"
+      >
+        {{ row[column.data] }}
+      </td>
+                </tr>
+            </tbody>
         </DataTable>
     </div>
 </template>

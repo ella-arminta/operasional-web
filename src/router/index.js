@@ -65,10 +65,10 @@ router.beforeEach(async (to, from, next) => {
       if (token) {
         next();
       } else {
-        next('/login');
+        next('/');
       }
     } catch (error) {
-      next('/login'); 
+      next('/'); 
     }
   } else {
     next();
