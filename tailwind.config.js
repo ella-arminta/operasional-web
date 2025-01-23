@@ -19,6 +19,7 @@ export default {
         bgWhite: "#F9F9F9",
         pinkGray: "#FAF1EC",
         pinkOrange: "#C26872",
+        orangeLight: "#FCF8F5",
       },
       backgroundImage: {
         "gradient-pink": "linear-gradient(45deg, #C58189, #F0BAB3)",

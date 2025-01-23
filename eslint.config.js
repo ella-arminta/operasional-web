@@ -19,9 +19,6 @@ export default [
   pluginVue.configs["flat/essential"], // Vue recommended rules (essential level)
   {
     files: ["**/*.vue"],
-    rules: {
-      "vue/indent": ["error", 2],
-    },
     languageOptions: {
       parser: tsParser,
       parserOptions: {
