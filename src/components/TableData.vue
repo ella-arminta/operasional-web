@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import DataTable from "datatables.net-vue3";
 import DataTablesCore from "datatables.net";
-import { ref, onMounted, nextTick } from "vue";
+import { ref, onMounted, computed } from "vue";
 import Select from "datatables.net-select";
 import { defineProps } from "vue";
 import Cookies from "js-cookie";
+import axiosInstance from "../axios.js";
+import { useStore } from "vuex";
 
+// Define props
 const props = defineProps({
   columns: {
     type: Array,
@@ -27,47 +30,175 @@ const props = defineProps({
     type: String,
     default: "",
   },
+  editPath: {
+    type: String,
+    default: "",
+  },
+  deletePath: {
+    type: String,
+    default: null,
+  },
+  infoPath: {
+    type: String,
+    default: "",
+  },
 });
 
 DataTable.use(DataTablesCore);
 DataTable.use(Select);
-
+// Declaration
 const isFiltersOpen = ref(false);
-const options = { select: true };
-let dt;
 const table = ref();
+let dt;
 const bearerToken = Cookies.get("token") || "";
-const tableData = ref([]);
+const store = useStore();
 
-onMounted(function () {
+onMounted(() => {
   dt = table.value.dt;
-  console.log("Data Table initialized:", dt);
-  console.log("Data:", dt.data().toArray());
-
-  nextTick(() => {
-    tableData.value = dt.data().toArray();
-    console.log("Table Data:", tableData.value);
-  });
 });
 
 const toggleFilters = () => {
   isFiltersOpen.value = !isFiltersOpen.value;
 };
+// function to search data within datatable
 const onSearch = (event: Event) => {
   const input = event.target as HTMLInputElement;
-  if (input.value != "" && input.value.length > 0) {
-    dt.search(input.value).draw();
-  } else {
-    dt.search("").draw();
-  }
+  dt.search(input.value || "").draw();
 };
+// function to reload data in datatable
 const reloadData = () => {
   if (dt) {
-    dt.ajax.reload(null, false); // Reload data without resetting pagination
+    dt.ajax.reload(null, false);
   }
+};
+// function to delete data by id
+const deleteData = (id: string) => {
+  store.dispatch("triggerAlert", {
+    type: "warning",
+    title: "Warning!",
+    message: `Are you sure you want to delete this data?`,
+    actions: [
+      {
+        label: "cancel",
+        type: "secondary",
+        handler: () => store.dispatch("hideAlert"),
+      },
+      {
+        label: "proceed",
+        type: "primary",
+        handler: async () => {
+          try {
+            const response = await axiosInstance.delete(
+              `${props.deletePath}/${id}`,
+            );
+            if (response.data) {
+              store.dispatch("triggerAlert", {
+                type: "success",
+                title: "Success!",
+                message: "Data deleted successfully.",
+                actions: [
+                  {
+                    label: "close",
+                    type: "secondary",
+                    handler: () => {
+                      store.dispatch("hideAlert");
+                      reloadData();
+                    },
+                  },
+                ],
+              });
+            }
+          } catch (error) {
+            store.dispatch("triggerAlert", {
+              type: "error",
+              title: "Error!",
+              message: "Failed to delete data.",
+              actions: [
+                {
+                  label: "close",
+                  type: "secondary",
+                  handler: () => store.dispatch("hideAlert"),
+                },
+              ],
+            });
+          }
+        },
+      },
+    ],
+  });
 };
 
 const baseUrl = import.meta.env.VITE_BASE_URL;
+
+// Define ajax options in a computed property
+const ajaxOptions = computed(() => ({
+  url: baseUrl + props.ajaxPath,
+  type: "GET",
+  cache: true,
+  headers: {
+    Authorization: `Bearer ${bearerToken}`,
+    "Content-Type": "application/json",
+  },
+  dataSrc: (json) => {
+    json.data = json.data.map((item, index) => {
+      if (props.columns.find((col) => col.data === "no")) {
+        item.no = index + 1;
+      }
+      if (props.columns.find((col) => col.data === "action")) {
+        let actionHtml = '<div class="flex gap-2">';
+
+        // Info button
+        if (props.infoPath && props.infoPath !== "") {
+          actionHtml += `
+          <div
+            class="w-8 h-8 bg-pinkLight text-white flex justify-center items-center rounded-full cursor-pointer hover:bg-pinkDark"
+            title="Info"
+            onclick="location.href='${props.infoPath}/${item.id}'"
+          >
+            i
+          </div>`;
+        }
+
+        // Edit button
+        if (props.editPath && props.editPath !== "") {
+          actionHtml += `
+          <div
+            class="w-8 h-8 bg-pinkLight text-white flex justify-center items-center rounded-full cursor-pointer hover:bg-pinkDark"
+            title="Edit"
+            onclick="location.href='${props.editPath}/${item.id}'"
+          >
+            <i class="material-icons text-sm">edit</i>
+          </div>`;
+        }
+
+        // Delete button
+        if (props.deletePath && props.deletePath !== "") {
+          actionHtml += `
+          <div
+            class="w-8 h-8 bg-pinkLight text-white flex justify-center items-center rounded-full cursor-pointer hover:bg-pinkDark delete-btn"
+            title="Delete"
+            data-id="${item.id}"
+          >
+            <i class="material-icons text-sm">delete</i>
+          </div>`;
+        }
+
+        actionHtml += "</div>";
+        item.action = actionHtml;
+      }
+      return item;
+    });
+    setTimeout(() => {
+      document.querySelectorAll(".delete-btn").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          const id = e.target.closest(".delete-btn").dataset.id;
+          deleteData(id);
+        });
+      });
+    });
+    return json.data;
+  },
+}));
 </script>
 
 <template>
@@ -137,25 +268,8 @@ const baseUrl = import.meta.env.VITE_BASE_URL;
       :columns="columns"
       :options="options"
       ref="table"
-      :ajax="{
-        url: baseUrl + ajaxPath,
-        type: 'GET',
-        cache: true,
-        headers: {
-          Authorization: `Bearer ${bearerToken}`, // Replace with dynamic token
-          'Content-Type': 'application/json',
-        },
-        dataSrc: function (json) {
-          json.data = json.data.map((item, index) => {
-            item.no = index + 1;
-            return item;
-          });
-          tableData.value = json.data;
-          console.log('tableData', tableData.value);
-          return json.data;
-        },
-      }"
-      class="display rounded-lg border border-gray-100 overflow-hidden"
+      :ajax="ajaxOptions"
+      class="display rounded-lg border border-gray-400 overflow-hidden shadow-sm"
       width="100%"
     >
       <thead>
@@ -165,25 +279,6 @@ const baseUrl = import.meta.env.VITE_BASE_URL;
           </th>
         </tr>
       </thead>
-      <tbody>
-        <!-- Wait until tableData is populated before rendering the rows -->
-        <tr v-if="tableData.length === 0">
-          <td colspan="100%" class="text-center text-gray-500">
-            Loading data...
-          </td>
-        </tr>
-
-        <!-- Render the rows only when data is available -->
-        <tr
-          v-for="(row, index) in tableData"
-          :key="row.id"
-          class="px-4 py-2 even:bg-orangeLight odd:bg-white"
-        >
-          <td v-for="column in columns" :key="column.data" class="px-4 py-2">
-            {{ row[column.data] }}
-          </td>
-        </tr>
-      </tbody>
     </DataTable>
   </div>
 </template>
@@ -191,5 +286,15 @@ const baseUrl = import.meta.env.VITE_BASE_URL;
 @import "datatables.net-dt";
 .dt-search {
   display: none !important;
+}
+tbody > tr:nth-child(odd) > td {
+  background-color: #ffffff !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+tbody > tr:nth-child(even) > td {
+  background-color: #fcf8f5 !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 </style>

@@ -1,11 +1,11 @@
-import { createStore } from 'vuex';
+import { createStore } from "vuex";
 
 export default createStore({
   state: {
     alert: {
-      message: '',
+      message: "",
       visible: false,
-      type: 'info', // Can be 'info', 'success', 'error', or 'warning'
+      type: "info", // Can be 'info', 'success', 'error', or 'warning'
       actions: [], // [{ label: 'Close', type: 'secondary', handler: () => {} }]
     },
   },
@@ -23,15 +23,16 @@ export default createStore({
   },
   actions: {
     triggerAlert({ commit }, payload) {
-      commit('showAlert', payload);
-      setTimeout(() => {
-        commit('hideAlert');
-      }, 5000); // Hide the alert after 5 seconds
+      commit("showAlert", payload);
+      if (payload.actions.length == 0) {
+        setTimeout(() => {
+          commit("hideAlert");
+        }, 5000); // Hide the alert after 5 seconds
+      }
     },
     hideAlert({ commit }) {
-      commit('hideAlert');
+      commit("hideAlert");
     },
-
   },
   getters: {
     alert: (state) => state.alert,

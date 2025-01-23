@@ -6,7 +6,10 @@
       :addPath="'/master/company/add'"
       :export="false"
       :reload="true"
-      ajaxPath="/master/company"
+      :ajaxPath="'/master/company'"
+      :editPath="'/master/company/edit'"
+      :deletePath="'/master/company'"
+      :infoPath="'/master/company/view'"
     />
   </div>
 </template>
@@ -20,6 +23,6 @@ const columns = [
   { data: "code", title: "Code" },
   { data: "name", title: "Name" },
   { data: "description", title: "Description" },
-  // { data: 'action', title: 'Action' },
+  { data: "action", title: "Action" },
 ];
 </script>
