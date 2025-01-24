@@ -10,7 +10,7 @@
 				>
 					{{ title }}
 				</h1>
-				<div class="flex items-center mt-1">
+				<div class="flex items-center">
 					<button
 						v-if="title !== 'Home'"
 						class="flex items-center rounded-sm"
