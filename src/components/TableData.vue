@@ -50,20 +50,31 @@
 		</div>
 
 		<!-- Filters -->
-		<div
-			class="overflow-hidden transition-all duration-300"
-			:class="{
-				'max-h-0': !isFiltersOpen,
-				'max-h-[500px]': isFiltersOpen,
-			}"
-		>
-			<div class="mt-4 bg-gray-100 p-4 rounded-lg shadow">
-				<!-- Filter content goes here -->
-				<p class="text-gray-700">
-					This is where your filter inputs can go.
-				</p>
-			</div>
-		</div>
+    <div
+      v-if="props.filters && props.filters.length > 0"
+      class="overflow-hidden transition-all duration-300"
+      :class="{ 'max-h-0': !isFiltersOpen, 'max-h-[500px]': isFiltersOpen }"
+    >
+      <div class="m-3 flex flex-wrap justify-center gap-6">
+        <div v-for="filter in props.filters" :key="filter.name" class="w-[18.8%]">
+          <!-- Filter type:"select" -->
+          <div v-if="filter.type === 'select'">
+            <label :for="filter.name" class="block mb-1">{{ filter.label }}</label>
+            <select
+              v-if="filter.type === 'select'"
+              :id="filter.name"
+              v-model="filterValues[filter.name]"
+              class="border px-3 py-2 rounded-lg w-full"
+            >
+            <option v-for="option in filter.options" :key="option.value" :value="option.value">
+                {{ option.label }}
+              </option>
+            </select>
+          </div>
+          <!-- Filter type:"input" -->
+        </div>
+      </div>
+    </div>
 
 		<DataTable
 			:columns="columns"
@@ -200,12 +211,12 @@ import Buttons from 'datatables.net-buttons'
 import 'datatables.net-buttons-dt/css/buttons.dataTables.css' // Include Buttons CSS
 import ColumnVisibility from 'datatables.net-buttons/js/buttons.colVis.js' // Column Visibility Extension
 
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import Select from 'datatables.net-select'
 import { defineProps } from 'vue'
 import Cookies from 'js-cookie'
-import axiosInstance from '../axios.js'
 import { useStore } from 'vuex'
+import axiosInstance from '../axios'
 
 // Define props
 const props = defineProps({
@@ -241,6 +252,14 @@ const props = defineProps({
 		type: String,
 		default: '',
 	},
+  filters: {
+    type: [Array, null],
+    default: () => [],
+  },
+  options: {
+    type: Object,
+    default: () => ({}),
+  },
 })
 
 DataTable.use(DataTablesCore)
@@ -254,6 +273,8 @@ const table = ref()
 let dt
 const bearerToken = Cookies.get('token') || ''
 const store = useStore()
+const filterValues = ref({});
+const baseUrl = import.meta.env.VITE_BASE_URL;
 
 onMounted(() => {
 	dt = table.value.dt
@@ -269,10 +290,20 @@ const onSearch = (event: Event) => {
 }
 // function to reload data in datatable
 const reloadData = () => {
-	if (dt) {
-		dt.ajax.reload(null, false)
-	}
-}
+  if (dt) {
+    dt.ajax.reload(null, false);
+  }
+};
+watch(filterValues, () => {
+  if (dt) dt.ajax.reload(null, false); // Reload DataTable on filter change
+}, { deep: true });
+watch(() => props.filters, () => {
+  filterValues.value = props.filters.reduce((acc, filter) => {
+	acc[filter.name] = filter.options[0].value;
+	return acc;
+  }, {} as Record<string, string>);
+});
+
 // function to delete data by id
 const deleteData = (id: string) => {
 	store.dispatch('triggerAlert', {
@@ -330,24 +361,29 @@ const deleteData = (id: string) => {
 	})
 }
 
-const baseUrl = import.meta.env.VITE_BASE_URL
-
 // Define ajax options in a computed property
 const ajaxOptions = computed(() => ({
-	url: baseUrl + props.ajaxPath,
-	type: 'GET',
-	cache: true,
-	headers: {
-		Authorization: `Bearer ${bearerToken}`,
-		'Content-Type': 'application/json',
-	},
-	dataSrc: (json) => {
-		json.data = json.data.map((item, index) => {
-			if (props.columns.find((col) => col.data === 'no')) {
-				item.no = index + 1
-			}
-			if (props.columns.find((col) => col.data === 'action')) {
-				let actionHtml = '<div class="flex gap-2">'
+  url: baseUrl + props.ajaxPath,
+  type: "GET",
+  cache: true,
+  headers: {
+    Authorization: `Bearer ${bearerToken}`,
+    "Content-Type": "application/json",
+  },
+  data: (d) => {
+    for (const key in filterValues.value) {
+      if (filterValues.value[key] !== "") {
+        d[key] = filterValues.value[key];
+      }
+    }
+  },
+  dataSrc: (json) => {
+    json.data = json.data.map((item, index) => {
+      if (props.columns.find((col) => col.data === "no")) {
+        item.no = index + 1;
+      }
+      if (props.columns.find((col) => col.data === "action")) {
+        let actionHtml = '<div class="flex gap-2">';
 
 				// Info button
 				if (props.infoPath && props.infoPath !== '') {
@@ -415,3 +451,19 @@ const options = computed(() => ({
 	ajax: ajaxOptions.value,
 }))
 </script>
+<style>
+@import "datatables.net-dt";
+.dt-search {
+  display: none !important;
+}
+tbody > tr:nth-child(odd) > td {
+  background-color: #ffffff !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+tbody > tr:nth-child(even) > td {
+  background-color: #fcf8f5 !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+</style>
