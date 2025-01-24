@@ -21,7 +21,7 @@ import TableData from '../../components/TableData.vue'
 const columns = [
 	{ data: 'no', title: 'No', width: '5%' },
 	{ data: 'code', title: 'Code', width: '10%' },
-	{ data: 'name', title: 'Name' },
+	{ data: 'name', title: 'Name', width: '15%' },
 	{ data: 'description', title: 'Description', orderable: false },
 	{
 		data: 'action',

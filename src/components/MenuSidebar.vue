@@ -44,6 +44,10 @@ const menuTree = ref([
 						label: 'Company',
 						path: '/master/company',
 					},
+					{
+						label: 'Store',
+						path: '/master/store',
+					},
 				],
 			},
 			{
