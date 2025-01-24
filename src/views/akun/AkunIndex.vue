@@ -42,7 +42,6 @@ onMounted(async () => {
       ],
     },
   ];
-  console.log('Filters in Parent:', filters.value);
 });
 </script>
 

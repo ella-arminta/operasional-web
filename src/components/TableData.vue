@@ -55,18 +55,17 @@
       class="overflow-hidden transition-all duration-300"
       :class="{ 'max-h-0': !isFiltersOpen, 'max-h-[500px]': isFiltersOpen }"
     >
-      <div class="mt-4 bg-gray-100 p-4 rounded-lg shadow">
-        <div v-for="filter in props.filters" :key="filter.name">
+      <div class="m-3 flex flex-wrap justify-center gap-6">
+        <div v-for="filter in props.filters" :key="filter.name" class="w-[18.8%]">
           <!-- Filter type:"select" -->
-          <div v-if="filter.type === 'select'" class="">
+          <div v-if="filter.type === 'select'">
             <label :for="filter.name" class="block mb-1">{{ filter.label }}</label>
             <select
               v-if="filter.type === 'select'"
               :id="filter.name"
               v-model="filterValues[filter.name]"
-              class="border px-3 py-2 rounded-lg"
+              class="border px-3 py-2 rounded-lg w-full"
             >
-            <!-- set default selected -->
             <option v-for="option in filter.options" :key="option.value" :value="option.value">
                 {{ option.label }}
               </option>
@@ -274,12 +273,7 @@ const table = ref()
 let dt
 const bearerToken = Cookies.get('token') || ''
 const store = useStore()
-const filterValues = ref(
-  props.filters.reduce((acc, filter) => {
-    acc[filter.name] = filter.options[0].value;
-    return acc;
-  }, {} as Record<string, string>)
-);
+const filterValues = ref({});
 const baseUrl = import.meta.env.VITE_BASE_URL;
 
 onMounted(() => {
@@ -301,9 +295,15 @@ const reloadData = () => {
   }
 };
 watch(filterValues, () => {
-  console.log('FilterValues in Child:', filterValues.value);
   if (dt) dt.ajax.reload(null, false); // Reload DataTable on filter change
 }, { deep: true });
+watch(() => props.filters, () => {
+  filterValues.value = props.filters.reduce((acc, filter) => {
+	acc[filter.name] = filter.options[0].value;
+	return acc;
+  }, {} as Record<string, string>);
+});
+
 // function to delete data by id
 const deleteData = (id: string) => {
 	store.dispatch('triggerAlert', {
