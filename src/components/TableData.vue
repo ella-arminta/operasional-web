@@ -108,12 +108,6 @@ thead > tr > th {
 	text-align: start !important;
 	font-weight: bold !important;
 }
-div.dt-container select.dt-input {
-	padding: 3px !important;
-	border-radius: 8px !important;
-	margin-right: 4px !important;
-	border-color: var(--pink-dark) !important;
-}
 div.dt-container .dt-length,
 div.dt-container .dt-search,
 div.dt-container .dt-info,
@@ -134,10 +128,78 @@ div.dt-container .dt-paging .dt-paging-button.current:hover {
 	background-color: var(--pink-light) !important;
 	transition: all 0.3s ease;
 }
+/* Align header elements */
+.dt-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin: 10px 0px;
+}
+
+.dt-left .dt-length > select {
+	display: inline-block;
+	padding: 3px !important;
+	border-radius: 8px !important;
+	margin-right: 4px !important;
+	border-color: var(--pink-dark) !important;
+}
+
+.dt-right .dt-buttons > button {
+	display: inline-block;
+	margin-left: auto;
+	padding: 2px 8px !important;
+	box-shadow: none !important;
+	background: none !important;
+	border-color: var(--pink-dark) !important;
+	border-radius: 8px !important;
+	font-size: smaller !important;
+	color: var(--pink-dark) !important;
+	text-align: center;
+}
+
+/* Footer layout */
+.dt-footer {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-top: 10px;
+}
+
+.dt-footer-left {
+	display: inline-block;
+}
+
+.dt-footer-right {
+	display: inline-block;
+	margin-left: auto;
+}
+
+.dt-button-background {
+	display: none !important;
+}
+.dt-button-collection {
+	border-color: var(--pink-dark) !important;
+	color: var(--pink-dark) !important;
+	max-width: 150px !important;
+	min-width: 100px !important;
+	padding: 0px !important;
+}
+.dt-button-collection .dt-button {
+	font-size: smaller !important;
+}
+.dt-button-collection .dt-button:hover {
+	font-size: smaller !important;
+	background-color: var(--pink-light) !important;
+	color: var(--white) !important;
+}
 </style>
 <script setup lang="ts">
 import DataTable from 'datatables.net-vue3'
 import DataTablesCore from 'datatables.net'
+import Buttons from 'datatables.net-buttons'
+import 'datatables.net-buttons-dt/css/buttons.dataTables.css' // Include Buttons CSS
+import ColumnVisibility from 'datatables.net-buttons/js/buttons.colVis.js' // Column Visibility Extension
+
 import { ref, onMounted, computed } from 'vue'
 import Select from 'datatables.net-select'
 import { defineProps } from 'vue'
@@ -183,6 +245,9 @@ const props = defineProps({
 
 DataTable.use(DataTablesCore)
 DataTable.use(Select)
+DataTable.use(Buttons)
+DataTable.use(ColumnVisibility)
+
 // Declaration
 const isFiltersOpen = ref(false)
 const table = ref()
@@ -335,5 +400,18 @@ const ajaxOptions = computed(() => ({
 		})
 		return json.data
 	},
+}))
+
+// Define options in a computed property
+const options = computed(() => ({
+	dom: '<"dt-header"<"dt-left"l><"dt-right"B>>rt<"dt-footer"<"dt-footer-left"i><"dt-footer-right"p>>', // Add Buttons to the DataTable
+	buttons: [
+		{
+			extend: 'colvis', // Add Column Visibility button
+			text: 'Columns',
+			columns: ':not(:first-child)', // Exclude the first column from toggling
+		},
+	],
+	ajax: ajaxOptions.value,
 }))
 </script>
