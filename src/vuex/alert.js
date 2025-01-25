@@ -8,6 +8,7 @@ export default createStore({
       type: "info", // Can be 'info', 'success', 'error', or 'warning'
       actions: [], // [{ label: 'Close', type: 'secondary', handler: () => {} }]
     },
+    smallMenu: false
   },
   mutations: {
     showAlert(state, payload) {
@@ -19,6 +20,9 @@ export default createStore({
     },
     hideAlert(state) {
       state.alert.visible = false;
+    },
+    toggleSmallMenu(state) {
+      state.smallMenu = !state.smallMenu // Toggle the state
     },
   },
   actions: {
@@ -33,8 +37,14 @@ export default createStore({
     hideAlert({ commit }) {
       commit("hideAlert");
     },
+    toggleSmallMenu({ commit }) {
+      commit('toggleSmallMenu') // Commit the toggle mutation
+    },
   },
   getters: {
     alert: (state) => state.alert,
+    smallMenu(state) {
+      return state.smallMenu // Getter for smallMenu state
+    },
   },
 });

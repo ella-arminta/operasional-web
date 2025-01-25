@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import PageTitle from '../../components/PageTitle.vue';
 import TableData from '../../components/TableData.vue';
 import axiosInstance from '../../axios';
+import { useStore } from 'vuex';
 
 const columns = [
   { data: 'code', title: 'Code' },
@@ -11,6 +12,8 @@ const columns = [
   { data: 'store.name', title: 'Store' },
   { data: 'account_type.name', title: 'Type' },
 ];
+const store = useStore();
+const smallMenu = computed(() => store.getters.smallMenu);
 
 const filters = ref([]);
 
@@ -60,7 +63,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="content">
+  <div class="content" :class="{ 'full-width': smallMenu }">
     <PageTitle />
     <TableData 
       :columns="columns"
