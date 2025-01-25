@@ -1,11 +1,15 @@
 <template>
-	<div class="relative w-full" ref="dropdown">
+	<div
+		class="relative w-full"
+		ref="dropdown"
+		:class="{ 'opacity-50 cursor-not-allowed': props.disabled }"
+	>
 		<!-- Input Field -->
 		<div
 			@click="toggleDropdown"
 			class="border rounded-lg px-3 py-2 flex items-center justify-between gap-2 cursor-pointer bg-pinkGray border-pinkOrange border-opacity-25 transition duration-300 ease-in-out"
 			:class="{
-				'outline-none ring ring-pinkOrange ring-opacity-25': isOpen,
+				'outline-none ring ring-pinkOrange ring-opacity-25': isOpen && !props.disabled,
 			}"
 		>
 			<div class="flex flex-wrap gap-1">
@@ -18,6 +22,7 @@
 					>
 						{{ item.label }}
 						<button
+							v-if="!props.disabled"
 							@click.stop="removeItem(item)"
 							class="text-pinkLight hover:text-white"
 						>
@@ -46,7 +51,7 @@
 
 		<!-- Dropdown Menu -->
 		<div
-			v-show="isOpen"
+			v-show="isOpen && !props.disabled"
 			class="absolute z-10 bg-white border border-pinkOrange border-opacity-25 shadow-lg mt-2 rounded-lg w-full max-h-60 overflow-y-auto bg-pinkGray"
 		>
 			<ul>
@@ -55,13 +60,14 @@
 						type="text"
 						v-model="search"
 						class="outline-none bg-pinkGray text-sm flex-grow placeholder-pinkOrange placeholder-opacity-50 text-pinkOrange text-opacity-100"
+						:disabled="props.disabled"
 						placeholder="search..."
 					/>
 				</li>
 				<li
 					v-for="item in filteredItems"
 					:key="item.id"
-					@click="selectItem(item)"
+					@click="!props.disabled && selectItem(item)"
 					class="px-4 py-2 bg-pinkGray cursor-pointer hover:bg-pinkLight hover:bg-opacity-50 transition duration-300"
 					:class="{ 'bg-pinkLight bg-opacity-50': isSelected(item) }"
 				>
@@ -88,6 +94,7 @@
 	</div>
 </template>
 
+
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 
@@ -112,6 +119,10 @@ const props = defineProps({
 		type: Boolean,
 		default: true,
 	},
+	disabled: {
+		type: Boolean,
+		default: false,
+	}
 })
 
 const emit = defineEmits(['update:modelValue'])
@@ -137,8 +148,11 @@ watch(
 )
 
 const toggleDropdown = () => {
-	isOpen.value = !isOpen.value
-}
+	if (!props.disabled) {
+		isOpen.value = !isOpen.value;
+	}
+};
+
 
 const closeDropdown = () => {
 	isOpen.value = false
@@ -153,19 +167,21 @@ const filteredItems = computed(() => {
 })
 
 const selectItem = (item) => {
+	if (props.disabled) return;
+
 	if (props.multiple) {
 		if (isSelected(item)) {
-			removeItem(item)
+			removeItem(item);
 		} else {
-			selectedItems.value.push(item)
-			emitValue()
+			selectedItems.value.push(item);
+			emitValue();
 		}
 	} else {
-		selectedItems.value = [item]
-		emitValue()
-		closeDropdown()
+		selectedItems.value = [item];
+		emitValue();
+		closeDropdown();
 	}
-}
+};
 
 const removeItem = (item) => {
 	selectedItems.value = selectedItems.value.filter(

@@ -40,28 +40,6 @@
 			<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
 				<!-- First Grid -->
 				<div class="space-y-3">
-					<!-- Code -->
-					<InputForm
-						v-model.number="form.code"
-						id="code"
-						type="number"
-						label="Nomor"
-            			:required="true"
-						placeholder="Nomor"
-						:readonly="mode === 'view'"
-						:error="formError.code"
-					/>
-					<!-- Name -->
-					<InputForm
-						v-model="form.name"
-						id="name"
-						type="text"
-						label="Nama"
-						placeholder="Nama"
-            :required="true"
-						:readonly="mode === 'view'"
-						:error="formError.name"
-					/>
 					<!-- Dropdown Company -->
 					<div>
 						<label
@@ -85,52 +63,76 @@
 							{{ formError.company_id }}
 						</p>
 					</div>
-          <!-- Dropdown Store -->
-          <div>
-            <label
-              for="dropdown"
-              class="block text-sm text-grey-900 font-medium mb-1"
-            >
-              Store
-            </label>
-            <Dropdown
-              :items="storeItems"
-              v-model="form.store_id"
-              placeholder="Select a store"
-              :multiple="false"
-              :searchable="true"
-            />
-            <p
-              v-if="formError.store_id"
-              class="text-pinkDark text-xs italic transition duration-300"
-            >
-              {{ formError.store_id }}
-            </p>
-          </div>
+					<!-- Dropdown account type -->
+					<div>
+						<label
+						for="dropdown"
+						class="block text-sm text-grey-900 font-medium mb-1"
+						>
+						Type <span class="text-pinkDark">*</span>
+						</label>
+						<Dropdown
+							:items="accountItems"
+							v-model="form.account_type_id"
+							@update:modelValue="onAccountTypeChange"
+							placeholder="Select a type"
+							:multiple="false"
+							:searchable="true"
+							:disabled="form.company_id == '' || form.company_id == null"
+						/>
+						<p
+						v-if="formError.account_type_id"
+						class="text-pinkDark text-xs italic transition duration-300"
+						>
+						{{ formError.account_type_id }}
+						</p>
+					</div>
+					<!-- Code -->
+					<InputForm
+						v-model.number="form.code"
+						id="code"
+						type="number"
+						label="Nomor"
+            			:required="true"
+						placeholder="Nomor"
+						:readonly="mode === 'view'"
+						:error="formError.code"
+					/>
+					<!-- Name -->
+					<InputForm
+						v-model="form.name"
+						id="name"
+						type="text"
+						label="Nama"
+						placeholder="Nama"
+            :required="true"
+						:readonly="mode === 'view'"
+						:error="formError.name"
+					/>
 				</div>
 				<div class="space-y-3">
-          <!-- Dropdown account type -->
-          <div>
-            <label
-              for="dropdown"
-              class="block text-sm text-grey-900 font-medium mb-1"
-            >
-              Type <span class="text-pinkDark">*</span>
-            </label>
-            <Dropdown
-              :items="accountItems"
-              v-model="form.account_type_id"
-              placeholder="Select a type"
-              :multiple="false"
-              :searchable="true"
-            />
-            <p
-              v-if="formError.account_type_id"
-              class="text-pinkDark text-xs italic transition duration-300"
-            >
-              {{ formError.account_type_id }}
-            </p>
-          </div>
+					<!-- Dropdown Store -->
+					<div>
+						<label
+						for="dropdown"
+						class="block text-sm text-grey-900 font-medium mb-1"
+						>
+						Store
+						</label>
+						<Dropdown
+						:items="storeItems"
+						v-model="form.store_id"
+						placeholder="Select a store"
+						:multiple="false"
+						:searchable="true"
+						/>
+						<p
+						v-if="formError.store_id"
+						class="text-pinkDark text-xs italic transition duration-300"
+						>
+						{{ formError.store_id }}
+						</p>
+					</div>
 					<!-- Description -->
 					<TextareaForm
 						v-model="form.description"
@@ -209,6 +211,8 @@ onMounted(async () => {
   accountItems.value = accountData.data.data.map((account) => ({
     label: account.name,
     id: account.id,
+	desc: account.description,
+	code: account.code,
   }))
 
 	if (props.mode !== 'add' && id) {
@@ -269,6 +273,14 @@ const onCompanyChange = async () => {
 		label: store.name,
 		id: store.id,
 	}))
+}
+
+const onAccountTypeChange = async () => {
+	console.log('accounttypehcange')
+	const accountData = await axiosInstance.get(`/finance/account-type/${form.value.account_type_id[0]}?company_id=${form.value.company_id[0]}&code=1`)
+	console.log('accountData', JSON.stringify(accountData));
+	console.log('accountData.data.data', JSON.stringify(accountData.data.data));
+	form.value.code = accountData.data.data
 }
 
 const submit = async () => {
