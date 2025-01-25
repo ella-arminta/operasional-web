@@ -89,7 +89,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 
 const props = defineProps({
 	items: {
@@ -124,6 +124,16 @@ const selectedItems = ref(
 	Array.isArray(props.modelValue)
 		? props.items.filter((item) => props.modelValue.includes(item.id))
 		: []
+)
+
+// Watch for changes in `modelValue` and update `selectedItems`
+watch(
+  () => props.modelValue,
+  (newValue) => {
+    selectedItems.value = Array.isArray(newValue)
+      ? props.items.filter((item) => newValue.includes(item.id))
+      : []
+  }
 )
 
 const toggleDropdown = () => {

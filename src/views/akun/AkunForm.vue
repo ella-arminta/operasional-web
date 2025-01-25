@@ -214,7 +214,15 @@ onMounted(async () => {
 	if (props.mode !== 'add' && id) {
 		try {
 			const response = await axiosInstance.get(`/finance/account/${id}`)
-			form.value = { ...response.data.data }
+			console.log('response', JSON.stringify(response));
+			const dataDb = response.data.data
+			form.value.code = dataDb.code
+			form.value.name = dataDb.name
+			form.value.description = dataDb.description
+			form.value.company_id = [dataDb.company_id]
+			form.value.account_type_id = [dataDb.account_type_id]
+			form.value.store_id = [dataDb.store_id]
+			console.log('form.value', JSON.stringify(form.value));
 			formCopy.value = { ...form.value }
 		} catch (error) {
 			store.dispatch('triggerAlert', {
@@ -265,6 +273,7 @@ const onCompanyChange = async () => {
 
 const submit = async () => {
 	resetError()
+	var tempformvalue = { ...form.value }
 	try {
 		if (form.value.account_type_id != null) {
 			form.value.account_type_id = form.value.account_type_id[0]
@@ -298,6 +307,7 @@ const submit = async () => {
 		}
 	} catch (error) {
 		const errors = error.response.data.errors || []
+		form.value = { ...tempformvalue }
 
 		if (error.response.status.toString().startsWith('4')) {
 			errors.forEach((err) => {

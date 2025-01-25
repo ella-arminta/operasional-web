@@ -11,6 +11,13 @@ const columns = [
   { data: 'company.name', title: 'Company' },
   { data: 'store.name', title: 'Store' },
   { data: 'account_type.name', title: 'Type' },
+  {
+		data: 'action',
+		title: 'Action',
+		width: '10%',
+		searchable: false,
+		orderable: false,
+	},
 ];
 const store = useStore();
 const smallMenu = computed(() => store.getters.smallMenu);
@@ -72,6 +79,10 @@ onMounted(async () => {
       :reload="true"
       :filters="filters"
       ajaxPath="/finance/account"
+      :editPath="'/master/akun/edit'"
+      :deletePath="'/master/account'"
+			:infoPath="'/master/account/view'"
+      :infoLabel="'Buku besar'"
     />
   </div>
 </template>
