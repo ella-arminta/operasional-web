@@ -1,5 +1,5 @@
 <template>
-  <div v-if="alert.visible" class="fixed inset-0 flex items-center justify-center bg-slate-400/5 z-50">
+  <div v-if="alert.visible" class="fixed inset-0 flex items-center justify-center bg-slate-400/5 z-index">
     <div class="bg-white rounded-lg shadow-lg w-96 p-6 relative">
       <!-- Alert Icon -->
       <div class="flex items-center mb-4">
@@ -139,5 +139,8 @@
     color: inherit;
     font-size: 16px;
     cursor: pointer;
+  }
+  .z-index {
+    z-index: 9999;
   }
   </style>  

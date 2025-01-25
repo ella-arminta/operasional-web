@@ -29,7 +29,7 @@
 
 <script setup>
 const props = defineProps({
-	modelValue: { type: String, required: true },
+	modelValue: { type: [String, Number, null], required: true },
 	id: { type: String, required: true },
 	type: { type: String, default: 'text' },
 	label: { type: String, required: true },

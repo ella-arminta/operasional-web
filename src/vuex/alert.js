@@ -24,7 +24,7 @@ export default createStore({
   actions: {
     triggerAlert({ commit }, payload) {
       commit("showAlert", payload);
-      if (payload.actions.length == 0) {
+      if (payload.actions == null || payload.actions.length == 0) {
         setTimeout(() => {
           commit("hideAlert");
         }, 5000); // Hide the alert after 5 seconds

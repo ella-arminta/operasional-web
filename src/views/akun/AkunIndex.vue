@@ -20,14 +20,19 @@ onMounted(async () => {
     label: store.name,
     value: store.id,
   }));
+  const typeData = await axiosInstance.get('/finance/account-type');
+  var typesFormated = typeData.data.data.map((type) => ({
+    label: type.name,
+    value: type.id,
+  }));
 
   filters.value = [
     {
       type: 'select',
-      label: 'Cabang',
+      label: 'Store',
       name: 'store_id',
       options: [
-        { label: 'All Cabang', value: '' },
+        { label: 'All Store', value: '' },
         ...storesFormated,
       ],
     },
@@ -40,7 +45,16 @@ onMounted(async () => {
         { label: 'Company 1', value: 1 },
         { label: 'Company 2', value: 2 },
       ],
-    },
+    }, 
+    {
+      type: 'select',
+      label: 'Type',
+      name: 'account_type_id',
+      options: [
+        { label: 'All Type', value: '' },
+        ...typesFormated,
+      ],
+    }
   ];
 });
 </script>
@@ -50,7 +64,7 @@ onMounted(async () => {
     <PageTitle />
     <TableData 
       :columns="columns"
-      :addPath="'/akun/tambah'"
+      :addPath="'/master/akun/add'"
       :export="true"
       :reload="true"
       :filters="filters"
