@@ -1,23 +1,30 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import PageTitle from '../../components/PageTitle.vue';
+import TableData from '../../components/TableData.vue';
 import axiosInstance from '../../axios';
 import { useStore } from 'vuex';
-import TableDataGroup from '../../components/TableDataGroup.vue';
+import DropdownFinance from '../../components/DropdownFinance.vue';
 
 const columns = [
-    { data: 'code', title: 'Journal Entry', visible:false },
-    { data: 'name', title: 'Date' },
-    { data: 'debit', title: 'Account' },
-    { data: 'credit', title: 'Label' },
-    { data: 'balance', title: 'Debit' },
-    { data: 'credit', title: 'Credit' },
+  { data: 'name', title: 'Name' },
+  { data: 'code', title: 'Code' },
+  { data: 'debit', title: 'Debit' },
+  { data: 'credit', title: 'Credit' },
+  { data: 'balance', title: 'Balance' },
+  {
+		data: 'action',
+		title: 'Action',
+		width: '5%',
+		searchable: false,
+		orderable: false,
+	},
 ];
 const store = useStore();
 const smallMenu = computed(() => store.getters.smallMenu);
 
 const filters = ref([]);
-const ajaxPath = ref('/finance/journal');
+
 onMounted(async () => {
   filters.value = [
     {
@@ -33,13 +40,12 @@ onMounted(async () => {
   <div class="content" :class="{ 'full-width': smallMenu }">
     <PageTitle />
 
-    <TableDataGroup 
+    <TableData 
       :columns="columns"
       :reload="true"
-      :export="true"
       :filters="filters"
-      :ajaxPath="ajaxPath"
-	  :infoPath="'/finance/jurnal/view'"
+      ajaxPath="/finance/journal"
+	  :infoPath="'/finance/journal/view'"
       :infoLabel="'Buku besar'"
     />
   </div>

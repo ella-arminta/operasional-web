@@ -4,10 +4,10 @@ import Login from '../views/Login.vue'
 import InternalLayout from '../layouts/InternalLayout.vue'
 import Logout from '../components/Logout.vue'
 import Cookies from 'js-cookie'
-import AkunIndex from '../views/akun/AkunIndex.vue'
-import AkunForm from '../views/akun/AkunForm.vue'
-import JurnalIndex from '../views/jurnal/JurnalIndex.vue'
-import JurnalDetail from '../views/jurnal/JurnalDetail.vue'
+import AccountIndex from '../views/account/AccountIndex.vue'
+import AccountForm from '../views/account/AccountForm.vue'
+import JournalDetail from '../views/journal/JournalDetail.vue'
+import JournalIndex from '../views/Journal/JournalIndex.vue'
 
 const router = createRouter({
 	history: createWebHistory(),
@@ -78,14 +78,14 @@ const router = createRouter({
 								mode: route.params.mode,
 							}),
 						},
-						// Path for akun
+						// Path for Account
 						{
-							path: 'akun',
-							component: AkunIndex,
+							path: 'account',
+							component: AccountIndex,
 						},
 						{
-							path: 'akun/:mode/:id?',
-							component: AkunForm,
+							path: 'account/:mode/:id?',
+							component: AccountForm,
 							props: (route) => ({
 								mode: route.params.mode,
 							}),
@@ -95,14 +95,14 @@ const router = createRouter({
 				{
 					path: 'finance',
 					children: [
-						// Path for jurnal
+						// Path for journal
 						{
-							path: 'jurnal',
-							component: JurnalIndex,
+							path: 'journal',
+							component: JournalIndex,
 						},
 						{
-							path: 'jurnal/view/:id?',
-							component: JurnalDetail,
+							path: 'journal/view/:id?',
+							component: JournalDetail,
 						},
 					],
 				},

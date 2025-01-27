@@ -78,12 +78,12 @@ onMounted(async () => {
     <PageTitle />
     <TableData 
       :columns="columns"
-      :addPath="'/master/akun/add'"
+      :addPath="'/master/account/add'"
       :export="true"
       :reload="true"
       :filters="filters"
       ajaxPath="/finance/account"
-      :editPath="'/master/akun/edit'"
+      :editPath="'/master/account/edit'"
       :deletePath="'/master/account'"
 			:infoPath="'/master/account/view'"
       :infoLabel="'Buku besar'"
