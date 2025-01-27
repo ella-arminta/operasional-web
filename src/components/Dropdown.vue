@@ -2,16 +2,12 @@
 	<div
 		class="relative w-full"
 		ref="dropdown"
-		:class="{ 'opacity-50 cursor-not-allowed': props.disabled }"
+		:class="{ 'cursor-not-allowed': props.disabled }"
 	>
 		<!-- Input Field -->
 		<div
 			@click="toggleDropdown"
 			class="border rounded-lg px-3 py-2 flex items-center justify-between gap-2 cursor-pointer bg-pinkGray border-pinkOrange border-opacity-25 transition duration-300 ease-in-out"
-			:class="{
-				'outline-none ring ring-pinkOrange ring-opacity-25':
-					isOpen && !props.disabled,
-			}"
 		>
 			<div class="flex flex-wrap gap-1">
 				<!-- Selected Items -->
@@ -46,7 +42,11 @@
 				</div>
 			</div>
 			<i class="material-icons text-pinkDark">{{
-				isOpen ? 'keyboard_arrow_up' : 'keyboard_arrow_down'
+				disabled
+					? ''
+					: isOpen
+						? 'keyboard_arrow_up'
+						: 'keyboard_arrow_down'
 			}}</i>
 		</div>
 

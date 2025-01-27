@@ -74,6 +74,7 @@
 							placeholder="Select a company"
 							:multiple="false"
 							:searchable="true"
+							:disabled="mode === 'view'"
 						/>
 						<p
 							v-if="formError.company_id"
@@ -84,7 +85,7 @@
 					</div>
 					<!-- Open Date (DatePicker) -->
 					<InputForm
-						v-model="form.open_date"
+						v-model="formattedDate"
 						id="open_date"
 						type="date"
 						label="Open Date"
@@ -93,6 +94,7 @@
 						:error="formError.open_date"
 					/>
 				</div>
+				<!-- Second Grid -->
 				<div class="space-y-3">
 					<!-- NPWP -->
 					<InputForm
@@ -138,7 +140,7 @@
 						</p>
 					</div>
 				</div>
-				<!-- Form Line 3 -->
+				<!-- Third Grid -->
 				<div class="space-y-3">
 					<!-- Logo -->
 					<div>
@@ -314,6 +316,7 @@ onMounted(async () => {
 		try {
 			const response = await axiosInstance.get(`/master/store/${id}`)
 			form.value = { ...response.data.data }
+			form.value.company_id = [form.value.company_id]
 			formCopy.value = { ...form.value }
 		} catch (error) {
 			store.dispatch('triggerAlert', {
@@ -339,8 +342,31 @@ onMounted(async () => {
 	}))
 })
 
+const formatDate = (date) => {
+	if (!date) return ''
+	return new Date(date).toISOString().split('T')[0] // Extract only the date part
+}
+
+const formattedDate = computed({
+	get: () => formatDate(form.value.open_date),
+	set: (newValue) => {
+		form.value.open_date = newValue
+	},
+})
+
 const resetError = () => {
-	formError.value = { code: '', name: '', description: '' }
+	formError.value = {
+		code: '',
+		name: '',
+		company_id: '',
+		open_date: '',
+		npwp: '',
+		address: '',
+		latitude: '',
+		longitude: '',
+		logo: '',
+		description: '',
+	}
 }
 
 const resetForm = () => {
@@ -348,17 +374,17 @@ const resetForm = () => {
 }
 
 const hasUnsavedChanges = computed(() => {
-	return (
-		form.value.code !== formCopy.value.code ||
-		form.value.name !== formCopy.value.name ||
-		form.value.description !== formCopy.value.description ||
-		form.value.company_id !== formCopy.value.company_id
+	return Object.keys(form.value).some(
+		(key) => form.value[key] !== formCopy.value[key]
 	)
 })
 
 const submit = async () => {
 	resetError()
+	if (props.mode === 'view') return
+	if (!hasUnsavedChanges.value && props.mode === 'edit') return
 	try {
+		console.log(hasUnsavedChanges, props.mode)
 		const endpoint =
 			props.mode === 'edit' ? `/master/store/${id}` : '/master/store'
 		const method = props.mode === 'edit' ? 'put' : 'post'
