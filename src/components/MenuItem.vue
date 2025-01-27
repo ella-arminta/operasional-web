@@ -35,7 +35,6 @@
 				:icon="item.icon"
 				:path="item.path"
 				:depth="depth + 1"
-				:smallMenu="smallMenu"
 			/>
 		</div>
 	</div>
@@ -46,7 +45,8 @@ import { ref, computed, nextTick } from 'vue'
 import MenuItem from './MenuItem.vue'
 import Sidebar from './MenuSidebar.vue'
 import { useRoute } from 'vue-router'
-
+import { useStore } from 'vuex'
+const smallMenu = computed(() => store.getters.smallMenu)
 // Props
 const props = defineProps({
 	data: {
@@ -65,10 +65,6 @@ const props = defineProps({
 		type: Number,
 		default: 0,
 	},
-	smallMenu: {
-		type: Boolean,
-		default: false,
-	},
 	path: {
 		type: String,
 		default: '',
@@ -80,10 +76,11 @@ const showChildren = ref(false)
 const expanded = ref(false)
 const containerHeight = ref('0px')
 const route = useRoute()
+const store = useStore()
 
 // Computed
 const showLabel = computed(() => {
-	return props.smallMenu ? props.depth > 0 : true
+	return store.getters.smallMenu ? props.depth > 0 : true
 })
 
 const isActive = computed(() => {

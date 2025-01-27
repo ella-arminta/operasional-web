@@ -9,7 +9,6 @@ import Alert from './components/Alert.vue'
 		<div id="modal-container"></div>
 	</div>
 </template>
-
 <style lang="scss">
 @import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap');
 
@@ -52,10 +51,23 @@ body {
 		}
 	}
 }
+
 .content {
-	width: 100%;
-	padding: 30px 51px;
+	width: 75%;
+	margin: 5% 5%;
 	z-index: 2;
+}
+.content.full-width {
+	width: 85%;
+}
+// Small devices
+@media (max-width: 47rem) {
+	.content {
+		width: 74%;
+	}
+	.content.full-width {
+		width: 74%;
+	}
 }
 .app.internal::before {
 	content: '';

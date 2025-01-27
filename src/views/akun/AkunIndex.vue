@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import PageTitle from '../../components/PageTitle.vue';
 import TableData from '../../components/TableData.vue';
 import axiosInstance from '../../axios';
+import { useStore } from 'vuex';
 
 const columns = [
   { data: 'code', title: 'Code' },
@@ -10,7 +11,16 @@ const columns = [
   { data: 'company.name', title: 'Company' },
   { data: 'store.name', title: 'Store' },
   { data: 'account_type.name', title: 'Type' },
+  {
+		data: 'action',
+		title: 'Action',
+		width: '10%',
+		searchable: false,
+		orderable: false,
+	},
 ];
+const store = useStore();
+const smallMenu = computed(() => store.getters.smallMenu);
 
 const filters = ref([]);
 
@@ -20,14 +30,19 @@ onMounted(async () => {
     label: store.name,
     value: store.id,
   }));
+  const typeData = await axiosInstance.get('/finance/account-type');
+  var typesFormated = typeData.data.data.map((type) => ({
+    label: type.name,
+    value: type.id,
+  }));
 
   filters.value = [
     {
       type: 'select',
-      label: 'Cabang',
+      label: 'Store',
       name: 'store_id',
       options: [
-        { label: 'All Cabang', value: '' },
+        { label: 'All Store', value: '' },
         ...storesFormated,
       ],
     },
@@ -40,21 +55,34 @@ onMounted(async () => {
         { label: 'Company 1', value: 1 },
         { label: 'Company 2', value: 2 },
       ],
-    },
+    }, 
+    {
+      type: 'select',
+      label: 'Type',
+      name: 'account_type_id',
+      options: [
+        { label: 'All Type', value: '' },
+        ...typesFormated,
+      ],
+    }
   ];
 });
 </script>
 
 <template>
-  <div class="content">
+  <div class="content" :class="{ 'full-width': smallMenu }">
     <PageTitle />
     <TableData 
       :columns="columns"
-      :addPath="'/akun/tambah'"
+      :addPath="'/master/akun/add'"
       :export="true"
       :reload="true"
       :filters="filters"
       ajaxPath="/finance/account"
+      :editPath="'/master/akun/edit'"
+      :deletePath="'/master/account'"
+			:infoPath="'/master/account/view'"
+      :infoLabel="'Buku besar'"
     />
   </div>
 </template>

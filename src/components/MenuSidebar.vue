@@ -11,18 +11,19 @@
 			:path="item.path"
 			:icon="item.icon"
 			:depth="0"
-			:smallMenu="smallMenu"
 		/>
-		<i @click="smallMenu = !smallMenu" class="material-icons">menu</i>
+		<i @click="store.dispatch('toggleSmallMenu')" class="material-icons">menu</i>
 	</div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import MenuItem from './MenuItem.vue'
+import { useStore } from 'vuex'
 
-// Reactive state variables
-const smallMenu = ref(false)
+const store = useStore();
+const smallMenu = computed(() => store.getters.smallMenu)
+
 const menuTree = ref([
 	{
 		label: 'Home',
@@ -79,7 +80,8 @@ const menuTree = ref([
 	height: 100%;
 	background-color: var(--bg-white);
 	color: var(--pink-dark);
-	width: 300px;
+	min-width: 15%;
+	width: 15%;
 	padding: 0 20px;
 	left: 0;
 	top: 0;
@@ -91,7 +93,7 @@ const menuTree = ref([
 	z-index: 99;
 	i {
 		position: absolute;
-		left: 200px;
+		left: 80%;
 		font-size: 20px;
 		top: 15px;
 		user-select: none;
@@ -100,11 +102,23 @@ const menuTree = ref([
 	}
 	&.small-menu {
 		overflow: inherit;
+		min-width: 60px;
 		width: 60px;
 		padding: 0;
 		padding-top: 50px;
 		i {
 			left: 20px;
+		}
+	}
+}
+
+// Small devices
+@media (max-width: 47rem) {
+	.menu {
+		position: fixed;
+		width: 60%;
+		&.small-menu {
+			position: relative;
 		}
 	}
 }

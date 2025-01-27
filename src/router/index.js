@@ -38,15 +38,17 @@ const router = createRouter({
 				{
 					path: 'master',
 					children: [
+						// Path for akun
 						{
-							path: 'akun', // Path untuk akun
-							component: AkunIndex, // Komponen utama untuk `/akun`
-							children: [
-								{
-									path: 'form', // Path relatif untuk form
-									component: AkunForm, // Komponen untuk form akun
-								},
-							],
+							path: 'akun',
+							component: AkunIndex,
+						},
+						{
+							path: 'akun/:mode/:id?',
+							component: AkunForm,
+							props: (route) => ({
+								mode: route.params.mode,
+							}),
 						},
 						// Path for company
 						{

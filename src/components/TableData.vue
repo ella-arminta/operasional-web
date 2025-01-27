@@ -2,7 +2,7 @@
 	<!-- table -->
 	<div class="w-full bg-white h-auto rounded-lg shadow-sm py-3 px-4">
 		<!-- Header -->
-		<div class="flex justify-between items-center">
+		<div class="flex justify-between flex-wrap items-center">
 			<div class="flex justify-center items-center gap-4">
 				<div
 					@click="toggleFilters"
@@ -55,8 +55,8 @@
       class="overflow-hidden transition-all duration-300"
       :class="{ 'max-h-0': !isFiltersOpen, 'max-h-[500px]': isFiltersOpen }"
     >
-      <div class="m-3 flex flex-wrap justify-center gap-6">
-        <div v-for="filter in props.filters" :key="filter.name" class="w-[18.8%]">
+      <div class="m-3 flex flex-wrap justify-center gap-3 md:gap-6">
+        <div v-for="filter in props.filters" :key="filter.name" class="w-[100%] md:w-[18.8%]">
           <!-- Filter type:"select" -->
           <div v-if="filter.type === 'select'">
             <label :for="filter.name" class="block mb-1">{{ filter.label }}</label>
@@ -449,6 +449,7 @@ const options = computed(() => ({
 		},
 	],
 	ajax: ajaxOptions.value,
+	scrollX: true,
 }))
 </script>
 <style>

@@ -18,7 +18,7 @@
 				'border-pinkDark': error,
 				'border-pinkOrange': !error,
 			}"
-		/>
+		></textarea>
 
 		<!-- Error Message -->
 		<p v-if="error" class="text-pinkDark text-xs italic">

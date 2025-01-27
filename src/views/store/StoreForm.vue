@@ -1,5 +1,5 @@
 <template>
-	<div class="content min-h-screen">
+	<div class="content min-h-screen" :class="{ 'full-width': smallMenu }">
 		<PageTitle />
 		<!--  Form section -->
 		<form
@@ -234,7 +234,7 @@ import MapPicker from '../../components/MapPicker.vue'
 import ImageUpload from '../../components/ImageUpload.vue'
 import InputForm from '../../components/InputForm.vue'
 import TextareaForm from '../../components/TextareaForm.vue'
-
+const smallMenu = computed(() => store.getters.smallMenu)
 // Dropdown Items
 const companies = ref([])
 
