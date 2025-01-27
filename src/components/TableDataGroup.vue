@@ -99,7 +99,7 @@
 		</DataTable>
 	</div>
 </template>
-<style>
+<style scoped>
 @import 'datatables.net-dt';
 .dt-search {
 	display: none !important;
@@ -520,7 +520,7 @@ const handleRangeSelected = (range) => {
 	filterValues.value.dateEnd = range.end;
 };
 </script>
-<style>
+<style scoped>
 @import "datatables.net-dt";
 .dt-search {
   display: none !important;

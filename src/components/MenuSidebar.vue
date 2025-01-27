@@ -68,6 +68,20 @@ const menuTree = ref([
 		],
 	},
 	{
+		label: 'Money',
+		icon: 'payments',
+		children: [
+			{
+				label: 'Miscellaneous Expenses',
+				path: '/finance/mexpenses',
+
+			}, 
+			{
+				label: 'Miscellaneous Incomes',
+			}
+		]
+	},
+	{
 		label: 'Report',
 		icon: 'analytics',
 		children: [
