@@ -10,6 +10,8 @@ import CompanyIndex from '../views/company/CompanyIndex.vue'
 import CompanyForm from '../views/company/CompanyForm.vue'
 import StoreIndex from '../views/store/StoreIndex.vue'
 import StoreForm from '../views/store/StoreForm.vue'
+import EmployeeIndex from '../views/employee/EmployeeIndex.vue'
+import EmployeeForm from '../views/employee/EmployeeForm.vue'
 
 const router = createRouter({
 	history: createWebHistory(),
@@ -70,6 +72,18 @@ const router = createRouter({
 						{
 							path: 'store/:mode/:id?',
 							component: StoreForm,
+							props: (route) => ({
+								mode: route.params.mode,
+							}),
+						},
+						// Path for Employee
+						{
+							path: 'employee',
+							component: EmployeeIndex,
+						},
+						{
+							path: 'employee/:mode/:id?',
+							component: EmployeeForm,
 							props: (route) => ({
 								mode: route.params.mode,
 							}),
