@@ -26,8 +26,9 @@
             <tbody>
                 <tr v-for="(row, rowIndex) in rows" :key="rowIndex">
                     <td v-for="(col, colIndex) in columns" :key="colIndex" class="border border-pinkOrange px-0 h-full">
-                        <input v-model="rows[rowIndex][col.key]" :type="col.type === 'int' ? 'number' : 'text'"
+                        <input v-if="['int', 'number', 'text'].includes(col.type)" v-model="rows[rowIndex][col.key]" :type="col.type === 'int' ? 'number' : 'text'"
                             class="border-none rounded px-2 py-1 w-full h-full" />
+                        <Dropdown v-else-if="col.type === 'dropdown'" v-model="rows[rowIndex][col.key]" :items="col.items" />
                     </td>
                     <td class="!border !border-pinkOrange border-2 px-4 py-2 text-center">
                         <button @click="deleteRow(rowIndex)" type="button" class="text-red-500 hover:underline">
@@ -43,6 +44,7 @@
 
 <script setup>
 import { ref, watch } from 'vue';
+import Dropdown from './Dropdown.vue';
 
 // Props for parent-to-child configuration
 const props = defineProps({

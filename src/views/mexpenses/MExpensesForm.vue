@@ -54,7 +54,7 @@
 						type="text"
 						label="Code"
 						placeholder="Code"
-						:readonly="mode === 'view'"
+						:readonly="true"
 						:error="formError.code"
 					/>
 					<!-- Dropdown Accounts -->
@@ -90,7 +90,7 @@
 						type="date"
 						label="Transaction Date"
 						placeholder="Transaction Date Date"
-						:readonly="mode === 'view'"
+						:readonly="true"
 						:error="formError.trans_date"
 					/>
 				</div>
@@ -181,21 +181,23 @@ import FormSectionHeader from '../../components/FormSectionHeader.vue'
 import EdiTable from '../../components/EdiTable.vue'
 import TextareaForm from '../../components/TextareaForm.vue'
 const smallMenu = computed(() => store.getters.smallMenu)
+
+const props = defineProps({
+	mode: { type: String, required: true },
+	trans_type_id : { type: Number, default: 1 },
+})
 // Dropdown Items
 const accounts = ref([])
-const columns = [
+const columns = ref([
   { label: 'Account', key: 'account', type: 'string' },
   { label: 'Amount', key: 'amount', type: 'number' },
   { label: 'Description', key: 'desc', type: 'string' },
-];
+]);
 
 const handleRowsUpdate = (updatedRows) => {
   console.log('Updated Rows:', updatedRows);
 };
 
-const props = defineProps({
-	mode: { type: String, required: true },
-})
 // Form Data
 const form = ref({
     code: '',
@@ -240,6 +242,24 @@ onMounted(async () => {
 	} else {
 		form.value.company_id = [form.value.company_id]
 	}
+
+	if (props.mode == 'add') {
+		// Set form code
+		var userdata = JSON.parse(Cookies.get('userdata'))
+		var store_id = '';
+		if (userdata.store > 0) {
+			store_id = userdata.store[0].id
+		}
+		var ajax =`/finance/trans-code?trans_type_id=${props.trans_type_id}`;
+		if (store_id != '') {
+			ajax += `&store_id=${store_id}`
+		}
+		const response = await axiosInstance.get(ajax);
+		const transCode = response.data.data
+		form.value.code = transCode
+		// set form date to today 
+		formattedDate.value = formatDate(new Date().toISOString().split('T')[0])
+	}
 	const response = await axiosInstance.get('/finance/account')
     const ownedAccounts = response.data.data.filter(
         (account) => account.account_type_id === 1
@@ -250,6 +270,9 @@ onMounted(async () => {
     }))
     console.log(acc)
     accounts.value = acc;
+	columns.value.push(
+		{ label: 'Account', key: 'account', type: 'dropdown', items: acc },
+	)
 })
 
 const formatDate = (date) => {
