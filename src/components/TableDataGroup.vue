@@ -74,7 +74,7 @@
 					<!-- Filter type:"SelectRangeFinance" -->
 					<div v-if="filter.type == 'selectRangeFinance'">
 						<label :for="filter.name" class="block mb-1">{{ filter.label }}</label>
-						<DropdownFinance @range-selected="handleRangeSelected" />
+                        <DropdownFinance @range-selected="handleRangeSelected" />
 					</div>
 				</div>
 			</div>
@@ -215,6 +215,7 @@ import DataTablesCore from 'datatables.net'
 import Buttons from 'datatables.net-buttons'
 import 'datatables.net-buttons-dt/css/buttons.dataTables.css' // Include Buttons CSS
 import ColumnVisibility from 'datatables.net-buttons/js/buttons.colVis.js' // Column Visibility Extension
+import RowGroup from 'datatables.net-rowgroup-dt'
 
 import { ref, onMounted, computed, watch } from 'vue'
 import Select from 'datatables.net-select'
@@ -272,6 +273,7 @@ DataTable.use(DataTablesCore)
 DataTable.use(Select)
 DataTable.use(Buttons)
 DataTable.use(ColumnVisibility)
+DataTable.use(RowGroup)
 
 // Declaration
 const isFiltersOpen = ref(true)
@@ -296,7 +298,6 @@ const onSearch = (event: Event) => {
 }
 // function to reload data in datatable
 const reloadData = () => {
-	console.log('reloaded');
   if (dt) {
     dt.ajax.reload(null, false);
   }
@@ -307,13 +308,7 @@ watch(filterValues, () => {
 watch(() => props.filters, () => {
   filterValues.value = props.filters.reduce((acc, filter) => {
 	if (filter.type == 'selectRangeFinance') {
-		// this month start and end in string format
-		const today = new Date();
-		const start = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
-		const end = new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split('T')[0];
-		acc.dateStart = start;
-		acc.dateEnd = end;
-		return acc;
+		return '';
 	}
 	acc[filter.name] = filter.options[0].value;
 	return acc;
@@ -466,12 +461,61 @@ const options = computed(() => ({
 	],
 	ajax: ajaxOptions.value,
 	scrollX: true,
-}))
+	rowGroup: {
+		dataSrc: 'code', // Group by the "Journal Entry" column
+		startRender: (rows, group) => {
+			const totalDebit = rows
+				.data()
+				.reduce((sum, row) => sum + parseFloat(row.debit || 0), 0);
+			const totalCredit = rows
+				.data()
+				.reduce((sum, row) => sum + parseFloat(row.credit || 0), 0);
+			
+			// get thead Datatable columns width
+			const thead = document.querySelector('thead');
+			const theadColumns = thead.querySelectorAll('th');
+			const theadColumnsWidth = Array.from(theadColumns).map((col) => col.offsetWidth);
+			console.log(JSON.stringify(theadColumnsWidth));
+			var newthead = "";
+			var outerIndex = 0;
+			props.columns.forEach((col) => {
+				if (col.bVisible == undefined) {
+					col.bVisible = true;
+				}
+				if (col.bVisible == false) {
+				}else {
+					newthead += `<th style="width:${theadColumnsWidth[outerIndex++]}px;">${col.title.replace('_', ' ').toUpperCase()}</th>`;
+				}
+			});
 
+			return `
+			<table class="w-full dt-scroll-head">
+				<thead style="visibility: collapse;">
+					<tr>
+						${newthead}
+					</tr>
+				</thead>
+				<tbody>
+				<tr class="group-header" data-group="${group}" style="color:#b6848a">
+					<td colspan="1" class="text-start" style="padding: 10px 30px 10px 10px;">
+						<div class="flex gap-2">
+							<strong>${group}</strong>
+						</div>
+					</td>
+					<td colspan="1" style="padding: 10px 30px 10px 10px;"></td>
+					<td colspan="1" style="padding: 10px 30px 10px 10px;"></td>
+					<td colspan="1" class="text-start" style="padding: 10px 30px 10px 10px;"><strong>${totalDebit.toFixed(2)}</strong></td>
+					<td colspan="1" class="text-start" style="padding: 10px 30px 10px 10px;"><strong>${totalCredit.toFixed(2)}</strong></td>
+				</tr>
+				</tbody>
+			</table>
+			`;
+		},
+	},
+}))
 const handleRangeSelected = (range) => {
 	console.log('selected');
-	console.log(range);
-	console.log(filterValues);
+    console.log(range);
 	filterValues.value.dateStart = range.start;
 	filterValues.value.dateEnd = range.end;
 };

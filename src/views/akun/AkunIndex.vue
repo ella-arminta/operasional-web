@@ -35,6 +35,11 @@ onMounted(async () => {
     label: type.name,
     value: type.id,
   }));
+  const companyData = await axiosInstance.get('/master/company');
+  var companiesFormated = companyData.data.data.map((company) => ({
+    label: company.name,
+    value: company.id,
+  }));
 
   filters.value = [
     {
@@ -52,8 +57,7 @@ onMounted(async () => {
       name: 'company_id',
       options: [
         { label: 'All Company', value: '' },
-        { label: 'Company 1', value: 1 },
-        { label: 'Company 2', value: 2 },
+        ...companiesFormated,
       ],
     }, 
     {
