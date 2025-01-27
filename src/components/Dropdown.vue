@@ -2,15 +2,12 @@
 	<div
 		class="relative w-full"
 		ref="dropdown"
-		:class="{ 'opacity-50 cursor-not-allowed': props.disabled }"
+		:class="{ 'cursor-not-allowed': props.disabled }"
 	>
 		<!-- Input Field -->
 		<div
 			@click="toggleDropdown"
 			class="border rounded-lg px-3 py-2 flex items-center justify-between gap-2 cursor-pointer bg-pinkGray border-pinkOrange border-opacity-25 transition duration-300 ease-in-out"
-			:class="{
-				'outline-none ring ring-pinkOrange ring-opacity-25': isOpen && !props.disabled,
-			}"
 		>
 			<div class="flex flex-wrap gap-1">
 				<!-- Selected Items -->
@@ -45,7 +42,11 @@
 				</div>
 			</div>
 			<i class="material-icons text-pinkDark">{{
-				isOpen ? 'keyboard_arrow_up' : 'keyboard_arrow_down'
+				disabled
+					? ''
+					: isOpen
+						? 'keyboard_arrow_up'
+						: 'keyboard_arrow_down'
 			}}</i>
 		</div>
 
@@ -94,7 +95,6 @@
 	</div>
 </template>
 
-
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 
@@ -122,7 +122,7 @@ const props = defineProps({
 	disabled: {
 		type: Boolean,
 		default: false,
-	}
+	},
 })
 
 const emit = defineEmits(['update:modelValue'])
@@ -139,20 +139,19 @@ const selectedItems = ref(
 
 // Watch for changes in `modelValue` and update `selectedItems`
 watch(
-  () => props.modelValue,
-  (newValue) => {
-    selectedItems.value = Array.isArray(newValue)
-      ? props.items.filter((item) => newValue.includes(item.id))
-      : []
-  }
+	() => props.modelValue,
+	(newValue) => {
+		selectedItems.value = Array.isArray(newValue)
+			? props.items.filter((item) => newValue.includes(item.id))
+			: []
+	}
 )
 
 const toggleDropdown = () => {
 	if (!props.disabled) {
-		isOpen.value = !isOpen.value;
+		isOpen.value = !isOpen.value
 	}
-};
-
+}
 
 const closeDropdown = () => {
 	isOpen.value = false
@@ -167,21 +166,21 @@ const filteredItems = computed(() => {
 })
 
 const selectItem = (item) => {
-	if (props.disabled) return;
+	if (props.disabled) return
 
 	if (props.multiple) {
 		if (isSelected(item)) {
-			removeItem(item);
+			removeItem(item)
 		} else {
-			selectedItems.value.push(item);
-			emitValue();
+			selectedItems.value.push(item)
+			emitValue()
 		}
 	} else {
-		selectedItems.value = [item];
-		emitValue();
-		closeDropdown();
+		selectedItems.value = [item]
+		emitValue()
+		closeDropdown()
 	}
-};
+}
 
 const removeItem = (item) => {
 	selectedItems.value = selectedItems.value.filter(

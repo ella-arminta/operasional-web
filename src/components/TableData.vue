@@ -143,6 +143,25 @@ div.dt-container .dt-paging .dt-paging-button.current {
 div.dt-container .dt-paging .dt-paging-button.current:hover {
 	background-color: var(--pink-light) !important;
 	transition: all 0.3s ease;
+	color: var(--white) !important;
+}
+div.dt-container .dt-paging .dt-paging-button:hover {
+	background-color: var(--pink-light) !important;
+	transition: all 0.3s ease;
+	color: var(--white) !important;
+}
+div.dt-container .dt-paging .dt-paging-button.disabled:hover {
+	background-color: var(--white) !important;
+	transition: none !important;
+	color: inherit !important;
+}
+div.dt-container .dt-paging .dt-paging-button {
+	color: inherit !important;
+	border: none !important;
+	box-shadow: none !important;
+	background: none !important;
+	border-radius: 8px;
+	padding: 4px 10px;
 }
 /* Align header elements */
 .dt-header {
@@ -208,6 +227,19 @@ div.dt-container .dt-paging .dt-paging-button.current:hover {
 	background-color: var(--pink-light) !important;
 	color: var(--white) !important;
 }
+.dt-search {
+	display: none !important;
+}
+tbody > tr:nth-child(odd) > td {
+	background-color: #ffffff !important;
+	border: none !important;
+	box-shadow: none !important;
+}
+tbody > tr:nth-child(even) > td {
+	background-color: #fcf8f5 !important;
+	border: none !important;
+	box-shadow: none !important;
+}
 </style>
 <script setup lang="ts">
 import DataTable from 'datatables.net-vue3'
@@ -258,14 +290,14 @@ const props = defineProps({
 		type: String,
 		default: '',
 	},
-  filters: {
-    type: [Array, null],
-    default: () => [],
-  },
-  options: {
-    type: Object,
-    default: () => ({}),
-  },
+	filters: {
+		type: [Array, null],
+		default: () => [],
+	},
+	options: {
+		type: Object,
+		default: () => ({}),
+	},
 })
 
 DataTable.use(DataTablesCore)
@@ -279,8 +311,8 @@ const table = ref()
 let dt
 const bearerToken = Cookies.get('token') || ''
 const store = useStore()
-const filterValues = ref({});
-const baseUrl = import.meta.env.VITE_BASE_URL;
+const filterValues = ref({})
+const baseUrl = import.meta.env.VITE_BASE_URL
 
 onMounted(() => {
 	dt = table.value.dt
@@ -296,7 +328,6 @@ const onSearch = (event: Event) => {
 }
 // function to reload data in datatable
 const reloadData = () => {
-	console.log('reloaded');
   if (dt) {
     dt.ajax.reload(null, false);
   }
@@ -379,27 +410,27 @@ const deleteData = (id: string) => {
 
 // Define ajax options in a computed property
 const ajaxOptions = computed(() => ({
-  url: baseUrl + props.ajaxPath,
-  type: "GET",
-  cache: true,
-  headers: {
-    Authorization: `Bearer ${bearerToken}`,
-    "Content-Type": "application/json",
-  },
-  data: (d) => {
-    for (const key in filterValues.value) {
-      if (filterValues.value[key] !== "") {
-        d[key] = filterValues.value[key];
-      }
-    }
-  },
-  dataSrc: (json) => {
-    json.data = json.data.map((item, index) => {
-      if (props.columns.find((col) => col.data === "no")) {
-        item.no = index + 1;
-      }
-      if (props.columns.find((col) => col.data === "action")) {
-        let actionHtml = '<div class="flex gap-2">';
+	url: baseUrl + props.ajaxPath,
+	type: 'GET',
+	cache: true,
+	headers: {
+		Authorization: `Bearer ${bearerToken}`,
+		'Content-Type': 'application/json',
+	},
+	data: (d) => {
+		for (const key in filterValues.value) {
+			if (filterValues.value[key] !== '') {
+				d[key] = filterValues.value[key]
+			}
+		}
+	},
+	dataSrc: (json) => {
+		json.data = json.data.map((item, index) => {
+			if (props.columns.find((col) => col.data === 'no')) {
+				item.no = index + 1
+			}
+			if (props.columns.find((col) => col.data === 'action')) {
+				let actionHtml = '<div class="flex gap-2">'
 
 				// Info button
 				if (props.infoPath && props.infoPath !== '') {
@@ -465,7 +496,7 @@ const options = computed(() => ({
 		},
 	],
 	ajax: ajaxOptions.value,
-	scrollX: true,
+	scrollX: props.options.scrollX || false,
 }))
 
 const handleRangeSelected = (range) => {
@@ -476,19 +507,3 @@ const handleRangeSelected = (range) => {
 	filterValues.value.dateEnd = range.end;
 };
 </script>
-<style>
-@import "datatables.net-dt";
-.dt-search {
-  display: none !important;
-}
-tbody > tr:nth-child(odd) > td {
-  background-color: #ffffff !important;
-  border: none !important;
-  box-shadow: none !important;
-}
-tbody > tr:nth-child(even) > td {
-  background-color: #fcf8f5 !important;
-  border: none !important;
-  box-shadow: none !important;
-}
-</style>
