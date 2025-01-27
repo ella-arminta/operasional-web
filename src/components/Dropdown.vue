@@ -86,9 +86,17 @@
 				</li>
 				<li
 					v-if="!filteredItems.length"
-					class="px-4 py-2 bg-pinkGray text-pinkOrange text-opacity-50"
+					class="px-4 py-2 bg-pinkGray text-pinkOrange text-opacity-75"
 				>
-					No results found
+					<div
+						v-if="props.addRoute !== ''"
+						class="flex items-center justify-between"
+						@click="router.push(props.addRoute)"
+					>
+						<p>Create New</p>
+						<i class="material-icons text-sm">add</i>
+					</div>
+					<div v-else>No items found</div>
 				</li>
 			</ul>
 		</div>
@@ -97,6 +105,10 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { defineProps, defineEmits } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const props = defineProps({
 	items: {
@@ -122,6 +134,10 @@ const props = defineProps({
 	disabled: {
 		type: Boolean,
 		default: false,
+	},
+	addRoute: {
+		type: String,
+		default: '',
 	},
 })
 

@@ -122,8 +122,37 @@ const hasUnsavedChanges = computed(() => {
 		(key) => form.value[key] !== formCopy.value[key]
 	)
 })
+
+const excludedKeys = ['description']
+
+const hasFullyFilled = computed(() => {
+	return Object.keys(form.value)
+		.filter((key) => !excludedKeys.includes(key))
+		.every(
+			(key) =>
+				form.value[key] !== '' &&
+				form.value[key] !== null &&
+				form.value[key] !== undefined
+		)
+})
+
 const submit = async () => {
-	console.log(form.value)
+	if (!hasFullyFilled.value && props.mode === 'add') {
+		store.dispatch('triggerAlert', {
+			type: 'warning',
+			title: 'Warning!',
+			message: 'You are missing some fields.',
+		})
+		return
+	}
+	if (!hasUnsavedChanges.value && props.mode === 'edit') {
+		store.dispatch('triggerAlert', {
+			type: 'warning',
+			title: 'Warning!',
+			message: 'No changes detected.',
+		})
+		return
+	}
 	resetError()
 	try {
 		const endpoint =

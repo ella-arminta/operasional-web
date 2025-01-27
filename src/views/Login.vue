@@ -85,7 +85,6 @@ export default {
 						JSON.stringify(response.data.data),
 						{ expires: 5 / 24 }
 					) // 5 hours
-
 					store.dispatch('triggerAlert', {
 						type: 'success',
 						title: 'Berhasil!',

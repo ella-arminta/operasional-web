@@ -77,7 +77,7 @@ const menuTree = ref([
 					{
 						label: 'journal',
 						path: '/finance/journal',
-					}
+					},
 				],
 			},
 		],
@@ -85,7 +85,12 @@ const menuTree = ref([
 	{
 		label: 'Settings',
 		icon: 'settings',
-		path: '/settings',
+		children: [
+			{
+				label: 'Change Password',
+				path: '/settings/password/change',
+			},
+		],
 	},
 	{
 		label: 'Logout',

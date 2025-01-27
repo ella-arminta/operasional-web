@@ -106,6 +106,16 @@ const router = createRouter({
 						},
 					],
 				},
+				{
+					path: 'settings',
+					children: [
+						{
+							path: 'password/change',
+							component: () =>
+								import('../views/settings/ChangePassword.vue'),
+						},
+					],
+				},
 			],
 		},
 	],

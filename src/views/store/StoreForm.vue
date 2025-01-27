@@ -32,6 +32,7 @@
 						placeholder="Code"
 						:readonly="mode === 'view'"
 						:error="formError.code"
+						required
 					/>
 					<!-- Name -->
 					<InputForm
@@ -42,6 +43,7 @@
 						placeholder="Name"
 						:readonly="mode === 'view'"
 						:error="formError.name"
+						required
 					/>
 					<!-- Dropdown Company -->
 					<div>
@@ -58,6 +60,7 @@
 							:multiple="false"
 							:searchable="true"
 							:disabled="mode === 'view'"
+							:addRoute="'/master/company/add'"
 						/>
 						<p
 							v-if="formError.company_id"
@@ -75,6 +78,7 @@
 						placeholder="Open Date"
 						:readonly="mode === 'view'"
 						:error="formError.open_date"
+						required
 					/>
 				</div>
 				<!-- Second Grid -->
@@ -88,6 +92,7 @@
 						placeholder="NPWP"
 						:readonly="mode === 'view'"
 						:error="formError.npwp"
+						required
 					/>
 					<!-- Address -->
 					<TextareaForm
@@ -97,6 +102,7 @@
 						placeholder="Address"
 						:readonly="mode === 'view'"
 						:error="formError.address"
+						required
 					/>
 					<!-- Location -->
 					<div>
@@ -131,7 +137,7 @@
 							for="logo"
 							class="block text-sm text-grey-900 font-medium mb-1"
 						>
-							Logo
+							Logo<span class="text-pinkDark">*</span>
 						</label>
 
 						<ImageUpload
@@ -359,11 +365,35 @@ onMounted(async () => {
 	} else {
 		form.value.company_id = [form.value.company_id]
 	}
-	const ownedCompanies = JSON.parse(Cookies.get('userdata')).owned_company
-	companies.value = ownedCompanies.map((company) => ({
-		id: company.id,
-		label: company.name,
-	}))
+	try {
+		const response = await axiosInstance.get('/master/company', {
+			params: {
+				owner_id: JSON.parse(Cookies.get('userdata')).id,
+				id: JSON.parse(Cookies.get('userdata')).id,
+			},
+		})
+		if (response.data) {
+			const ownedCompanies = response.data.data
+			companies.value = ownedCompanies.map((company) => ({
+				id: company.id,
+				label: company.name,
+			}))
+		}
+	} catch (error) {
+		store.dispatch('triggerAlert', {
+			type: 'error',
+			title: 'Error!',
+			message: 'Failed to fetch company data.',
+			actions: [
+				{
+					label: 'close',
+					type: 'secondary',
+					handler: () => store.dispatch('hideAlert'),
+				},
+			],
+		})
+		companies.value = []
+	}
 })
 
 const formatDate = (date) => {
@@ -394,10 +424,45 @@ const hasUnsavedChanges = computed(() => {
 	)
 })
 
+const excludedKeys = [
+	'description',
+	'poin_config',
+	'is_active',
+	'is_flex_price',
+	'is_float_price',
+]
+
+const hasFullyFilled = computed(() => {
+	return Object.keys(form.value)
+		.filter((key) => !excludedKeys.includes(key))
+		.every(
+			(key) =>
+				form.value[key] !== '' &&
+				form.value[key] !== null &&
+				form.value[key] !== undefined &&
+				form.value[key] !== 0
+		)
+})
+
 const submit = async () => {
-	resetError()
 	if (props.mode === 'view') return
-	if (!hasUnsavedChanges.value && props.mode === 'edit') return
+	if (!hasFullyFilled.value && props.mode === 'add') {
+		store.dispatch('triggerAlert', {
+			type: 'warning',
+			title: 'Warning!',
+			message: 'You are missing some fields.',
+		})
+		return
+	}
+	if (!hasUnsavedChanges.value && props.mode === 'edit') {
+		store.dispatch('triggerAlert', {
+			type: 'warning',
+			title: 'Warning!',
+			message: 'No changes detected.',
+		})
+		return
+	}
+	resetError()
 	try {
 		const endpoint =
 			props.mode === 'edit' ? `/master/store/${id}` : '/master/store'

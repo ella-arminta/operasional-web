@@ -31,7 +31,7 @@
 						placeholder="Email"
 						required
 						:error="formError.email"
-						:readonly="mode === 'email'"
+						:readonly="mode === 'view'"
 						:type="'email'"
 					/>
 				</div>
@@ -125,8 +125,32 @@ const hasUnsavedChanges = computed(() => {
 	)
 })
 
+const hasFullyFilled = computed(() => {
+	return Object.keys(form.value).every(
+		(key) =>
+			form.value[key] !== '' ||
+			form.value[key] !== null ||
+			form.value[key] !== undefined
+	)
+})
+
 const submit = async () => {
-	console.log(form.value)
+	if (!hasFullyFilled.value && props.mode === 'add') {
+		store.dispatch('triggerAlert', {
+			type: 'warning',
+			title: 'Warning!',
+			message: 'You are missing some fields.',
+		})
+		return
+	}
+	if (!hasUnsavedChanges.value && props.mode === 'edit') {
+		store.dispatch('triggerAlert', {
+			type: 'warning',
+			title: 'Warning!',
+			message: 'No changes detected.',
+		})
+		return
+	}
 	resetError()
 	try {
 		const endpoint =

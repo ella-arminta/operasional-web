@@ -53,28 +53,45 @@
 		<div
 			v-if="props.filters && props.filters.length > 0"
 			class="transition-all duration-300"
-			:class="{ 'max-h-0 overflow-hidden': !isFiltersOpen, 'max-h-[500px]': isFiltersOpen }"
+			:class="{
+				'max-h-0 overflow-hidden': !isFiltersOpen,
+				'max-h-[500px]': isFiltersOpen,
+			}"
 		>
 			<div class="m-3 flex flex-wrap justify-center gap-3 md:gap-6">
-				<div v-for="filter in props.filters" :key="filter.name" class="w-[100%] md:w-[18.8%]">
+				<div
+					v-for="filter in props.filters"
+					:key="filter.name"
+					class="w-[100%] md:w-[18.8%]"
+				>
 					<!-- Filter type:"select" -->
 					<div v-if="filter.type === 'select'">
-						<label :for="filter.name" class="block mb-1">{{ filter.label }}</label>
+						<label :for="filter.name" class="block mb-1">{{
+							filter.label
+						}}</label>
 						<select
-						v-if="filter.type === 'select'"
-						:id="filter.name"
-						v-model="filterValues[filter.name]"
-						class="border px-3 py-2 rounded-lg w-full"
+							v-if="filter.type === 'select'"
+							:id="filter.name"
+							v-model="filterValues[filter.name]"
+							class="border px-3 py-2 rounded-lg w-full"
 						>
-						<option v-for="option in filter.options" :key="option.value" :value="option.value">
-							{{ option.label }}
-						</option>
+							<option
+								v-for="option in filter.options"
+								:key="option.value"
+								:value="option.value"
+							>
+								{{ option.label }}
+							</option>
 						</select>
 					</div>
 					<!-- Filter type:"SelectRangeFinance" -->
 					<div v-if="filter.type == 'selectRangeFinance'">
-						<label :for="filter.name" class="block mb-1">{{ filter.label }}</label>
-						<DropdownFinance @range-selected="handleRangeSelected" />
+						<label :for="filter.name" class="block mb-1">{{
+							filter.label
+						}}</label>
+						<DropdownFinance
+							@range-selected="handleRangeSelected"
+						/>
 					</div>
 				</div>
 			</div>
@@ -328,28 +345,50 @@ const onSearch = (event: Event) => {
 }
 // function to reload data in datatable
 const reloadData = () => {
-  if (dt) {
-    dt.ajax.reload(null, false);
-  }
-};
-watch(filterValues, () => {
-  if (dt) dt.ajax.reload(null, false); // Reload DataTable on filter change
-}, { deep: true });
-watch(() => props.filters, () => {
-  filterValues.value = props.filters.reduce((acc, filter) => {
-	if (filter.type == 'selectRangeFinance') {
-		// this month start and end in string format
-		const today = new Date();
-		const start = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
-		const end = new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split('T')[0];
-		acc.dateStart = start;
-		acc.dateEnd = end;
-		return acc;
+	if (dt) {
+		dt.ajax.reload(null, false)
 	}
-	acc[filter.name] = filter.options[0].value;
-	return acc;
-  }, {} as Record<string, string>);
-});
+}
+watch(
+	filterValues,
+	() => {
+		if (dt) dt.ajax.reload(null, false) // Reload DataTable on filter change
+	},
+	{ deep: true }
+)
+watch(
+	() => props.filters,
+	() => {
+		filterValues.value = props.filters.reduce(
+			(acc, filter) => {
+				if (filter.type == 'selectRangeFinance') {
+					// this month start and end in string format
+					const today = new Date()
+					const start = new Date(
+						today.getFullYear(),
+						today.getMonth(),
+						1
+					)
+						.toISOString()
+						.split('T')[0]
+					const end = new Date(
+						today.getFullYear(),
+						today.getMonth() + 1,
+						0
+					)
+						.toISOString()
+						.split('T')[0]
+					acc.dateStart = start
+					acc.dateEnd = end
+					return acc
+				}
+				acc[filter.name] = filter.options[0].value
+				return acc
+			},
+			{} as Record<string, string>
+		)
+	}
+)
 
 // function to delete data by id
 const deleteData = (id: string) => {
@@ -500,10 +539,10 @@ const options = computed(() => ({
 }))
 
 const handleRangeSelected = (range) => {
-	console.log('selected');
-	console.log(range);
-	console.log(filterValues);
-	filterValues.value.dateStart = range.start;
-	filterValues.value.dateEnd = range.end;
-};
+	console.log('selected')
+	console.log(range)
+	console.log(filterValues)
+	filterValues.value.dateStart = range.start
+	filterValues.value.dateEnd = range.end
+}
 </script>
