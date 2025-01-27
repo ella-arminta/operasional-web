@@ -92,6 +92,17 @@ const router = createRouter({
 								mode: route.params.mode,
 							}),
 						},
+						// Path for Category
+						{
+							path: 'category',
+							component: () =>
+								import('../views/category/CategoryIndex.vue'),
+						},
+						{
+							path: 'category/:mode/:id?',
+							component: () =>
+								import('../views/category/CategoryForm.vue'),
+						},
 					],
 				},
 				{
@@ -108,7 +119,7 @@ const router = createRouter({
 						},
 						{
 							path: 'mexpenses',
-							component: MExpensesIndex
+							component: MExpensesIndex,
 						},
 						{
 							path: 'mexpenses/:mode/:id?',

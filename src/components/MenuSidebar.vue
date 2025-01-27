@@ -62,6 +62,7 @@ const menuTree = ref([
 				children: [
 					{
 						label: 'Category',
+						path: '/master/category',
 					},
 				],
 			},
@@ -74,12 +75,11 @@ const menuTree = ref([
 			{
 				label: 'Miscellaneous Expenses',
 				path: '/finance/mexpenses',
-
-			}, 
+			},
 			{
 				label: 'Miscellaneous Incomes',
-			}
-		]
+			},
+		],
 	},
 	{
 		label: 'Report',

@@ -121,23 +121,23 @@
 .dt-search {
 	display: none !important;
 }
-tbody > tr:nth-child(odd) > td {
+.dataTable > tbody > tr:nth-child(odd) > td {
 	background-color: #ffffff !important;
 	border: none !important;
 	box-shadow: none !important;
 	font-size: small !important;
 }
-tbody > tr:nth-child(even) > td {
+.dataTable > tbody > tr:nth-child(even) > td {
 	background-color: #fcf8f5 !important;
 	border: none !important;
 	box-shadow: none !important;
 	font-size: small !important;
 	font-weight: light !important;
 }
-tbody > tr > td.dt-type-numeric {
+.dataTable > tbody > tr > td.dt-type-numeric {
 	text-align: start !important;
 }
-thead > tr > th {
+.dataTable > thead > tr > th {
 	text-align: start !important;
 	font-weight: bold !important;
 }
