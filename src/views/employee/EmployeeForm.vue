@@ -31,7 +31,7 @@
 						placeholder="Email"
 						required
 						:error="formError.email"
-						:readonly="mode === 'view'"
+						:readonly="mode !== 'add'"
 						:type="'email'"
 					/>
 				</div>

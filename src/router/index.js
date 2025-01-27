@@ -98,6 +98,9 @@ const router = createRouter({
 							path: 'category/:mode/:id?',
 							component: () =>
 								import('../views/category/CategoryForm.vue'),
+							props: (route) => ({
+								mode: route.params.mode,
+							}),
 						},
 					],
 				},

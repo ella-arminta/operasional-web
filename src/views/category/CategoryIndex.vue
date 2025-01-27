@@ -25,10 +25,16 @@ const columns = [
 	{ data: 'no', title: 'No', width: '5%' },
 	{ data: 'code', title: 'Code', width: '10%' },
 	{ data: 'name', title: 'Name', width: '15%' },
+	{ data: 'company.name', title: 'Company' },
+	{ data: 'purity', title: 'Purity' },
+	{ data: 'metal_type', title: 'Metal Type' },
+	{ data: 'weight_tray', title: 'Weight Tray' },
+	{ data: 'weight_paper', title: 'Weight Paper', visible: false },
 	{
 		data: 'description',
 		title: 'Description',
 		orderable: false,
+		visible: false,
 	},
 	{
 		data: 'action',
