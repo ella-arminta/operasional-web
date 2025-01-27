@@ -4,12 +4,6 @@ import Login from '../views/Login.vue'
 import InternalLayout from '../layouts/InternalLayout.vue'
 import Logout from '../components/Logout.vue'
 import Cookies from 'js-cookie'
-import AccountIndex from '../views/account/AccountIndex.vue'
-import AccountForm from '../views/account/AccountForm.vue'
-import JournalDetail from '../views/journal/JournalDetail.vue'
-import JournalIndex from '../views/Journal/JournalIndex.vue'
-import MExpensesIndex from '../views/mexpenses/MExpensesIndex.vue'
-import MExpensesForm from '../views/mexpenses/MExpensesForm.vue'
 
 const router = createRouter({
 	history: createWebHistory(),
@@ -83,11 +77,11 @@ const router = createRouter({
 						// Path for Account
 						{
 							path: 'account',
-							component: AccountIndex,
+							component: () => import('../views/account/AccountIndex.vue'),
 						},
 						{
 							path: 'account/:mode/:id?',
-							component: AccountForm,
+							component: () => import ('../views/account/AccountForm.vue'),
 							props: (route) => ({
 								mode: route.params.mode,
 							}),
@@ -100,19 +94,19 @@ const router = createRouter({
 						// Path for journal
 						{
 							path: 'journal',
-							component: JournalIndex,
+							component:() => import ('../views/journal/JournalIndex.vue'),
 						},
 						{
 							path: 'journal/view/:id?',
-							component: JournalDetail,
+							component: () => import ('../views/journal/JournalDetail.vue'),
 						},
 						{
 							path: 'mexpenses',
-							component: MExpensesIndex
+							component: () => import ('../views/mexpenses/MExpensesIndex.vue'),
 						},
 						{
 							path: 'mexpenses/:mode/:id?',
-							component: MExpensesForm,
+							component: () => import ('../views/mexpenses/MExpensesForm.vue'),
 							props: (route) => ({
 								mode: route.params.mode,
 							}),
