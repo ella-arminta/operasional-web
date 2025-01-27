@@ -112,6 +112,10 @@ const props = defineProps({
 		type: Boolean,
 		default: true,
 	},
+	readonly: {
+		type: Boolean,
+		default: false,
+	},
 })
 
 const emit = defineEmits(['update:modelValue'])

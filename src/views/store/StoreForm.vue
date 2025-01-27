@@ -69,7 +69,7 @@
 							Company<span class="text-pinkDark">*</span>
 						</label>
 						<Dropdown
-							:items="items"
+							:items="companies"
 							v-model="form.company_id"
 							placeholder="Select a company"
 							:multiple="false"
@@ -126,6 +126,7 @@
 							class="w-full bg-pinkGray text-pinkOrange text-opacity-50 px-4 py-2 rounded-lg border border-pinkOrange border-opacity-25 hover:bg-pinkDark hover:bg-opacity-50 transition duration-300 ease-in-out"
 							type="button"
 							@click="openModal"
+							:readonly="mode === 'view'"
 						>
 							Select Location
 						</button>
@@ -174,7 +175,7 @@
 		<!-- Modal Mappicker -->
 		<teleport to="#modal-container">
 			<div
-				v-if="showModal"
+				v-if="showModal && mode !== 'view'"
 				class="fixed inset-0 z-[999] flex items-center justify-center bg-black bg-opacity-50 transition duration-300"
 				@click.self="closeModal"
 			>
@@ -222,9 +223,10 @@
 	</div>
 </template>
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, readonly } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
+import Cookies from 'js-cookie'
 import axiosInstance from '../../axios'
 import PageTitle from '../../components/PageTitle.vue'
 import Dropdown from '../../components/Dropdown.vue'
@@ -233,11 +235,8 @@ import ImageUpload from '../../components/ImageUpload.vue'
 import InputForm from '../../components/InputForm.vue'
 import TextareaForm from '../../components/TextareaForm.vue'
 
-const items = [
-	{ id: 1, label: 'Option 1' },
-	{ id: 2, label: 'Option 2' },
-	{ id: 3, label: 'Option 3' },
-]
+// Dropdown Items
+const companies = ref([])
 
 const props = defineProps({
 	mode: { type: String, required: true },
@@ -247,8 +246,9 @@ const form = ref({
 	code: '',
 	name: '',
 	description: '',
-	company_id: '',
+	company_id: [],
 	open_date: '',
+	npwp: '',
 	address: '',
 	latitude: 0,
 	longitude: 0,
@@ -258,8 +258,9 @@ const formCopy = ref({
 	code: '',
 	name: '',
 	description: '',
-	company_id: '',
+	company_id: [],
 	open_date: '',
+	npwp: '',
 	address: '',
 	latitude: 0,
 	longitude: 0,
@@ -271,6 +272,7 @@ const formError = ref({
 	description: '',
 	company_id: '',
 	open_date: '',
+	npwp: '',
 	address: '',
 	latitude: '',
 	longitude: '',
@@ -281,7 +283,6 @@ const formError = ref({
 const prevLocation = ref({ lat: -7.2575, lng: 112.7521 }) // Default location (Surabaya)
 const showModal = ref(false)
 const firstLoad = ref(true)
-const fileInput = ref(null)
 
 const openModal = () => {
 	showModal.value = true
@@ -289,17 +290,19 @@ const openModal = () => {
 }
 
 const updateLocation = (newLocation) => {
-	location.value = newLocation
+	form.value.latitude = newLocation.lat
+	form.value.longitude = newLocation.lng
 }
 
 const saveLocation = () => {
 	showModal.value = false
-	prevLocation.value = location.value
+	prevLocation.value = { lat: form.value.latitude, lng: form.value.longitude }
 }
 
 const closeModal = () => {
 	showModal.value = false
-	location.value = prevLocation.value
+	form.value.latitude = prevLocation.lat
+	form.value.longitude = prevLocation.lng
 }
 const router = useRouter()
 const store = useStore()
@@ -326,7 +329,14 @@ onMounted(async () => {
 				],
 			})
 		}
+	} else {
+		form.value.company_id = [form.value.company_id]
 	}
+	const ownedCompanies = JSON.parse(Cookies.get('userdata')).owned_company
+	companies.value = ownedCompanies.map((company) => ({
+		id: company.id,
+		label: company.name,
+	}))
 })
 
 const resetError = () => {
@@ -337,41 +347,12 @@ const resetForm = () => {
 	form.value = { ...formCopy.value }
 }
 
-const triggerFileInput = () => {
-	fileInput.value.click()
-}
-
-const handleFileChange = (event) => {
-	const file = event.target.files[0]
-
-	// Validate file input
-	if (!file) {
-		formError.value.logo = 'Please select a file.'
-		form.value.logo = null
-		return
-	}
-
-	// Ensure the file is an image
-	if (!file.type.startsWith('image/')) {
-		formError.value.logo = 'Only image files are allowed.'
-		form.value.logo = null
-		return
-	}
-
-	// Reset error and create a preview
-	formError.value.logo = null
-	const reader = new FileReader()
-	reader.onload = (e) => {
-		form.value.logo = e.target.result // Set Base64 image string
-	}
-	reader.readAsDataURL(file)
-}
-
 const hasUnsavedChanges = computed(() => {
 	return (
 		form.value.code !== formCopy.value.code ||
 		form.value.name !== formCopy.value.name ||
-		form.value.description !== formCopy.value.description
+		form.value.description !== formCopy.value.description ||
+		form.value.company_id !== formCopy.value.company_id
 	)
 })
 
@@ -381,6 +362,10 @@ const submit = async () => {
 		const endpoint =
 			props.mode === 'edit' ? `/master/store/${id}` : '/master/store'
 		const method = props.mode === 'edit' ? 'put' : 'post'
+		if (Array.isArray(form.value.company_id)) {
+			form.value.company_id = form.value.company_id[0]
+		}
+
 		const response = await axiosInstance[method](endpoint, form.value)
 
 		if (response.data) {
