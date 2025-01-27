@@ -38,8 +38,8 @@ const menuTree = ref([
 				label: 'Business',
 				children: [
 					{
-						label: 'Akun',
-						path: '/master/akun',
+						label: 'Account',
+						path: '/master/account',
 					},
 					{
 						label: 'Company',
@@ -69,8 +69,8 @@ const menuTree = ref([
 				label: 'Finance',
 				children: [
 					{
-						label: 'Jurnal',
-						path: '/finance/jurnal',
+						label: 'journal',
+						path: '/finance/journal',
 					}
 				],
 			},

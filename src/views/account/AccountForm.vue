@@ -10,10 +10,10 @@
 				<h1 class="text-xl text-pinkDark">
 					{{
 						mode === 'edit'
-							? 'Edit Akun'
+							? 'Edit Account'
 							: mode === 'add'
-								? 'Add Akun'
-								: 'Akun Detail'
+								? 'Add Account'
+								: 'Account Detail'
 					}}
 				</h1>
 				<div class="flex gap-4">
@@ -315,7 +315,7 @@ const submit = async () => {
 					},
 				],
 			})
-			router.push('/master/akun')
+			router.push('/master/Account')
 		}
 	} catch (error) {
 		const errors = error.response.data.errors || []
