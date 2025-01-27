@@ -99,7 +99,7 @@
 		</DataTable>
 	</div>
 </template>
-<style>
+<style scoped>
 @import 'datatables.net-dt';
 .dt-search {
 	display: none !important;

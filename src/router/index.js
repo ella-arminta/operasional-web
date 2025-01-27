@@ -14,6 +14,8 @@ import EmployeeIndex from '../views/employee/EmployeeIndex.vue'
 import EmployeeForm from '../views/employee/EmployeeForm.vue'
 import JournalDetail from '../views/journal/JournalDetail.vue'
 import JournalIndex from '../views/Journal/JournalIndex.vue'
+import MExpensesIndex from '../views/mexpenses/MExpensesIndex.vue'
+import MExpensesForm from '../views/mexpenses/MExpensesForm.vue'
 
 const router = createRouter({
 	history: createWebHistory(),
@@ -103,6 +105,17 @@ const router = createRouter({
 						{
 							path: 'journal/view/:id?',
 							component: JournalDetail,
+						},
+						{
+							path: 'mexpenses',
+							component: MExpensesIndex
+						},
+						{
+							path: 'mexpenses/:mode/:id?',
+							component: MExpensesForm,
+							props: (route) => ({
+								mode: route.params.mode,
+							}),
 						},
 					],
 				},

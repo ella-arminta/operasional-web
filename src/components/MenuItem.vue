@@ -1,7 +1,7 @@
 <template>
 	<div class="menu-item" :class="{ opened: expanded }">
 		<div
-			class="label"
+			class="label break-words"
 			:class="{ activated: isActive }"
 			@click="path != '' ? $router.push(path) : toggleMenu()"
 			:style="{ paddingLeft: depth * 20 + 20 + 'px' }"
@@ -194,5 +194,8 @@ const container = ref(null)
 			}
 		}
 	}
+}
+.break-words {
+	text-wrap: wrap !important;
 }
 </style>

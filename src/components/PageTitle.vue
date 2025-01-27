@@ -44,6 +44,13 @@
 import Cookies from 'js-cookie'
 import { useRouter } from 'vue-router'
 
+const props = defineProps({
+	title: {
+		String,
+		default: ''
+	}
+})
+
 const router = useRouter()
 const path = window.location.pathname
 const breadcrumb = path
@@ -55,7 +62,7 @@ const breadcrumb = path
 	})
 	.join(' / ')
 
-const title =
+const title = props.title != '' ? props.title : 
 	path.split('/').length > 2
 		? path.split('/')[2]?.charAt(0).toUpperCase() +
 			path.split('/')[2]?.substring(1)
