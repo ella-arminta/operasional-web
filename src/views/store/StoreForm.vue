@@ -29,6 +29,10 @@
 					<button
 						v-if="mode !== 'view'"
 						class="flex items-center bg-pinkMed text-white px-4 py-2 rounded-lg gap-1 align-center hover:bg-pinkDark transition duration-300"
+						:class="{
+							'cursor-not-allowed disabled hover:bg-pinkMed ':
+								!hasUnsavedChanges,
+						}"
 						type="submit"
 					>
 						<i class="material-icons text-md">save</i>
@@ -36,7 +40,8 @@
 					</button>
 				</div>
 			</div>
-			<!-- Form Session -->
+			<!-- Form Basic Information -->
+			<FormSectionHeader title="Basic Store Information" icon="info" />
 			<div class="grid grid-cols-3 gap-6 mt-4">
 				<!-- First Grid -->
 				<div class="space-y-3">
@@ -173,6 +178,43 @@
 					/>
 				</div>
 			</div>
+			<!-- Form Advanced Settings -->
+			<FormSectionHeader
+				title="Advanced Store Settings"
+				icon="settings"
+			/>
+			<div class="grid grid-cols-3 gap-6 mt-4">
+				<div class="space-y-3">
+					<!-- Marketplace poin -->
+					<InputForm
+						v-model="form.poin_config"
+						id="poin_config"
+						type="number"
+						label="Marketplace Poin"
+						placeholder="Marketplace Poin"
+						:readonly="mode === 'view'"
+						:error="formError.poin_config"
+					/>
+					<!-- Activation Status -->
+					<ToggleForm
+						v-model="form.is_active"
+						label="Active Status"
+						:disabled="mode === 'view'"
+					/>
+					<!-- Flexible Price -->
+					<ToggleForm
+						v-model="form.is_flex_price"
+						label="Flexible Sold Product Price"
+						:disabled="mode === 'view'"
+					/>
+					<!-- Floating Price -->
+					<ToggleForm
+						v-model="form.is_float_price"
+						label="Floating Product Price"
+						:disabled="mode === 'view'"
+					/>
+				</div>
+			</div>
 		</form>
 		<!-- Modal Mappicker -->
 		<teleport to="#modal-container">
@@ -236,6 +278,8 @@ import MapPicker from '../../components/MapPicker.vue'
 import ImageUpload from '../../components/ImageUpload.vue'
 import InputForm from '../../components/InputForm.vue'
 import TextareaForm from '../../components/TextareaForm.vue'
+import FormSectionHeader from '../../components/FormSectionHeader.vue'
+import ToggleForm from '../../components/ToggleForm.vue'
 const smallMenu = computed(() => store.getters.smallMenu)
 // Dropdown Items
 const companies = ref([])
@@ -255,19 +299,12 @@ const form = ref({
 	latitude: 0,
 	longitude: 0,
 	logo: '',
+	poin_config: 0,
+	is_active: true,
+	is_flex_price: false,
+	is_float_price: false,
 })
-const formCopy = ref({
-	code: '',
-	name: '',
-	description: '',
-	company_id: [],
-	open_date: '',
-	npwp: '',
-	address: '',
-	latitude: 0,
-	longitude: 0,
-	logo: '',
-})
+const formCopy = ref({ ...form.value })
 const formError = ref({
 	code: '',
 	name: '',
@@ -279,6 +316,10 @@ const formError = ref({
 	latitude: '',
 	longitude: '',
 	logo: '',
+	poin_config: '',
+	is_active: '',
+	is_flex_price: '',
+	is_float_price: '',
 })
 
 // MapPicker
@@ -318,6 +359,10 @@ onMounted(async () => {
 			form.value = { ...response.data.data }
 			form.value.company_id = [form.value.company_id]
 			formCopy.value = { ...form.value }
+			prevLocation.value = {
+				lat: form.value.latitude,
+				lng: form.value.longitude,
+			}
 		} catch (error) {
 			store.dispatch('triggerAlert', {
 				type: 'error',
@@ -355,18 +400,9 @@ const formattedDate = computed({
 })
 
 const resetError = () => {
-	formError.value = {
-		code: '',
-		name: '',
-		company_id: '',
-		open_date: '',
-		npwp: '',
-		address: '',
-		latitude: '',
-		longitude: '',
-		logo: '',
-		description: '',
-	}
+	Object.keys(formError.value).forEach((key) => {
+		formError.value[key] = ''
+	})
 }
 
 const resetForm = () => {
@@ -384,7 +420,6 @@ const submit = async () => {
 	if (props.mode === 'view') return
 	if (!hasUnsavedChanges.value && props.mode === 'edit') return
 	try {
-		console.log(hasUnsavedChanges, props.mode)
 		const endpoint =
 			props.mode === 'edit' ? `/master/store/${id}` : '/master/store'
 		const method = props.mode === 'edit' ? 'put' : 'post'
@@ -413,6 +448,7 @@ const submit = async () => {
 	} catch (error) {
 		console.error(error.response.data)
 		const errors = error.response.data.errors || []
+		form.value.company_id = [form.value.company_id] // resetting the state to array
 		errors.forEach((err) => {
 			formError.value[err.field] = err.message
 		})

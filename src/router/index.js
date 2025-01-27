@@ -10,6 +10,8 @@ import CompanyIndex from '../views/company/CompanyIndex.vue'
 import CompanyForm from '../views/company/CompanyForm.vue'
 import StoreIndex from '../views/store/StoreIndex.vue'
 import StoreForm from '../views/store/StoreForm.vue'
+import EmployeeIndex from '../views/employee/EmployeeIndex.vue'
+import EmployeeForm from '../views/employee/EmployeeForm.vue'
 import JournalIndex from '../views/journal/JournalIndex.vue'
 import JournalDetail from '../views/journal/JournalDetail.vue'
 
@@ -64,7 +66,19 @@ const router = createRouter({
 								mode: route.params.mode,
 							}),
 						},
-						// Path for account
+						// Path for Employee
+						{
+							path: 'employee',
+							component: EmployeeIndex,
+						},
+						{
+							path: 'employee/:mode/:id?',
+							component: EmployeeForm,
+							props: (route) => ({
+								mode: route.params.mode,
+							}),
+						},
+						// Path for Account
 						{
 							path: 'account',
 							component: AccountIndex,
@@ -90,8 +104,8 @@ const router = createRouter({
 							path: 'journal/view/:id?',
 							component: JournalDetail,
 						},
-					]
-				}
+					],
+				},
 			],
 		},
 	],

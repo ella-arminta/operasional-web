@@ -36,6 +36,7 @@
 					</button>
 				</div>
 			</div>
+			<FormSectionHeader title="Basic Company Information" icon="info" />
 			<div class="grid grid-cols-3 gap-6 mt-4">
 				<div class="space-y-3">
 					<!-- Code -->
@@ -84,6 +85,7 @@ import axiosInstance from '../../axios'
 import PageTitle from '../../components/PageTitle.vue'
 import InputForm from '../../components/InputForm.vue'
 import TextareaForm from '../../components/TextareaForm.vue'
+import FormSectionHeader from '../../components/FormSectionHeader.vue'
 
 const props = defineProps({
 	mode: { type: String, required: true },
@@ -96,7 +98,7 @@ const formError = ref({ code: '', name: '', description: '' })
 const router = useRouter()
 const store = useStore()
 
-const smallMenu = computed(() => store.getters.smallMenu);
+const smallMenu = computed(() => store.getters.smallMenu)
 const id = router.currentRoute.value.params.id
 
 onMounted(async () => {

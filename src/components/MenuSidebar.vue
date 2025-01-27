@@ -12,7 +12,9 @@
 			:icon="item.icon"
 			:depth="0"
 		/>
-		<i @click="store.dispatch('toggleSmallMenu')" class="material-icons">menu</i>
+		<i @click="store.dispatch('toggleSmallMenu')" class="material-icons"
+			>menu</i
+		>
 	</div>
 </template>
 
@@ -21,7 +23,7 @@ import { computed, ref } from 'vue'
 import MenuItem from './MenuItem.vue'
 import { useStore } from 'vuex'
 
-const store = useStore();
+const store = useStore()
 const smallMenu = computed(() => store.getters.smallMenu)
 
 const menuTree = ref([
@@ -48,6 +50,10 @@ const menuTree = ref([
 					{
 						label: 'Store',
 						path: '/master/store',
+					},
+					{
+						label: 'Employee',
+						path: '/master/employee',
 					},
 				],
 			},
