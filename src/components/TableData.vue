@@ -116,7 +116,7 @@
 		</DataTable>
 	</div>
 </template>
-<style scoped>
+<style>
 @import 'datatables.net-dt';
 .dt-search {
 	display: none !important;
