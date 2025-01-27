@@ -12,8 +12,8 @@ import StoreIndex from '../views/store/StoreIndex.vue'
 import StoreForm from '../views/store/StoreForm.vue'
 import EmployeeIndex from '../views/employee/EmployeeIndex.vue'
 import EmployeeForm from '../views/employee/EmployeeForm.vue'
-import JournalIndex from '../views/journal/JournalIndex.vue'
 import JournalDetail from '../views/journal/JournalDetail.vue'
+import JournalIndex from '../views/Journal/JournalIndex.vue'
 
 const router = createRouter({
 	history: createWebHistory(),
