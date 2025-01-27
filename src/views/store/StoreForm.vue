@@ -6,40 +6,18 @@
 			class="w-full bg-white h-auto rounded-lg shadow-sm py-3 px-4"
 			@submit.prevent="submit"
 		>
-			<div class="flex items-center justify-between">
-				<h1 class="text-xl text-pinkDark">
-					{{
-						mode === 'edit'
-							? 'Edit Store'
-							: mode === 'add'
-								? 'Add Store'
-								: 'Store Detail'
-					}}
-				</h1>
-				<div class="flex gap-4">
-					<button
-						v-if="mode === 'edit' && hasUnsavedChanges"
-						class="flex items-center bg-pinkMed text-white px-4 py-2 rounded-lg gap-1 align-center hover:bg-pinkDark transition duration-300"
-						type="button"
-						@click="resetForm"
-					>
-						<i class="material-icons text-md">history</i>
-						Reset
-					</button>
-					<button
-						v-if="mode !== 'view'"
-						class="flex items-center bg-pinkMed text-white px-4 py-2 rounded-lg gap-1 align-center hover:bg-pinkDark transition duration-300"
-						:class="{
-							'cursor-not-allowed disabled hover:bg-pinkMed ':
-								!hasUnsavedChanges,
-						}"
-						type="submit"
-					>
-						<i class="material-icons text-md">save</i>
-						Save
-					</button>
-				</div>
-			</div>
+			<FormHeader
+				:title="
+					mode === 'edit'
+						? 'Edit Store'
+						: mode === 'add'
+							? 'Add Store'
+							: 'Store Detail'
+				"
+				:showResetButton="mode === 'edit' && hasUnsavedChanges"
+				:showSaveButton="mode !== 'view'"
+				@reset="resetForm"
+			/>
 			<!-- Form Basic Information -->
 			<FormSectionHeader title="Basic Store Information" icon="info" />
 			<div class="grid grid-cols-3 gap-6 mt-4">
@@ -280,6 +258,7 @@ import InputForm from '../../components/InputForm.vue'
 import TextareaForm from '../../components/TextareaForm.vue'
 import FormSectionHeader from '../../components/FormSectionHeader.vue'
 import ToggleForm from '../../components/ToggleForm.vue'
+import FormHeader from '../../components/FormHeader.vue'
 const smallMenu = computed(() => store.getters.smallMenu)
 // Dropdown Items
 const companies = ref([])

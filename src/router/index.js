@@ -6,12 +6,6 @@ import Logout from '../components/Logout.vue'
 import Cookies from 'js-cookie'
 import AkunIndex from '../views/akun/AkunIndex.vue'
 import AkunForm from '../views/akun/AkunForm.vue'
-import CompanyIndex from '../views/company/CompanyIndex.vue'
-import CompanyForm from '../views/company/CompanyForm.vue'
-import StoreIndex from '../views/store/StoreIndex.vue'
-import StoreForm from '../views/store/StoreForm.vue'
-import EmployeeIndex from '../views/employee/EmployeeIndex.vue'
-import EmployeeForm from '../views/employee/EmployeeForm.vue'
 import JurnalIndex from '../views/jurnal/JurnalIndex.vue'
 import JurnalDetail from '../views/jurnal/JurnalDetail.vue'
 
@@ -45,11 +39,13 @@ const router = createRouter({
 						// Path for company
 						{
 							path: 'company',
-							component: CompanyIndex,
+							component: () =>
+								import('../views/company/CompanyIndex.vue'),
 						},
 						{
 							path: 'company/:mode/:id?',
-							component: CompanyForm,
+							component: () =>
+								import('../views/company/CompanyForm.vue'),
 							props: (route) => ({
 								mode: route.params.mode,
 							}),
@@ -57,11 +53,13 @@ const router = createRouter({
 						// Path for store
 						{
 							path: 'store',
-							component: StoreIndex,
+							component: () =>
+								import('../views/store/StoreIndex.vue'),
 						},
 						{
 							path: 'store/:mode/:id?',
-							component: StoreForm,
+							component: () =>
+								import('../views/store/StoreForm.vue'),
 							props: (route) => ({
 								mode: route.params.mode,
 							}),
@@ -69,11 +67,13 @@ const router = createRouter({
 						// Path for Employee
 						{
 							path: 'employee',
-							component: EmployeeIndex,
+							component: () =>
+								import('../views/employee/EmployeeIndex.vue'),
 						},
 						{
 							path: 'employee/:mode/:id?',
-							component: EmployeeForm,
+							component: () =>
+								import('../views/employee/EmployeeForm.vue'),
 							props: (route) => ({
 								mode: route.params.mode,
 							}),

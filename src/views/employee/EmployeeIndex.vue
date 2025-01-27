@@ -23,8 +23,8 @@ const store = useStore()
 const smallMenu = computed(() => store.getters.smallMenu)
 const columns = [
 	{ data: 'no', title: 'No', width: '5%' },
+	{ data: 'name', title: 'Name' },
 	{ data: 'email', title: 'Email' },
-	{ data: 'active', title: 'Active', width: '15%' },
 	{
 		data: 'action',
 		title: 'Action',
