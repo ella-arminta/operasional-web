@@ -68,6 +68,21 @@ const menuTree = ref([
 		],
 	},
 	{
+		label: 'Report',
+		icon: 'analytics',
+		children: [
+			{
+				label: 'Finance',
+				children: [
+					{
+						label: 'Jurnal',
+						path: '/finance/jurnal',
+					}
+				],
+			},
+		],
+	},
+	{
 		label: 'Settings',
 		icon: 'settings',
 		path: '/settings',
