@@ -121,7 +121,7 @@ const menuTree = ref([
 	background-color: var(--bg-white);
 	color: var(--pink-dark);
 	min-width: 15%;
-	width: 15%;
+	// width: 15%;
 	padding: 0 20px;
 	left: 0;
 	top: 0;

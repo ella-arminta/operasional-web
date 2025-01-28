@@ -57,14 +57,14 @@
 		<div
 			v-show="isOpen && !disabled"
 			:class="props.position"
-			class="z-10 bg-white border border-pinkOrange border-opacity-25 shadow-lg mt-2 rounded-lg w-full max-h-60 overflow-y-auto bg-pinkGray"
+			class="z-10 bg-white border border-pinkOrange border-opacity-25 shadow-lg rounded-lg w-full max-h-60 overflow-y-auto bg-pinkGray"
 		>
 			<ul>
 				<li v-if="searchable" class="px-4 py-2 border-b bg-pinkGray">
 					<input
 						type="text"
 						v-model="search"
-						class="outline-none bg-pinkGray text-sm flex-grow placeholder-pinkOrange placeholder-opacity-50 text-pinkOrange text-opacity-100"
+						class="w-full outline-none bg-pinkGray text-sm flex-grow placeholder-pinkOrange placeholder-opacity-50 text-pinkOrange text-opacity-100"
 						:disabled="disabled"
 						placeholder="search..."
 					/>

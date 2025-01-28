@@ -69,7 +69,11 @@
 						<label :for="filter.name" class="block mb-1">{{
 							filter.label
 						}}</label>
-						<select
+						<Dropdown
+							:items="filter.options"
+							v-model="filterValues[filter.name]"
+							/>
+						<!-- <select
 							v-if="filter.type === 'select'"
 							:id="filter.name"
 							v-model="filterValues[filter.name]"
@@ -82,7 +86,7 @@
 							>
 								{{ option.label }}
 							</option>
-						</select>
+						</select> -->
 					</div>
 					<!-- Filter type:"SelectRangeFinance" -->
 					<div v-if="filter.type == 'selectRangeFinance'">
@@ -272,6 +276,7 @@ import Cookies from 'js-cookie'
 import { useStore } from 'vuex'
 import axiosInstance from '../axios'
 import DropdownFinance from './DropdownFinance.vue'
+import Dropdown from './Dropdown.vue'
 
 // Define props
 const props = defineProps({

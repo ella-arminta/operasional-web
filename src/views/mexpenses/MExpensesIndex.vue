@@ -1,16 +1,17 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, render } from 'vue';
 import PageTitle from '../../components/PageTitle.vue';
 import TableData from '../../components/TableData.vue';
 import axiosInstance from '../../axios';
 import { useStore } from 'vuex';
 
 const columns = [
-  { data: 'code', title: 'Code' },
-  { data: 'store.name', title: 'Store' },
-  { data: 'company.name', title: 'Company' },
-  { data: 'store.name', title: 'Store' },
-  { data: 'account_type.name', title: 'Type' },
+  { data: 'code', title: 'No' },
+  { data: 'trans_date', title: 'Date', render: (data) => new Date(data).toLocaleDateString() },
+  { data: 'account_name', title: 'Account' },
+  { data: 'total', title: 'Total' },
+  { data: 'description', title: 'Description' },
+  { data: 'created_by', title: 'Created By' },
   {
 		data: 'action',
 		title: 'Action',
@@ -25,48 +26,20 @@ const smallMenu = computed(() => store.getters.smallMenu);
 const filters = ref([]);
 
 onMounted(async () => {
-  const storeData = await axiosInstance.get('/master/store');
-  var storesFormated = storeData.data.data.map((store) => ({
-    label: store.name,
-    value: store.id,
-  }));
-  const typeData = await axiosInstance.get('/finance/account-type');
-  var typesFormated = typeData.data.data.map((type) => ({
-    label: type.name,
-    value: type.id,
-  }));
-  const companyData = await axiosInstance.get('/master/company');
-  var companiesFormated = companyData.data.data.map((company) => ({
+  const accountData = await axiosInstance.get('/finance/account');
+  var accountsFormated = accountData.data.data.map((company) => ({
     label: company.name,
-    value: company.id,
+    id: company.id,
   }));
 
   filters.value = [
     {
       type: 'select',
-      label: 'Store',
-      name: 'store_id',
+      label: 'Account',
+      name: 'account_name',
       options: [
-        { label: 'All Store', value: '' },
-        ...storesFormated,
-      ],
-    },
-    {
-      type: 'select',
-      label: 'Company',
-      name: 'company_id',
-      options: [
-        { label: 'All Company', value: '' },
-        ...companiesFormated,
-      ],
-    }, 
-    {
-      type: 'select',
-      label: 'Type',
-      name: 'account_type_id',
-      options: [
-        { label: 'All Type', value: '' },
-        ...typesFormated,
+        { label: 'All Account', id: '' },
+        ...accountsFormated,
       ],
     }
   ];
@@ -85,9 +58,9 @@ onMounted(async () => {
       :reload="true"
       :filters="filters"
       ajaxPath="/finance/uang-keluar-masuk"
-      :editPath="'/master/account/edit'"
-      :deletePath="'/master/account'"
-	    :infoPath="'/master/account/view'"
+      :editPath="'/finance/mexpenses/edit'"
+      :deletePath="'/finance/transaction'"
+	    :infoPath="'/finance/mexpenses/view'"
     />
   </div>
 </template>

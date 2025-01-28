@@ -41,6 +41,7 @@ body {
 	display: flex;
 	width: 100%;
 	position: relative;
+	min-height: 100vh;
 	background-color: #f9f9f9;
 	main {
 		flex: 1 1 0;
