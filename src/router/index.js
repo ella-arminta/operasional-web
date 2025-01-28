@@ -98,6 +98,9 @@ const router = createRouter({
 							path: 'category/:mode/:id?',
 							component: () =>
 								import('../views/category/CategoryForm.vue'),
+							props: (route) => ({
+								mode: route.params.mode,
+							}),
 						},
 					],
 				},
@@ -141,6 +144,10 @@ const router = createRouter({
 					],
 				},
 			],
+		},
+		{
+			path: '/:pathMatch(.*)*',
+			component: () => import('../views/error/NotFound.vue'),
 		},
 	],
 })

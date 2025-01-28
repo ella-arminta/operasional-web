@@ -338,6 +338,34 @@ const store = useStore()
 const id = router.currentRoute.value.params.id
 
 onMounted(async () => {
+	try {
+		const response = await axiosInstance.get('/master/company', {
+			params: {
+				owner_id: JSON.parse(Cookies.get('userdata')).id,
+			},
+		})
+		if (response.data) {
+			const ownedCompanies = response.data.data
+			companies.value = ownedCompanies.map((company) => ({
+				id: company.id,
+				label: company.name,
+			}))
+		}
+	} catch (error) {
+		store.dispatch('triggerAlert', {
+			type: 'error',
+			title: 'Error!',
+			message: 'Failed to fetch company data.',
+			actions: [
+				{
+					label: 'close',
+					type: 'secondary',
+					handler: () => store.dispatch('hideAlert'),
+				},
+			],
+		})
+		companies.value = []
+	}
 	if (props.mode !== 'add' && id) {
 		try {
 			const response = await axiosInstance.get(`/master/store/${id}`)
@@ -364,35 +392,6 @@ onMounted(async () => {
 		}
 	} else {
 		form.value.company_id = [form.value.company_id]
-	}
-	try {
-		const response = await axiosInstance.get('/master/company', {
-			params: {
-				owner_id: JSON.parse(Cookies.get('userdata')).id,
-				id: JSON.parse(Cookies.get('userdata')).id,
-			},
-		})
-		if (response.data) {
-			const ownedCompanies = response.data.data
-			companies.value = ownedCompanies.map((company) => ({
-				id: company.id,
-				label: company.name,
-			}))
-		}
-	} catch (error) {
-		store.dispatch('triggerAlert', {
-			type: 'error',
-			title: 'Error!',
-			message: 'Failed to fetch company data.',
-			actions: [
-				{
-					label: 'close',
-					type: 'secondary',
-					handler: () => store.dispatch('hideAlert'),
-				},
-			],
-		})
-		companies.value = []
 	}
 })
 

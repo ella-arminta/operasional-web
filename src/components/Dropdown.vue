@@ -162,6 +162,7 @@ const selectedItems = ref(
 watch(
 	() => props.modelValue,
 	(newValue) => {
+		console.log(newValue, props.items, selectedItems.value)
 		selectedItems.value = Array.isArray(newValue)
 			? props.items.filter((item) => newValue.includes(item.id))
 			: []
