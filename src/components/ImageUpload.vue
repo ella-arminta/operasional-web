@@ -2,6 +2,9 @@
 	<div
 		@click="triggerFileInput"
 		class="w-full bg-pinkGray border border-pinkOrange border-opacity-25 transition duration-300 placeholder-pinkOrange placeholder-opacity-25 rounded-lg px-3 py-2 text-pinkDark focus:outline-none focus:ring focus:ring-pinkOrange focus:ring-opacity-25 cursor-pointer"
+		:class="{
+			'bg-opacity-25': readonly,
+		}"
 	>
 		<div
 			v-if="loading"

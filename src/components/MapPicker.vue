@@ -25,6 +25,10 @@ const props = defineProps({
 		type: Boolean,
 		default: false,
 	},
+	readonly: {
+		type: Boolean,
+		default: false,
+	},
 })
 
 const emit = defineEmits(['update:location'])
@@ -77,7 +81,7 @@ const initializeMap = () => {
 	// Add a draggable marker
 	marker = L.marker(
 		[selectedLocation.value.lat, selectedLocation.value.lng],
-		{ draggable: true }
+		{ draggable: !props.readonly }
 	).addTo(map)
 
 	// Update location when marker is dragged

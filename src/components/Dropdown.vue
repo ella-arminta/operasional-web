@@ -8,6 +8,9 @@
 		<div
 			@click="toggleDropdown"
 			class="border rounded-lg px-3 py-2 flex items-center justify-between gap-2 cursor-pointer bg-pinkGray border-pinkOrange border-opacity-25 transition duration-300 ease-in-out"
+			:class="{
+				'bg-opacity-25': disabled,
+			}"
 		>
 			<div class="flex flex-wrap gap-1">
 				<!-- Selected Items -->
@@ -52,7 +55,7 @@
 
 		<!-- Dropdown Menu -->
 		<div
-			v-show="isOpen && !props.disabled"
+			v-show="isOpen && !disabled"
 			:class="props.position"
 			class="z-10 bg-white border border-pinkOrange border-opacity-25 shadow-lg mt-2 rounded-lg w-full max-h-60 overflow-y-auto bg-pinkGray"
 		>
@@ -62,7 +65,7 @@
 						type="text"
 						v-model="search"
 						class="outline-none bg-pinkGray text-sm flex-grow placeholder-pinkOrange placeholder-opacity-50 text-pinkOrange text-opacity-100"
-						:disabled="props.disabled"
+						:disabled="disabled"
 						placeholder="search..."
 					/>
 				</li>
@@ -75,7 +78,9 @@
 				>
 					<div
 						class="flex items-center justify-between text-pinkOrange text-opacity-50 hover:text-opacity-100"
-						:class="{ 'text-opacity-100': isSelected(item) }"
+						:class="{
+							'text-opacity-100 text-pinkDark': isSelected(item),
+						}"
 					>
 						{{ item.label }}
 						<i
@@ -143,7 +148,7 @@ const props = defineProps({
 	position: {
 		type: String,
 		default: 'absolute',
-	}
+	},
 })
 
 const emit = defineEmits(['update:modelValue'])

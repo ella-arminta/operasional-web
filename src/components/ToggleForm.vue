@@ -10,7 +10,7 @@
 			:class="[
 				'relative w-12 h-6 rounded-full cursor-pointer transition-colors duration-300 border border-pinkOrange border-opacity-25',
 				active ? 'bg-pinkDark' : 'bg-pinkGray',
-				props.disabled ? 'opacity-75 cursor-default' : '',
+				disabled ? 'opacity-25 cursor-default' : '',
 			]"
 		>
 			<!-- Toggle Knob -->
