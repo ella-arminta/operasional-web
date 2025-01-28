@@ -53,7 +53,8 @@
 		<!-- Dropdown Menu -->
 		<div
 			v-show="isOpen && !props.disabled"
-			class="absolute z-10 bg-white border border-pinkOrange border-opacity-25 shadow-lg mt-2 rounded-lg w-full max-h-60 overflow-y-auto bg-pinkGray"
+			:class="props.position"
+			class="z-10 bg-white border border-pinkOrange border-opacity-25 shadow-lg mt-2 rounded-lg w-full max-h-60 overflow-y-auto bg-pinkGray"
 		>
 			<ul>
 				<li v-if="searchable" class="px-4 py-2 border-b bg-pinkGray">
@@ -139,6 +140,10 @@ const props = defineProps({
 		type: String,
 		default: '',
 	},
+	position: {
+		type: String,
+		default: 'absolute',
+	}
 })
 
 const emit = defineEmits(['update:modelValue'])
