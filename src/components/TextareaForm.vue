@@ -17,6 +17,8 @@
 			:class="{
 				'border-pinkDark': error,
 				'border-pinkOrange': !error,
+				'placeholder-opacity-50 bg-opacity-25': readonly,
+				'text-opacity-100 bg-opacity-100 text-pinkDark': !readonly,
 			}"
 		></textarea>
 

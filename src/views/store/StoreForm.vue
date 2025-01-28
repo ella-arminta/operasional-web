@@ -114,12 +114,20 @@
 						</label>
 						<!-- Button to Open Modal -->
 						<button
-							class="w-full bg-pinkGray text-pinkOrange text-opacity-50 px-4 py-2 rounded-lg border border-pinkOrange border-opacity-25 hover:bg-pinkDark hover:bg-opacity-50 transition duration-300 ease-in-out"
+							class="w-full bg-pinkGray text-pinkOrange text-opacity-50 px-4 py-2 rounded-lg border border-pinkOrange border-opacity-25 hover:bg-pinkDark hover:bg-opacity-75 hover:text-white transition duration-300 ease-in-out"
 							type="button"
 							@click="openModal"
-							:readonly="mode === 'view'"
+							:class="{
+								'bg-opacity-25': mode === 'view',
+							}"
 						>
-							Select Location
+							{{
+								form.latitude && form.longitude
+									? mode === 'view'
+										? 'View Location'
+										: 'Change Location'
+									: 'Select a Location'
+							}}
 						</button>
 						<p
 							v-if="formError.latitude || formError.longitude"
@@ -203,18 +211,18 @@
 		<!-- Modal Mappicker -->
 		<teleport to="#modal-container">
 			<div
-				v-if="showModal && mode !== 'view'"
+				v-if="showModal"
 				class="fixed inset-0 z-[999] flex items-center justify-center bg-black bg-opacity-50 transition duration-300"
 				@click.self="closeModal"
 			>
 				<div
-					class="bg-white w-3/4 h-3/4 rounded-lg shadow-lg relative overflow-hidden"
+					class="bg-white w-3/4 h-auto max-h-3/4 rounded-lg shadow-lg relative overflow-hidden"
 				>
 					<!-- Modal Header -->
 					<div class="flex justify-between items-center p-4 border-b">
 						<h2 class="text-xl font-bold">Select a Location</h2>
 						<button
-							class="text-gray-500 hover:text-gray-800"
+							class="text-pinkMed text-2xl hover:text-pinkDark transition duration-300 ease-in-out"
 							@click="closeModal"
 						>
 							&times;
@@ -233,13 +241,13 @@
 					<!-- Modal Footer -->
 					<div class="flex justify-end p-4 border-t">
 						<button
-							class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 mr-2"
+							class="px-4 py-2 bg-pinkLight text-PinkDark rounded-lg hover:bg-pinkMed mr-2 transition duration-300 ease-in-out"
 							@click="closeModal"
 						>
 							Cancel
 						</button>
 						<button
-							class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700"
+							class="px-4 py-2 bg-pinkOrange text-white rounded-lg hover:bg-pinkDark transition duration-300 ease-in-out"
 							@click="saveLocation"
 						>
 							Save

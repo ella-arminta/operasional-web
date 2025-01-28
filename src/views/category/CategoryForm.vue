@@ -22,15 +22,16 @@
 			<div class="grid grid-cols-3 gap-6 mt-4">
 				<div class="space-y-3">
 					<!-- Code -->
-					<!-- <InputForm
+					<InputForm
+						v-if="mode !== 'add'"
 						v-model="form.code"
 						id="code"
 						label="Code"
 						placeholder="Code"
 						required
 						:error="formError.code"
-						:readonly="mode === 'view'"
-					/> -->
+						:readonly="mode !== 'add'"
+					/>
 					<!-- Name -->
 					<InputForm
 						v-model="form.name"
@@ -165,7 +166,7 @@ const metals = [
 const companies = ref([])
 
 const form = ref({
-	// code: '',
+	code: '',
 	name: '',
 	purity: '',
 	metal_type: [],
@@ -176,7 +177,7 @@ const form = ref({
 })
 const formCopy = ref({ ...form.value })
 const formError = ref({
-	// code: '',
+	code: '',
 	name: '',
 	purity: '',
 	metal_type: '',
@@ -268,7 +269,7 @@ const hasUnsavedChanges = computed(() => {
 	)
 })
 
-const excludedKeys = ['description']
+const excludedKeys = ['code', 'description']
 
 const hasFullyFilled = computed(() => {
 	return Object.keys(form.value)
