@@ -144,6 +144,19 @@ const router = createRouter({
 								mode: route.params.mode,
 							}),
 						},
+						{
+							path: 'cashier-closing',
+							component: () =>
+								import('../views/cashier-closing/CashierClosingIndex.vue'),
+						},
+						{
+							path: 'cashier-closing/:mode/:id?',
+							component: () =>
+								import('../views/cashier-closing/CashierClosingForm.vue'),
+							props: (route) => ({
+								mode: route.params.mode,
+							}),
+						},
 					],
 				},
 				{

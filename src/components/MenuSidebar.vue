@@ -80,6 +80,10 @@ const menuTree = ref([
 				label: 'Miscellaneous Incomes',
 				path: '/finance/mincomes',
 			},
+			{
+				label: 'Cashier Closing',
+				path: '/finance/cashier-closing'
+			}
 		],
 	},
 	{
