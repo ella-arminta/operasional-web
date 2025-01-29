@@ -10,6 +10,8 @@
 						:colspan="columns.filter((c) => !c.hidden).length"
 					>
 						{{ title }}
+						<span v-if="required" class="text-white">*</span>
+						(at least 1 sub category)
 					</th>
 					<!-- Add Row Button -->
 					<th class="flex justify-end items-center mx-4 my-2">
@@ -316,6 +318,8 @@ const saveRow = async (index: number) => {
 		} else if (props.editPath !== '' && id !== '') {
 			result = await editLogic(index)
 		}
+	} else {
+		result = true
 	}
 	if (result) {
 		activeRow.value = null
