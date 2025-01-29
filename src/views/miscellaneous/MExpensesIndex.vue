@@ -64,7 +64,17 @@ onMounted(async () => {
         { label: 'All Account', id: '' },
         ...accountsFormated,
       ],
-    }
+    },
+    {
+      type: 'date',
+      label: 'Start Date',
+      name: 'start_date',
+    },
+    {
+      type: 'date',
+      label: 'End Date',
+      name: 'end_date',
+    },
   ];
 });
 </script>
