@@ -121,12 +121,38 @@ const router = createRouter({
 						{
 							path: 'mexpenses',
 							component: () =>
-								import('../views/mexpenses/MExpensesIndex.vue'),
+								import('../views/miscellaneous/MExpensesIndex.vue'),
 						},
 						{
 							path: 'mexpenses/:mode/:id?',
 							component: () =>
-								import('../views/mexpenses/MExpensesForm.vue'),
+								import('../views/miscellaneous/MExpensesForm.vue'),
+							props: (route) => ({
+								mode: route.params.mode,
+							}),
+						},
+						{
+							path: 'mincomes',
+							component: () =>
+								import('../views/miscellaneous/MIncomesIndex.vue'),
+						},
+						{
+							path: 'mincomes/:mode/:id?',
+							component: () =>
+								import('../views/miscellaneous/MIncomesForm.vue'),
+							props: (route) => ({
+								mode: route.params.mode,
+							}),
+						},
+						{
+							path: 'cashier-closing',
+							component: () =>
+								import('../views/cashier-closing/CashierClosingIndex.vue'),
+						},
+						{
+							path: 'cashier-closing/:mode/:id?',
+							component: () =>
+								import('../views/cashier-closing/CashierClosingForm.vue'),
 							props: (route) => ({
 								mode: route.params.mode,
 							}),

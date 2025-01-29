@@ -78,7 +78,12 @@ const menuTree = ref([
 			},
 			{
 				label: 'Miscellaneous Incomes',
+				path: '/finance/mincomes',
 			},
+			{
+				label: 'Cashier Closing',
+				path: '/finance/cashier-closing'
+			}
 		],
 	},
 	{
@@ -121,7 +126,7 @@ const menuTree = ref([
 	background-color: var(--bg-white);
 	color: var(--pink-dark);
 	min-width: 15%;
-	width: 15%;
+	// width: 15%;
 	padding: 0 20px;
 	left: 0;
 	top: 0;

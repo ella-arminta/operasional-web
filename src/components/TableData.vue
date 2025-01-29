@@ -65,24 +65,14 @@
 					class="w-[100%] md:w-[18.8%]"
 				>
 					<!-- Filter type:"select" -->
-					<div v-if="filter.type === 'select'">
+					<div v-if="filter.type === 'select'" class="border px-3 py-2 rounded-lg w-full">
 						<label :for="filter.name" class="block mb-1">{{
 							filter.label
 						}}</label>
-						<select
-							v-if="filter.type === 'select'"
-							:id="filter.name"
+						<Dropdown
+							:items="filter.options"
 							v-model="filterValues[filter.name]"
-							class="border px-3 py-2 rounded-lg w-full"
-						>
-							<option
-								v-for="option in filter.options"
-								:key="option.value"
-								:value="option.value"
-							>
-								{{ option.label }}
-							</option>
-						</select>
+							/>
 					</div>
 					<!-- Filter type:"SelectRangeFinance" -->
 					<div v-if="filter.type == 'selectRangeFinance'">
@@ -91,6 +81,17 @@
 						}}</label>
 						<DropdownFinance
 							@range-selected="handleRangeSelected"
+						/>
+					</div>
+					<!-- Filter for Date Range -->
+					<div v-if="filter.type === 'date'">
+						<!-- <label :for="filter.name" class="block mb-1">{{ filter.label }}</label> -->
+						<InputForm
+							:id="filter.name"
+							:label="filter.label"
+							type="date"
+							v-model="filterValues[filter.name]"
+							class="border px-3 py-2 rounded-lg w-full"
 						/>
 					</div>
 				</div>
@@ -272,6 +273,8 @@ import Cookies from 'js-cookie'
 import { useStore } from 'vuex'
 import axiosInstance from '../axios'
 import DropdownFinance from './DropdownFinance.vue'
+import Dropdown from './Dropdown.vue'
+import InputForm from './InputForm.vue'
 
 // Define props
 const props = defineProps({
@@ -382,7 +385,9 @@ watch(
 					acc.dateEnd = end
 					return acc
 				}
-				acc[filter.name] = filter.options[0].value
+				if (filter.type == 'select') {
+					acc[filter.name] = filter.options[0].value
+				}
 				return acc
 			},
 			{} as Record<string, string>

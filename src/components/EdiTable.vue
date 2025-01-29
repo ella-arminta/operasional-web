@@ -26,9 +26,12 @@
             <tbody>
                 <tr v-for="(row, rowIndex) in rows" :key="rowIndex">
                     <td v-for="(col, colIndex) in columns" :key="colIndex" class="border border-pinkOrange px-0 h-full">
-                        <input v-if="['int', 'number', 'text'].includes(col.type)" v-model="rows[rowIndex][col.key]" :type="col.type == 'number' ? 'text' : col.type"
-                            class="border-none rounded px-2 py-1 w-full h-full"
-                            @input="rows[rowIndex][col.key] = col.type === 'number' ? validateAndParseInput($event, rowIndex, col.key) : $event.target.value" 
+                        <input 
+                            v-if="['int', 'number', 'text'].includes(col.type)" 
+                            v-model="rows[rowIndex][col.key]" 
+                            :type="col.type == 'number' ? 'text' : col.type"
+                            class="border border-pinkLight rounded px-2 py-1 w-full h-full"
+                            @input="handleInput($event, col, rowIndex)" 
                             />
                         <Dropdown v-else-if="col.type === 'dropdown'" v-model="rows[rowIndex][col.key]" :items="col.items" :position="'sticky'" />
                     </td>
@@ -48,7 +51,6 @@
 import { ref, watch } from 'vue';
 import Dropdown from './Dropdown.vue';
 
-// Props for parent-to-child configuration
 const props = defineProps({
     columns: {
         type: Array,
@@ -70,8 +72,21 @@ const props = defineProps({
     },
 });
 
+// Emit rows update to parent if needed
+const emit = defineEmits(['update:rows']);
+const emitUpdate = () => {
+    emit('update:rows', rows.value);
+};
+
 // Reactive state
 const rows = ref([...props.initialRows]);
+watch(
+    () => props.initialRows,
+    (newRows) => {
+        rows.value = [...newRows]; // Update rows when initialRows changes
+    },
+    { deep: true, immediate: true } // Ensure immediate and deep watching
+);
 
 // Methods
 const addRow = () => {
@@ -82,41 +97,60 @@ const addRow = () => {
     }, {});
 
     rows.value.push(newRow);
+    emitUpdate();
 };
 
 const deleteRow = (index) => {
     rows.value.splice(index, 1);
+    emitUpdate();
 };
 
 if (props.required) {
     addRow();
 }
-// Emit rows update to parent if needed
-const emit = defineEmits(['update:rows']);
-watch(rows, (newRows) => {
-    emit('update:rows', newRows);
-}, { deep: true });
+
+const handleInput = (event, col, rowIndex) => {
+    // col.type === 'number' ? validateAndParseInput($event, rowIndex, col.key) : $event.target.value;
+    if (col.type === 'number') {
+        validateAndParseInput(event, rowIndex, col.key);
+    } else {
+        rows.value[rowIndex][col.key] = event.target.value;
+    }
+
+    emitUpdate();
+};
+
+watch (
+    () => props.initialRows,
+    (newRows) => {
+        rows.value = [...newRows];
+    },
+    { deep: true }
+)
 
 const validateAndParseInput = (event, rowIndex, key) => {
     let value = event.target.value;
-    console.log('Value:', value);
 
-    // Allow only valid numeric characters (digits, '.', or ',')
-    value = value.replace(/[^0-9.]/g, '');
+    // Pastikan input hanya memiliki angka, titik desimal (.), atau koma (,)
+    value = value.replace(/[^0-9.,]/g, '');
 
-    // Replace multiple dots with a single dot
-    value = value.replace(/\.{2,}/g, '.');
+    // Ganti koma (,) dengan titik (.) untuk memastikan format float konsisten
+    value = value.replace(/,/g, '.');
 
-    console.log('Parsed Value:', value);
+    // Pastikan hanya ada satu titik desimal dalam angka
+    const parts = value.split('.');
+    if (parts.length > 2) {
+        value = parts[0] + '.' + parts.slice(1).join('');
+    }
 
-    // Update the row value
-    rows.value[rowIndex][key] = parseFloat(value);
-    return value;
+    rows.value[rowIndex][key] = value; 
+
+    emitUpdate();
 };
 
 </script>
 
-<style scoped>
+<style>
 .editable {
     max-width: 100%;
     overflow-x: auto;
