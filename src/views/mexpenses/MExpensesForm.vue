@@ -146,10 +146,9 @@ const columns = ref([
 ]);
 
 const handleRowsUpdate = (updatedRows) => {
-	form.value.total = updatedRows.reduce(
-		(sum, row) => sum + parseFloat(row.amount || 0),
-		0
-	);
+	form.value.total = Math.round(
+		updatedRows.reduce((sum, row) => sum + parseFloat(row.amount || 0), 0) * 100
+	) / 100;
 
 	form.value.accounts = [...updatedRows];
 };
@@ -199,30 +198,10 @@ onMounted(async () => {
 		{ label: 'Account', key: 'account_id', type: 'dropdown', items: accAll },
 	)
 
-	if (props.mode !== 'add' && id) {
+	if (props.mode != 'add' && id) {
 		try {
-			const response = await axiosInstance.get(`/finance/transaction/${id}`)
-			const data = response.data.data
-			form.value.code = data.code;
-			form.value.total =Math.abs(data.total);
-			form.value.description = data.description;
-			form.value.trans_date = formatDate(data.trans_date);
-			var tempaccounts = [];
-			data.trans_details.forEach(details => {
-				if (details.kas && details.kas == true) {
-					form.value.account_cash_id = [details.account_id]
-				}else {
-					tempaccounts.push({
-						account_id: [details.account_id],
-						amount: details.amount,
-						description: details.description,
-					});
-				}
-			});
-			console.log('tempaccounts', JSON.stringify(tempaccounts))
-			form.value.accounts = tempaccounts;
-			formCopy.value.accounts = tempaccounts;
-			formCopy.value = { ...form.value }
+			console.log('mounted again')
+			mountUpdatedData()
 		} catch (error) {
 			store.dispatch('triggerAlert', {
 				type: 'error',
@@ -259,6 +238,31 @@ onMounted(async () => {
 		formattedDate.value = formatDate(new Date().toISOString().split('T')[0])
 	}
 })
+
+const mountUpdatedData = async () => {
+	const response = await axiosInstance.get(`/finance/transaction/${id}`)
+	const data = response.data.data
+	form.value.code = data.code;
+	form.value.total = Math.abs(data.total);
+	form.value.description = data.description;
+	form.value.trans_date = formatDate(data.trans_date);
+	var tempaccounts = [];
+	data.trans_details.forEach(details => {
+		if (details.kas && details.kas == true) {
+			form.value.account_cash_id = [details.account_id]
+		}else {
+			tempaccounts.push({
+				account_id: [details.account_id],
+				amount: Math.abs(details.amount).toString(),
+				description: details.description,
+			});
+		}
+	});
+	form.value.accounts = tempaccounts;
+	formCopy.value.accounts = tempaccounts;
+	formCopy.value = { ...form.value }
+
+}
 
 const formatDate = (date) => {
 	if (!date) return ''
@@ -323,13 +327,13 @@ const submit = async () => {
 			return account
 		})
 		const response = await axiosInstance[method](endpoint, form.value)
-
-		if (response.data) {
+		console.log('submit response', response);
+		if (response.data.success) {
 			const action = props.mode === 'edit' ? 'Updated' : 'Created'
 			store.dispatch('triggerAlert', {
 				type: 'success',
 				title: 'Success!',
-				message: `Transaction ${response.data.data.name} ${action}.`,
+				message: `Transaction ${action}.`,
 				actions: [
 					{
 						label: 'close',
@@ -338,15 +342,18 @@ const submit = async () => {
 					},
 				],
 			})
-			router.push('/finance/mexpenses')
+			const redirect = props.mode === 'edit' ? `/finance/mexpenses/edit/${id}` : '/finance/mexpenses'
+			router.push(redirect);
+			mountUpdatedData()
 		}
 	} catch (error) {
+		console.log('error', error)
 		form.value.accounts = form.value.accounts.map((account) => {
 			account.account_id = [account.account_id]
 			return account
 		})
 		// if error code startswith 4
-		if (error.response.status.toString().startsWith('4')) {
+		if (error.response.statusCode.toString().startsWith('4')) {
 			const errors = error.response.data.errors || []
 			var errormessagelist = ''
 			errors.forEach((err) => {
