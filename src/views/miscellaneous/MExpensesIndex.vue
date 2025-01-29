@@ -23,6 +23,29 @@ const columns = [
 const store = useStore();
 const smallMenu = computed(() => store.getters.smallMenu);
 
+const props = defineProps({
+    addPath: {
+        type: String,
+        default: '/finance/mexpenses/add',
+    },
+    editPath: {
+        type: String,
+        default: '/finance/mexpenses/edit',
+    },
+    infoPath: {
+        type: String,
+        default: '/finance/mexpenses/view',
+    },
+    ajaxPath: {
+        type: String,
+        default: '/finance/uang-keluar-masuk?trans_type_id=1',
+    },
+    pageTitle: {
+        type: String,
+        default: 'Miscellaneous Expenses',
+    },
+});
+
 const filters = ref([]);
 
 onMounted(async () => {
@@ -49,18 +72,18 @@ onMounted(async () => {
 <template>
   <div class="content" :class="{ 'full-width': smallMenu }">
     <PageTitle
-      title="Miscellaneous Expenses"
+      :title="pageTitle"
     />
     <TableData 
       :columns="columns"
-      :addPath="'/finance/mexpenses/add'"
+      :addPath="addPath"
       :export="true"
       :reload="true"
       :filters="filters"
-      ajaxPath="/finance/uang-keluar-masuk"
-      :editPath="'/finance/mexpenses/edit'"
+      :ajaxPath="ajaxPath"
+      :editPath="editPath"
       :deletePath="'/finance/transaction'"
-	    :infoPath="'/finance/mexpenses/view'"
+	    :infoPath="infoPath"
     />
   </div>
 </template>

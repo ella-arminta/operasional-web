@@ -1,6 +1,6 @@
 <template>
 	<div class="content min-h-screen" :class="{ 'full-width': smallMenu }">
-		<PageTitle title="Miscellaneous Expenses Form" />
+		<PageTitle :title="pageTitle" />
 		<!--  Form section -->
 		<form class="w-full bg-white h-auto rounded-lg shadow-sm py-3 px-4" @submit.prevent="submit">
 			<div class="flex items-center justify-between">
@@ -137,6 +137,8 @@ const smallMenu = computed(() => store.getters.smallMenu)
 const props = defineProps({
 	mode: { type: String, required: true },
 	trans_type_id: { type: Number, default: 1 },
+	pageTitle: { type: String, default: 'Miscellaneous Expenses Form' },
+	redirect: { type: String, default: '/finance/mexpenses' },
 })
 // Dropdown Items
 const accounts = ref([])
@@ -342,7 +344,7 @@ const submit = async () => {
 					},
 				],
 			})
-			const redirect = props.mode === 'edit' ? `/finance/mexpenses/edit/${id}` : '/finance/mexpenses'
+			const redirect = props.mode === 'edit' ? `${props.redirect}/edit/${id}` : props.redirect
 			router.push(redirect);
 			mountUpdatedData()
 		}

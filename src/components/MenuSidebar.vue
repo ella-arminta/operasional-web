@@ -78,6 +78,7 @@ const menuTree = ref([
 			},
 			{
 				label: 'Miscellaneous Incomes',
+				path: '/finance/mincomes',
 			},
 		],
 	},
