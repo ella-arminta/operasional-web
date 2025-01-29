@@ -136,63 +136,79 @@
 					/>
 				</div>
 			</div>
+			<FormSectionHeader title="Sub Category Information" icon="info" />
+			<div class="mt-8">
+				<EditableCat
+					:initialRows="form.types"
+					:columns="typeColumns"
+					:required="mode === 'add'"
+					:readonly="mode === 'view'"
+					:allActive="false"
+					:independent="mode !== 'add'"
+					title="Sub Category List"
+					@update:rows="handleRowsUpdate"
+					:addPath="'/inventory/type'"
+					:editPath="'/inventory/type'"
+					:deletePath="'/inventory/type'"
+				/>
+			</div>
 		</form>
 	</div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, toRaw } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import Cookies from 'js-cookie'
 import axiosInstance from '../../axios'
+
+// Components
 import PageTitle from '../../components/PageTitle.vue'
 import InputForm from '../../components/InputForm.vue'
 import TextareaForm from '../../components/TextareaForm.vue'
 import FormSectionHeader from '../../components/FormSectionHeader.vue'
 import FormHeader from '../../components/FormHeader.vue'
 import Dropdown from '../../components/Dropdown.vue'
+import EditableCat from '../../components/EditableCat.vue'
 
 const props = defineProps({
 	mode: { type: String, required: true },
 })
-const metals = [
+const router = useRouter()
+const store = useStore()
+const smallMenu = computed(() => store.getters.smallMenu)
+const id = router.currentRoute.value.params.id
+
+// Constant
+const metals = Object.freeze([
 	{ id: 1, label: 'Gold' },
 	{ id: 2, label: 'Silver' },
 	{ id: 3, label: 'Red Gold' },
 	{ id: 4, label: 'White Gold' },
 	{ id: 5, label: 'Platinum' },
-]
+])
+const typeColumns = Object.freeze([
+	{ label: 'id', key: 'id', type: 'text', hidden: true },
+	{
+		label: 'Code',
+		key: 'code',
+		type: 'text',
+		readonly: true,
+		required: true,
+	},
+	{ label: 'Name', key: 'name', type: 'text', required: true },
+	{ label: 'Description', key: 'description', type: 'text' },
+	{
+		label: 'Category ID',
+		key: 'category_id',
+		type: 'text',
+		hidden: true,
+		default: id,
+	},
+])
+
 const companies = ref([])
-
-const form = ref({
-	code: '',
-	name: '',
-	purity: '',
-	metal_type: [],
-	weight_tray: 0,
-	weight_paper: 0,
-	description: '',
-	company_id: [],
-})
-const formCopy = ref({ ...form.value })
-const formError = ref({
-	code: '',
-	name: '',
-	purity: '',
-	metal_type: '',
-	weight_tray: '',
-	weight_paper: '',
-	description: '',
-	company_id: '',
-})
-
-const router = useRouter()
-const store = useStore()
-
-const smallMenu = computed(() => store.getters.smallMenu)
-const id = router.currentRoute.value.params.id
-
 const fetchCompany = async () => {
 	try {
 		const response = await axiosInstance.get('/master/company', {
@@ -208,7 +224,6 @@ const fetchCompany = async () => {
 			}))
 		}
 	} catch (error) {
-		console.log(error)
 		store.dispatch('triggerAlert', {
 			type: 'error',
 			title: 'Error!',
@@ -225,57 +240,47 @@ const fetchCompany = async () => {
 	}
 }
 
-onMounted(async () => {
-	await fetchCompany()
-	if (props.mode !== 'add' && id) {
-		try {
-			const response = await axiosInstance.get(
-				`/inventory/category/${id}`
-			)
-			form.value = { ...response.data.data }
-			form.value.company_id = [form.value.company_id]
-			form.value.metal_type = [form.value.metal_type]
-			formCopy.value = { ...form.value }
-		} catch (error) {
-			store.dispatch('triggerAlert', {
-				type: 'error',
-				title: 'Error!',
-				message: 'Failed to fetch category data.',
-				actions: [
-					{
-						label: 'close',
-						type: 'secondary',
-						handler: () => store.dispatch('hideAlert'),
-					},
-				],
-			})
-		}
-	}
+// Form Data for Category
+const form = ref({
+	code: '',
+	name: '',
+	purity: '',
+	metal_type: [],
+	weight_tray: 0,
+	weight_paper: 0,
+	description: '',
+	company_id: [],
+	types: [],
 })
-
+const formCopy = ref({ ...form.value })
+const formError = ref({
+	code: '',
+	name: '',
+	purity: '',
+	metal_type: '',
+	weight_tray: '',
+	weight_paper: '',
+	description: '',
+	company_id: '',
+})
 const resetError = () => {
 	Object.keys(formError.value).forEach((key) => {
 		formError.value[key] = ''
 	})
 }
-
 const resetForm = () => {
 	form.value = { ...formCopy.value }
 }
-
 const hasUnsavedChanges = computed(() => {
 	return Object.keys(form.value).some(
 		(key) => form.value[key] !== formCopy.value[key]
 	)
 })
-
 const excludedKeys = ['code', 'description']
-
 const hasFullyFilled = computed(() => {
 	return Object.keys(form.value)
 		.filter((key) => !excludedKeys.includes(key))
 		.every((key) => {
-			console.log(key, form.value[key])
 			return (
 				form.value[key] !== '' &&
 				form.value[key] !== null &&
@@ -285,24 +290,7 @@ const hasFullyFilled = computed(() => {
 		})
 })
 
-const submit = async () => {
-	if (!hasFullyFilled.value && props.mode === 'add') {
-		store.dispatch('triggerAlert', {
-			type: 'warning',
-			title: 'Warning!',
-			message: 'You are missing some fields.',
-		})
-		return
-	}
-	if (!hasUnsavedChanges.value && props.mode === 'edit') {
-		store.dispatch('triggerAlert', {
-			type: 'warning',
-			title: 'Warning!',
-			message: 'No changes detected.',
-		})
-		return
-	}
-	resetError()
+const submitCategory = async () => {
 	try {
 		const endpoint =
 			props.mode === 'edit'
@@ -332,10 +320,9 @@ const submit = async () => {
 					},
 				],
 			})
-			router.push('/master/category')
+			return response.data.data
 		}
 	} catch (error) {
-		console.error(error.response.data)
 		const errors = error.response.data.errors || []
 		errors.forEach((err) => {
 			formError.value[err.field] = err.message
@@ -346,6 +333,68 @@ const submit = async () => {
 			message: `Category ${props.mode === 'edit' ? 'update' : 'creation'} failed.`,
 		})
 	}
+}
+// Handle Form Data for Types
+const handleRowsUpdate = (newRows) => {
+	if (props.mode === 'edit') {
+		form.value.types = newRows
+		formCopy.value.types = newRows
+	}
+	form.value.types = newRows
+}
+
+const submitType = async (category_id) => {
+	if (props.mode === 'add') {
+		form.value.types.forEach((type) => {
+			type.category_id = category_id
+		})
+	}
+
+	try {
+		// Send bulk insert request
+		const response = await axiosInstance.post(
+			'/inventory/bulk-type',
+			form.value.types
+		)
+
+		if (response.data) {
+			showAlert(
+				'success',
+				'Success!',
+				'Subcategories created successfully.'
+			)
+		}
+	} catch (error) {
+		console.error('Error submitting types:', error)
+		showAlert('error', 'Error!', 'Failed to create subcategories.')
+	}
+}
+
+// Submit Form
+const submit = async () => {
+	if (!hasFullyFilled.value && props.mode === 'add') {
+		store.dispatch('triggerAlert', {
+			type: 'warning',
+			title: 'Warning!',
+			message: 'You are missing some fields.',
+		})
+		return
+	}
+	if (!hasUnsavedChanges.value && props.mode === 'edit') {
+		store.dispatch('triggerAlert', {
+			type: 'warning',
+			title: 'Warning!',
+			message: 'No changes detected.',
+		})
+		return
+	}
+	resetError()
+	const data = await submitCategory()
+	if (data) {
+		if (props.mode === 'add') {
+			await submitType(data.id)
+		}
+	}
 	if (!Array.isArray(form.value.metal_type)) {
 		form.value.metal_type = [form.value.metal_type]
 	}
@@ -353,4 +402,46 @@ const submit = async () => {
 		form.value.company_id = [form.value.company_id]
 	}
 }
+
+const showAlert = (
+	type: 'success' | 'error' | 'warning',
+	title: string,
+	message: string
+) => {
+	store.dispatch('triggerAlert', {
+		type,
+		title,
+		message,
+		actions: [
+			{
+				label: 'close',
+				type: 'secondary',
+				handler: () => store.dispatch('hideAlert'),
+			},
+		],
+	})
+}
+
+onMounted(async () => {
+	await fetchCompany()
+	if (props.mode !== 'add' && id) {
+		try {
+			const response = await axiosInstance.get(
+				`/inventory/category/${id}`
+			)
+			// Populate form with fetched data
+			form.value = { ...response.data.data }
+			form.value.company_id = [form.value.company_id]
+			form.value.metal_type = [form.value.metal_type]
+			form.value.types = toRaw(form.value.types).map((type) => ({
+				...toRaw(type), // Convert each object to a plain object
+				category_id: id,
+			}))
+			formCopy.value = { ...form.value }
+		} catch (error) {
+			console.error('Error fetching category:', error)
+			showAlert('error', 'Error!', 'Failed to fetch category data.')
+		}
+	}
+})
 </script>

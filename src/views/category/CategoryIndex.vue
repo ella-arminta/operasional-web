@@ -10,6 +10,9 @@
 			:editPath="'/master/category/edit'"
 			:deletePath="'/inventory/category'"
 			:infoPath="'/master/category/view'"
+			:options="{
+				scrollX: true,
+			}"
 		/>
 	</div>
 </template>
@@ -21,15 +24,39 @@ import TableData from '../../components/TableData.vue'
 import { computed } from 'vue'
 const store = useStore()
 const smallMenu = computed(() => store.getters.smallMenu)
+const metals = Object.freeze([
+	{ id: 1, label: 'Gold' },
+	{ id: 2, label: 'Silver' },
+	{ id: 3, label: 'Red Gold' },
+	{ id: 4, label: 'White Gold' },
+	{ id: 5, label: 'Platinum' },
+])
 const columns = [
 	{ data: 'no', title: 'No', width: '5%' },
 	{ data: 'code', title: 'Code', width: '10%' },
 	{ data: 'name', title: 'Name', width: '15%' },
 	{ data: 'company.name', title: 'Company' },
 	{ data: 'purity', title: 'Purity' },
-	{ data: 'metal_type', title: 'Metal Type' },
-	{ data: 'weight_tray', title: 'Weight Tray' },
+	{
+		data: 'metal_type',
+		title: 'Metal Type',
+		render: function (data, type, row) {
+			return metals.find((metal) => metal.id === data)?.label
+		},
+	},
+	{ data: 'weight_tray', title: 'Weight Tray', visible: false },
 	{ data: 'weight_paper', title: 'Weight Paper', visible: false },
+	{
+		data: 'types', // Reference the entire `types` array
+		title: 'Sub Category',
+		render: function (data, type, row) {
+			// Check if `types` exists and is an array
+			if (!Array.isArray(data) || data.length === 0) return '-'
+			return data.map((type) => type.name).join(', ')
+		},
+		visible: false,
+		width: '25%',
+	},
 	{
 		data: 'description',
 		title: 'Description',
