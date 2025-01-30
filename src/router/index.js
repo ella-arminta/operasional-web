@@ -183,6 +183,16 @@ const router = createRouter({
 								mode: route.params.mode,
 							}),
 						},
+						{
+							path: 'stock-card',
+							component: () =>
+								import('../views/stock/StockCardIndex.vue'),
+						},
+						{
+							path: 'stock-mutation',
+							component: () =>
+								import('../views/stock/StockMutationIndex.vue'),
+						},
 					],
 				},
 				{

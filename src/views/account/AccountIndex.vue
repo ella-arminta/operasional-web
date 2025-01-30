@@ -79,7 +79,6 @@ onMounted(async () => {
     <TableData 
       :columns="columns"
       :addPath="'/master/account/add'"
-      :export="true"
       :reload="true"
       :filters="filters"
       ajaxPath="/finance/account"

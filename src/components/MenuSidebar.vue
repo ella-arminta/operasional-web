@@ -98,11 +98,24 @@ const menuTree = ref([
 				label: 'Finance',
 				children: [
 					{
-						label: 'journal',
+						label: 'Journal',
 						path: '/finance/journal',
 					},
 				],
 			},
+			{
+				label: 'Stock',
+				children: [
+					{
+						label: 'Stock Card',
+						path: '/finance/stock-card',
+					},
+					{
+						label: 'Stock Mutation',
+						path: '/finance/stock-mutation',
+					}
+				]
+			}
 		],
 	},
 	{
