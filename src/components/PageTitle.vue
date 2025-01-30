@@ -1,6 +1,8 @@
 <template>
 	<div class="bg-white w-full h-[90px] rounded-lg relative mb-5 shadow-sm">
-		<div class="flex items-center justify-between px-4 py-2 h-full flex-wrap">
+		<div
+			class="flex items-center justify-between px-4 py-2 h-full flex-wrap"
+		>
 			<!-- Set h-full here to make the child follow the parent's height -->
 			<div class="flex flex-col justify-center">
 				<!-- Ensure content is centered vertically -->
@@ -47,8 +49,8 @@ import { useRouter } from 'vue-router'
 const props = defineProps({
 	title: {
 		String,
-		default: ''
-	}
+		default: '',
+	},
 })
 
 const router = useRouter()
@@ -57,20 +59,23 @@ const breadcrumb = path
 	.split('/')
 	.slice(1)
 	.map((s) => {
-		var res = s.split('-')
-		for (let i = 0; i < res.length; i++) {
-			res[i] = res[i].charAt(0).toUpperCase() + res[i].substring(1)
-		}
-		return res.join(' ');
+		// var res = s.split('-')
+		// // for (let i = 0; i < res.length; i++) {
+		// // 	res[i] = res[i].charAt(0).toUpperCase() + res[i].substring(1)
+		// // }
+		// return res.join(' ');
+		return s.split('-')[0]
 	})
 	.join(' / ')
 
-const title = props.title != '' ? props.title : 
-	path.split('/').length > 2
-		? path.split('/')[2]?.charAt(0).toUpperCase() +
-			path.split('/')[2]?.substring(1)
-		: path.split('/').pop()?.charAt(0).toUpperCase() +
-			path.split('/').pop()?.substring(1)
+const title =
+	props.title != ''
+		? props.title
+		: path.split('/').length > 2
+			? path.split('/')[2]?.charAt(0).toUpperCase() +
+				path.split('/')[2]?.substring(1)
+			: path.split('/').pop()?.charAt(0).toUpperCase() +
+				path.split('/').pop()?.substring(1)
 
 const userdata = JSON.parse(Cookies.get('userdata'))
 const name = userdata.email.split('@')[0]
