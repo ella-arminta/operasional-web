@@ -4,45 +4,32 @@
 		<!-- Header -->
 		<div class="flex justify-between flex-wrap items-center">
 			<div class="flex justify-center items-center gap-4">
-				<div
-					@click="toggleFilters"
-					:class="{
-						'text-white hover:bg-pinkMed px-2 py-1 cursor-pointer rounded-md flex items-center': true,
-						'bg-pinkDark': !isFiltersOpen,
-						'bg-pinkLight': isFiltersOpen,
-					}"
-				>
+				<div @click="toggleFilters" :class="{
+					'text-white hover:bg-pinkMed px-2 py-1 cursor-pointer rounded-md flex items-center': true,
+					'bg-pinkDark': !isFiltersOpen,
+					'bg-pinkLight': isFiltersOpen,
+				}">
 					<!-- icon filter -->
 					<i class="material-icons text-xl text-white">filter_alt</i>
 				</div>
-				<input
-					type="text"
-					placeholder="Search..."
+				<input type="text" placeholder="Search..."
 					class="pl-3 pr-4 py-2 border rounded-lg text-sm placeholder-font-light placeholder-text-sm focus:border-pinkDark focus:outline-none transition duration-300"
-					@input="onSearch"
-				/>
+					@input="onSearch" />
 			</div>
 			<div class="flex items-center gap-2 justify-center">
-				<div
-					v-if="export"
-					class="bg-pinkDark hover:bg-pinkMed text-white cursor-pointer font-bold py-1 px-2 flex justify-evenly items-center rounded-lg gap-2"
-				>
+				<div v-if="export"
+					class="bg-pinkDark hover:bg-pinkMed text-white cursor-pointer font-bold py-1 px-2 flex justify-evenly items-center rounded-lg gap-2">
 					<div><i class="material-icons text-xl">border_all</i></div>
-					<div class="text-sm">Export</div>
+					<div class="text-sm" @click="exportTable">Export</div>
 				</div>
-				<div
-					v-if="reload"
+				<div v-if="reload"
 					class="bg-pinkDark hover:bg-pinkMed text-white cursor-pointer font-bold py-1 px-2 flex justify-evenly items-center rounded-lg gap-2"
-					@click="reloadData"
-				>
+					@click="reloadData">
 					<div><i class="material-icons text-xl">sync</i></div>
 					<div class="text-sm">Reload</div>
 				</div>
-				<router-link
-					v-if="addPath != ''"
-					:to="addPath"
-					class="bg-gradient-pink hover:bg-pinkMed text-white font-bold py-1 px-2 flex justify-evenly items-center rounded-lg gap-2"
-				>
+				<router-link v-if="addPath != ''" :to="addPath"
+					class="bg-gradient-pink hover:bg-pinkMed text-white font-bold py-1 px-2 flex justify-evenly items-center rounded-lg gap-2">
 					<div><i class="material-icons text-xl">add</i></div>
 					<div class="text-sm">Add</div>
 				</router-link>
@@ -50,63 +37,38 @@
 		</div>
 
 		<!-- Filters -->
-		<div
-			v-if="props.filters && props.filters.length > 0"
-			class="transition-all duration-300"
-			:class="{
-				'max-h-0 overflow-hidden': !isFiltersOpen,
-				'max-h-[500px]': isFiltersOpen,
-			}"
-		>
+		<div v-if="props.filters && props.filters.length > 0" class="transition-all duration-300" :class="{
+			'max-h-0 overflow-hidden': !isFiltersOpen,
+			'max-h-[500px]': isFiltersOpen,
+		}">
 			<div class="m-3 flex flex-wrap justify-center gap-3 md:gap-6">
-				<div
-					v-for="filter in props.filters"
-					:key="filter.name"
-					class="w-[100%] md:w-[18.8%]"
-				>
+				<div v-for="filter in props.filters" :key="filter.name" class="w-[100%] md:w-[18.8%]">
 					<!-- Filter type:"select" -->
 					<div v-if="filter.type === 'select'" class="border px-3 py-2 rounded-lg w-full">
 						<label :for="filter.name" class="block mb-1">{{
 							filter.label
 						}}</label>
-						<Dropdown
-							:items="filter.options"
-							v-model="filterValues[filter.name]"
-							/>
+						<Dropdown :items="filter.options" v-model="filterValues[filter.name]" />
 					</div>
 					<!-- Filter type:"SelectRangeFinance" -->
-					<div v-if="filter.type == 'selectRangeFinance'">
+					<div v-if="filter.type == 'selectRangeFinance'" class="border px-3 py-2 rounded-lg w-full">
 						<label :for="filter.name" class="block mb-1">{{
 							filter.label
 						}}</label>
-						<DropdownFinance
-							@range-selected="handleRangeSelected"
-						/>
+						<DropdownFinance @range-selected="handleRangeSelected" />
 					</div>
 					<!-- Filter for Date Range -->
 					<div v-if="filter.type === 'date'">
 						<!-- <label :for="filter.name" class="block mb-1">{{ filter.label }}</label> -->
-						<InputForm
-							:id="filter.name"
-							:label="filter.label"
-							type="date"
-							v-model="filterValues[filter.name]"
-							class="border px-3 py-2 rounded-lg w-full"
-						/>
+						<InputForm :id="filter.name" :label="filter.label" type="date"
+							v-model="filterValues[filter.name]" class="border px-3 py-2 rounded-lg w-full" />
 					</div>
 				</div>
 			</div>
 		</div>
 
-		<DataTable
-			:columns="columns"
-			:options="options"
-			id="table-id"
-			ref="table"
-			:ajax="ajaxOptions"
-			class="display rounded-lg border border-gray-400 overflow-hidden shadow-sm"
-			width="100%"
-		>
+		<DataTable :columns="columns" :options="options" id="table-id" ref="table" :ajax="ajaxOptions"
+			class="display rounded-lg border border-gray-400 overflow-hidden shadow-sm" width="100%">
 			<thead>
 				<tr class="bg-pinkDark text-white">
 					<th v-for="column in columns" :key="column.data">
@@ -119,29 +81,35 @@
 </template>
 <style>
 @import 'datatables.net-dt';
+
 .dt-search {
 	display: none !important;
 }
-.dataTable > tbody > tr:nth-child(odd) > td {
+
+.dataTable>tbody>tr:nth-child(odd)>td {
 	background-color: #ffffff !important;
 	border: none !important;
 	box-shadow: none !important;
 	font-size: small !important;
 }
-.dataTable > tbody > tr:nth-child(even) > td {
+
+.dataTable>tbody>tr:nth-child(even)>td {
 	background-color: #fcf8f5 !important;
 	border: none !important;
 	box-shadow: none !important;
 	font-size: small !important;
 	font-weight: light !important;
 }
-.dataTable > tbody > tr > td.dt-type-numeric {
+
+.dataTable>tbody>tr>td.dt-type-numeric {
 	text-align: start !important;
 }
-.dataTable > thead > tr > th {
+
+.dataTable>thead>tr>th {
 	text-align: start !important;
 	font-weight: bold !important;
 }
+
 div.dt-container .dt-length,
 div.dt-container .dt-search,
 div.dt-container .dt-info,
@@ -150,6 +118,7 @@ div.dt-container .dt-paging {
 	color: var(--grey) !important;
 	font-size: smaller !important;
 }
+
 div.dt-container .dt-paging .dt-paging-button.current {
 	color: inherit !important;
 	border: 1px solid var(--pink-dark) !important;
@@ -158,21 +127,25 @@ div.dt-container .dt-paging .dt-paging-button.current {
 	border-radius: 8px;
 	padding: 4px 10px;
 }
+
 div.dt-container .dt-paging .dt-paging-button.current:hover {
 	background-color: var(--pink-light) !important;
 	transition: all 0.3s ease;
 	color: var(--white) !important;
 }
+
 div.dt-container .dt-paging .dt-paging-button:hover {
 	background-color: var(--pink-light) !important;
 	transition: all 0.3s ease;
 	color: var(--white) !important;
 }
+
 div.dt-container .dt-paging .dt-paging-button.disabled:hover {
 	background-color: var(--white) !important;
 	transition: none !important;
 	color: inherit !important;
 }
+
 div.dt-container .dt-paging .dt-paging-button {
 	color: inherit !important;
 	border: none !important;
@@ -181,6 +154,7 @@ div.dt-container .dt-paging .dt-paging-button {
 	border-radius: 8px;
 	padding: 4px 10px;
 }
+
 /* Align header elements */
 .dt-header {
 	display: flex;
@@ -189,7 +163,7 @@ div.dt-container .dt-paging .dt-paging-button {
 	margin: 10px 0px;
 }
 
-.dt-left .dt-length > select {
+.dt-left .dt-length>select {
 	display: inline-block;
 	padding: 3px !important;
 	border-radius: 8px !important;
@@ -197,7 +171,7 @@ div.dt-container .dt-paging .dt-paging-button {
 	border-color: var(--pink-dark) !important;
 }
 
-.dt-right .dt-buttons > button {
+.dt-right .dt-buttons>button {
 	display: inline-block;
 	margin-left: auto;
 	padding: 2px 8px !important;
@@ -230,6 +204,7 @@ div.dt-container .dt-paging .dt-paging-button {
 .dt-button-background {
 	display: none !important;
 }
+
 .dt-button-collection {
 	border-color: var(--pink-dark) !important;
 	color: var(--pink-dark) !important;
@@ -237,23 +212,28 @@ div.dt-container .dt-paging .dt-paging-button {
 	min-width: 100px !important;
 	padding: 0px !important;
 }
+
 .dt-button-collection .dt-button {
 	font-size: smaller !important;
 }
+
 .dt-button-collection .dt-button:hover {
 	font-size: smaller !important;
 	background-color: var(--pink-light) !important;
 	color: var(--white) !important;
 }
+
 .dt-search {
 	display: none !important;
 }
-tbody > tr:nth-child(odd) > td {
+
+tbody>tr:nth-child(odd)>td {
 	background-color: #ffffff !important;
 	border: none !important;
 	box-shadow: none !important;
 }
-tbody > tr:nth-child(even) > td {
+
+tbody>tr:nth-child(even)>td {
 	background-color: #fcf8f5 !important;
 	border: none !important;
 	box-shadow: none !important;
@@ -265,16 +245,20 @@ import DataTablesCore from 'datatables.net'
 import Buttons from 'datatables.net-buttons'
 import 'datatables.net-buttons-dt/css/buttons.dataTables.css' // Include Buttons CSS
 import ColumnVisibility from 'datatables.net-buttons/js/buttons.colVis.js' // Column Visibility Extension
+import FixedColumns from 'datatables.net-fixedcolumns-dt';
+import 'datatables.net-fixedcolumns-dt/css/fixedColumns.dataTables.css' // include fixedcolumns css
+
 
 import { ref, onMounted, computed, watch } from 'vue'
 import Select from 'datatables.net-select'
-import { defineProps } from 'vue'
 import Cookies from 'js-cookie'
 import { useStore } from 'vuex'
 import axiosInstance from '../axios'
 import DropdownFinance from './DropdownFinance.vue'
 import Dropdown from './Dropdown.vue'
 import InputForm from './InputForm.vue'
+import ExcelJS from 'exceljs'
+import FileSaver from 'file-saver'
 
 // Define props
 const props = defineProps({
@@ -318,12 +302,17 @@ const props = defineProps({
 		type: Object,
 		default: () => ({}),
 	},
+	fixedColumns: {
+		type: Object,
+		default: () => false,
+	},
 })
 
 DataTable.use(DataTablesCore)
 DataTable.use(Select)
 DataTable.use(Buttons)
 DataTable.use(ColumnVisibility)
+DataTable.use(FixedColumns)
 
 // Declaration
 const isFiltersOpen = ref(true)
@@ -541,6 +530,7 @@ const options = computed(() => ({
 	],
 	ajax: ajaxOptions.value,
 	scrollX: props.options.scrollX || false,
+	fixedColumns: props.fixedColumns,
 }))
 
 const handleRangeSelected = (range) => {
@@ -550,4 +540,35 @@ const handleRangeSelected = (range) => {
 	filterValues.value.dateStart = range.start
 	filterValues.value.dateEnd = range.end
 }
+
+const exportTable = async () => {
+	const data = dt.rows().data().toArray()
+	console.log(data);
+
+	const workbook = new ExcelJS.Workbook()
+	const worksheet = workbook.addWorksheet('Exported Data')
+
+	// Add headers
+	const headers = dt.columns().header().toArray().map(header => header.innerText)
+	worksheet.addRow(headers)
+
+	// Add rows
+	data.forEach(row => {
+		worksheet.addRow(Object.values(row))
+	})
+
+	// Create and save file
+	const buffer = await workbook.xlsx.writeBuffer()
+	const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+
+	var thispagepath = window.location.pathname;
+	// get the last part of the path
+	var thispage = thispagepath.split('/').pop();
+	var timestamp = new Date().getTime();
+	var filename = timestamp + '_' +  thispage + '.xlsx';
+	// filename replace '-' with _
+	filename = filename.replace(/-/g, '_');
+	FileSaver.saveAs(blob, filename)
+}
+
 </script>
