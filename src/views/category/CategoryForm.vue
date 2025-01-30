@@ -194,7 +194,7 @@ const typeColumns = Object.freeze([
 		label: 'Code',
 		key: 'code',
 		type: 'text',
-		readonly: true,
+		// readonly: true,
 		required: true,
 	},
 	{ label: 'Name', key: 'name', type: 'text', required: true },

@@ -64,6 +64,10 @@ const menuTree = ref([
 						label: 'Category',
 						path: '/master/category',
 					},
+					{
+						label: 'Price',
+						path: '/master/price',
+					},
 				],
 			},
 		],
@@ -82,8 +86,8 @@ const menuTree = ref([
 			},
 			{
 				label: 'Cashier Closing',
-				path: '/finance/cashier-closing'
-			}
+				path: '/finance/cashier-closing',
+			},
 		],
 	},
 	{

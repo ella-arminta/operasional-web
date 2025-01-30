@@ -7,21 +7,44 @@
 					<!-- colspan count columns -->
 					<th
 						class="px-4 py-2 text-start text-white"
-						:colspan="columns.filter((c) => !c.hidden).length"
+						:colspan="columns.filter((c) => !c.hidden).length + 1"
 					>
-						{{ title }}
-						<span v-if="required" class="text-white">*</span>
-						(at least 1 sub category)
-					</th>
-					<!-- Add Row Button -->
-					<th class="flex justify-end items-center mx-4 my-2">
-						<button
-							@click="addRow"
-							type="button"
-							class="bg-pinkLight text-white px-3 py-2 rounded-lg shadow hover:bg-pinkMed flex items-center transition duration-300 ease-in-out"
-						>
-							<i class="material-icons">add</i>
-						</button>
+						<div class="flex justify-between items-center">
+							<div>
+								{{ title }}
+								<span v-if="required" class="text-white"
+									>*</span
+								>
+							</div>
+
+							<!-- Add Row Button -->
+							<div class="flex gap-2 justify-end items-end">
+								<button
+									v-if="activeRow === null && allActive"
+									@click="editAll"
+									type="button"
+									class="bg-pinkLight text-white px-3 py-2 rounded-lg shadow hover:bg-pinkMed flex items-center transition duration-300 ease-in-out"
+								>
+									<i class="material-icons">edit</i>
+								</button>
+								<button
+									v-if="activeRow !== null && allActive"
+									@click="saveAll"
+									type="button"
+									class="bg-pinkLight text-white px-3 py-2 rounded-lg shadow hover:bg-pinkMed flex items-center transition duration-300 ease-in-out"
+								>
+									<i class="material-icons">done</i>
+								</button>
+								<button
+									v-if="addable"
+									@click="addRow"
+									type="button"
+									class="bg-pinkLight text-white px-3 py-2 rounded-lg shadow hover:bg-pinkMed flex items-center transition duration-300 ease-in-out"
+								>
+									<i class="material-icons">add</i>
+								</button>
+							</div>
+						</div>
 					</th>
 				</tr>
 				<tr>
@@ -46,7 +69,12 @@
 						'bg-pinkGray': rowIndex % 2 !== 0,
 					}"
 				>
-					<template v-if="!allActive && activeRow !== rowIndex">
+					<template
+						v-if="
+							(!allActive && activeRow !== rowIndex) ||
+							activeRow === null
+						"
+					>
 						<td
 							v-for="(col, colIndex) in columns.filter(
 								(c) => !c.hidden
@@ -71,6 +99,7 @@
 						<td class="px-4 py-2 w-12 text-center">
 							<div class="flex items-center justify-center gap-2">
 								<div
+									v-if="!allActive"
 									class="w-8 h-8 bg-pinkLight text-white flex justify-center items-center rounded-full cursor-pointer hover:bg-pinkDark delete-btn transition duration-300 ease-in-out"
 									title="Edit"
 									@click="editRow(rowIndex)"
@@ -78,6 +107,7 @@
 									<i class="material-icons text-sm">edit</i>
 								</div>
 								<div
+									v-if="deletable"
 									class="w-8 h-8 bg-pinkLight text-white flex justify-center items-center rounded-full cursor-pointer hover:bg-pinkDark delete-btn transition duration-300 ease-in-out"
 									title="Delete"
 									@click="deleteRow(rowIndex)"
@@ -119,6 +149,7 @@
 													)
 												: $event.target.value
 									"
+									:readonly="col.readonly"
 								/>
 								<Dropdown
 									v-else-if="col.type === 'dropdown'"
@@ -137,6 +168,7 @@
 						<td class="px-4 py-2 w-12 text-center">
 							<div class="flex items-center justify-center gap-2">
 								<div
+									v-if="!allActive"
 									class="w-8 h-8 bg-pinkLight text-white flex justify-center items-center rounded-full cursor-pointer hover:bg-pinkDark delete-btn transition duration-300 ease-in-out"
 									title="Approve"
 									@click="saveRow(rowIndex)"
@@ -144,6 +176,7 @@
 									<i class="material-icons text-sm">done</i>
 								</div>
 								<div
+									v-if="deletable"
 									class="w-8 h-8 bg-pinkLight text-white flex justify-center items-center rounded-full cursor-pointer hover:bg-pinkDark delete-btn transition duration-300 ease-in-out"
 									title="Delete"
 									@click="deleteRow(rowIndex)"
@@ -155,6 +188,16 @@
 					</template>
 				</tr>
 			</tbody>
+
+			<!-- Table Footer -->
+			<tfoot v-if="rows.length === 0">
+				<tr>
+					<td
+						:colspan="columns.filter((c) => !c.hidden).length + 1"
+						v-html="noDataState"
+					></td>
+				</tr>
+			</tfoot>
 		</table>
 	</div>
 </template>
@@ -193,6 +236,10 @@ const props = defineProps({
 		type: Boolean,
 		default: true,
 	},
+	addable: {
+		type: Boolean,
+		default: true,
+	},
 
 	// Optional For Add and Edit Data Not by emit(value) [Only for independent]
 	addPath: {
@@ -204,6 +251,10 @@ const props = defineProps({
 		default: '',
 	},
 	deletePath: {
+		type: String,
+		default: '',
+	},
+	noDataState: {
 		type: String,
 		default: '',
 	},
@@ -219,6 +270,7 @@ const rows = ref([])
 watch(
 	() => props.initialRows,
 	(newRows) => {
+		console.log('newRows:', newRows)
 		if (Array.isArray(newRows)) {
 			rows.value = JSON.parse(JSON.stringify(newRows)) // Deep copy
 			copyRows.value = JSON.parse(JSON.stringify(newRows)) // Deep copy
@@ -283,6 +335,15 @@ const changes = (index) => {
 		JSON.stringify(rows.value[index]) !==
 		JSON.stringify(copyRows.value[index])
 	)
+}
+
+const editAll = () => {
+	activeRow.value = 'all'
+}
+
+const saveAll = () => {
+	activeRow.value = null
+	emit('update:rows', rows.value)
 }
 
 const saveRow = async (index: number) => {
@@ -504,11 +565,13 @@ const validateAndParseInput = (event, rowIndex, key) => {
 }
 
 onMounted(() => {
-	if (props.required) {
+	if (props.required && props.addable) {
 		if (props.initialRows.length === 0) {
 			addRow()
 			activeRow.value = 0
 		}
+	} else if (props.required && props.allActive) {
+		activeRow.value = 'all'
 	}
 })
 </script>
