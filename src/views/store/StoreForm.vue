@@ -151,6 +151,7 @@
 						<ImageUpload
 							v-model="form.logo"
 							:readonly="mode === 'view'"
+							:uploadFile="'/upload-logo'"
 						/>
 						<p
 							v-if="formError.logo"

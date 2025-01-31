@@ -73,6 +73,20 @@ const menuTree = ref([
 		],
 	},
 	{
+		label: 'Inventory',
+		icon: 'inventory',
+		children: [
+			{
+				label: 'Product',
+				path: '/inventory/product',
+			},
+			{
+				label: 'Operation',
+				path: '/inventory/operation',
+			},
+		],
+	},
+	{
 		label: 'Money',
 		icon: 'payments',
 		children: [
@@ -113,9 +127,9 @@ const menuTree = ref([
 					{
 						label: 'Stock Mutation',
 						path: '/finance/stock-mutation',
-					}
-				]
-			}
+					},
+				],
+			},
 		],
 	},
 	{

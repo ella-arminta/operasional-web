@@ -119,6 +119,39 @@ const router = createRouter({
 					],
 				},
 				{
+					path: 'inventory',
+					children: [
+						// Path for product
+						{
+							path: 'product',
+							component: () =>
+								import('../views/product/ProductIndex.vue'),
+						},
+						{
+							path: 'product/:mode/:id?',
+							component: () =>
+								import('../views/product/ProductForm.vue'),
+							props: (route) => ({
+								mode: route.params.mode,
+							}),
+						},
+						// Path for Operation
+						{
+							path: 'operation',
+							component: () =>
+								import('../views/operation/OperationIndex.vue'),
+						},
+						{
+							path: 'operation/:mode/:id?',
+							component: () =>
+								import('../views/operation/OperationForm.vue'),
+							props: (route) => ({
+								mode: route.params.mode,
+							}),
+						},
+					],
+				},
+				{
 					path: 'finance',
 					children: [
 						// Path for journal

@@ -52,6 +52,10 @@ const props = defineProps({
 		type: Boolean,
 		default: false,
 	},
+	uploadFile: {
+		type: String,
+		default: '',
+	},
 })
 
 // Define events
@@ -92,7 +96,7 @@ const handleFileChange = async (event) => {
 
 			// Upload the new file
 			const response = await axiosInstance.post(
-				'/upload-logo',
+				props.uploadFile,
 				formData,
 				{
 					headers: { 'Content-Type': 'multipart/form-data' },

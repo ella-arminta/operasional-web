@@ -142,7 +142,9 @@ const fetchCategory = async () => {
 	try {
 		const response = await axiosInstance.get('/inventory/category', {
 			params: {
-				owner_id: JSON.parse(Cookies.get('userdata')).id,
+				company_id: {
+					in: [JSON.parse(Cookies.get('userdata')).company_id],
+				},
 			},
 		})
 		if (response.data) {

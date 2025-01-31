@@ -66,10 +66,10 @@
 					<!-- Dropdown account type -->
 					<div>
 						<label
-						for="dropdown"
-						class="block text-sm text-grey-900 font-medium mb-1"
+							for="dropdown"
+							class="block text-sm text-grey-900 font-medium mb-1"
 						>
-						Type <span class="text-pinkDark">*</span>
+							Type <span class="text-pinkDark">*</span>
 						</label>
 						<Dropdown
 							:items="accountItems"
@@ -78,13 +78,15 @@
 							placeholder="Select a type"
 							:multiple="false"
 							:searchable="true"
-							:disabled="form.company_id == '' || form.company_id == null"
+							:disabled="
+								form.company_id == '' || form.company_id == null
+							"
 						/>
 						<p
-						v-if="formError.account_type_id"
-						class="text-pinkDark text-xs italic transition duration-300"
+							v-if="formError.account_type_id"
+							class="text-pinkDark text-xs italic transition duration-300"
 						>
-						{{ formError.account_type_id }}
+							{{ formError.account_type_id }}
 						</p>
 					</div>
 					<!-- Code -->
@@ -93,7 +95,7 @@
 						id="code"
 						type="number"
 						label="Nomor"
-            			:required="true"
+						:required="true"
 						placeholder="Nomor"
 						:readonly="mode === 'view'"
 						:error="formError.code"
@@ -105,7 +107,7 @@
 						type="text"
 						label="Nama"
 						placeholder="Nama"
-            :required="true"
+						:required="true"
 						:readonly="mode === 'view'"
 						:error="formError.name"
 					/>
@@ -114,23 +116,23 @@
 					<!-- Dropdown Store -->
 					<div>
 						<label
-						for="dropdown"
-						class="block text-sm text-grey-900 font-medium mb-1"
+							for="dropdown"
+							class="block text-sm text-grey-900 font-medium mb-1"
 						>
-						Store
+							Store
 						</label>
 						<Dropdown
-						:items="storeItems"
-						v-model="form.store_id"
-						placeholder="Select a store"
-						:multiple="false"
-						:searchable="true"
+							:items="storeItems"
+							v-model="form.store_id"
+							placeholder="Select a store"
+							:multiple="false"
+							:searchable="true"
 						/>
 						<p
-						v-if="formError.store_id"
-						class="text-pinkDark text-xs italic transition duration-300"
+							v-if="formError.store_id"
+							class="text-pinkDark text-xs italic transition duration-300"
 						>
-						{{ formError.store_id }}
+							{{ formError.store_id }}
 						</p>
 					</div>
 					<!-- Description -->
@@ -174,7 +176,7 @@ const form = ref({
 	store_id: null,
 })
 const formCopy = ref({
-	code: null ,
+	code: null,
 	name: '',
 	description: '',
 	company_id: null,
@@ -194,31 +196,31 @@ const router = useRouter()
 const store = useStore()
 
 const id = router.currentRoute.value.params.id
-const smallMenu = computed(() => store.getters.smallMenu);
+const smallMenu = computed(() => store.getters.smallMenu)
 
 onMounted(async () => {
-  const companyData = await axiosInstance.get('/master/company')
-  companyItems.value = companyData.data.data.map((company) => ({
-    label: company.name,
-    id: company.id,
-  }))
-  const storeData = await axiosInstance.get('/master/store')
-  storeItems.value = storeData.data.data.map((store) => ({
-    label: store.name,
-    id: store.id,
-  }))
-  const accountData = await axiosInstance.get('/finance/account-type')
-  accountItems.value = accountData.data.data.map((account) => ({
-    label: account.name,
-    id: account.id,
-	desc: account.description,
-	code: account.code,
-  }))
+	const companyData = await axiosInstance.get('/master/company')
+	companyItems.value = companyData.data.data.map((company) => ({
+		label: company.name,
+		id: company.id,
+	}))
+	const storeData = await axiosInstance.get('/master/store')
+	storeItems.value = storeData.data.data.map((store) => ({
+		label: store.name,
+		id: store.id,
+	}))
+	const accountData = await axiosInstance.get('/finance/account-type')
+	accountItems.value = accountData.data.data.map((account) => ({
+		label: account.name,
+		id: account.id,
+		desc: account.description,
+		code: account.code,
+	}))
 
 	if (props.mode !== 'add' && id) {
 		try {
 			const response = await axiosInstance.get(`/finance/account/${id}`)
-			console.log('response', JSON.stringify(response));
+			console.log('response', JSON.stringify(response))
 			const dataDb = response.data.data
 			form.value.code = dataDb.code
 			form.value.name = dataDb.name
@@ -226,7 +228,7 @@ onMounted(async () => {
 			form.value.company_id = [dataDb.company_id]
 			form.value.account_type_id = [dataDb.account_type_id]
 			form.value.store_id = [dataDb.store_id]
-			console.log('form.value', JSON.stringify(form.value));
+			console.log('form.value', JSON.stringify(form.value))
 			formCopy.value = { ...form.value }
 		} catch (error) {
 			store.dispatch('triggerAlert', {
@@ -268,7 +270,9 @@ const hasUnsavedChanges = computed(() => {
 })
 
 const onCompanyChange = async () => {
-	const storeData = await axiosInstance.get(`/master/store?company_id=${form.value.company_id[0]}`)
+	const storeData = await axiosInstance.get(
+		`/master/store?company_id=${form.value.company_id[0]}`
+	)
 	storeItems.value = storeData.data.data.map((store) => ({
 		label: store.name,
 		id: store.id,
@@ -277,9 +281,11 @@ const onCompanyChange = async () => {
 
 const onAccountTypeChange = async () => {
 	console.log('accounttypehcange')
-	const accountData = await axiosInstance.get(`/finance/account-type/${form.value.account_type_id[0]}?company_id=${form.value.company_id[0]}&code=1`)
-	console.log('accountData', JSON.stringify(accountData));
-	console.log('accountData.data.data', JSON.stringify(accountData.data.data));
+	const accountData = await axiosInstance.get(
+		`/finance/account-type/${form.value.account_type_id[0]}?company_id=${form.value.company_id[0]}&code=1`
+	)
+	console.log('accountData', JSON.stringify(accountData))
+	console.log('accountData.data.data', JSON.stringify(accountData.data.data))
 	form.value.code = accountData.data.data
 }
 
@@ -297,10 +303,12 @@ const submit = async () => {
 			form.value.store_id = form.value.store_id[0]
 		}
 		const endpoint =
-			props.mode === 'edit' ? `/finance/account/${id}` : '/finance/account'
+			props.mode === 'edit'
+				? `/finance/account/${id}`
+				: '/finance/account'
 		const method = props.mode === 'edit' ? 'put' : 'post'
 		const response = await axiosInstance[method](endpoint, form.value)
-		console.log(response);
+		console.log(response)
 		if (response.data) {
 			const action = props.mode === 'edit' ? 'Updated' : 'Created'
 			store.dispatch('triggerAlert', {
@@ -329,7 +337,9 @@ const submit = async () => {
 				store.dispatch('triggerAlert', {
 					type: 'warning',
 					title: 'Error!',
-					message: `Account ${props.mode === 'edit' ? 'update' : 'creation'} failed.` + errors.response.data.message,
+					message:
+						`Account ${props.mode === 'edit' ? 'update' : 'creation'} failed.` +
+						errors.response.data.message,
 				})
 				return
 			}

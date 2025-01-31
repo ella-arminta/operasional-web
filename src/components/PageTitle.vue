@@ -59,11 +59,6 @@ const breadcrumb = path
 	.split('/')
 	.slice(1)
 	.map((s) => {
-		// var res = s.split('-')
-		// // for (let i = 0; i < res.length; i++) {
-		// // 	res[i] = res[i].charAt(0).toUpperCase() + res[i].substring(1)
-		// // }
-		// return res.join(' ');
 		return s.split('-')[0]
 	})
 	.join(' / ')

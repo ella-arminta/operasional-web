@@ -44,7 +44,10 @@ const columns = [
 		title: 'Prices',
 		render: (data, type, row) => {
 			return data
-				.map((d) => `<p>${d.code}-${d.name} : ${d.price}</p>`)
+				.map(
+					(d) =>
+						`<p>${d.code}-${d.name} : ${formatPrice(d.price)}</p>`
+				)
 				.join('')
 		},
 	},
@@ -62,5 +65,13 @@ const formattedDate = (date) => {
 	const mo = new Intl.DateTimeFormat('en', { month: 'short' }).format(d)
 	const da = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(d)
 	return `${da}-${mo}-${ye}`
+}
+
+const formatPrice = (price) => {
+	return new Intl.NumberFormat('id-ID', {
+		style: 'currency',
+		currency: 'IDR',
+		minimumFractionDigits: 0,
+	}).format(price)
 }
 </script>
