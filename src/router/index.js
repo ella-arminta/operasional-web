@@ -30,6 +30,10 @@ const router = createRouter({
 					component: Home,
 				},
 				{
+					path: '/faq',
+					component: () => import('../views/faq/FAQIndex.vue'),
+				},
+				{
 					path: 'master',
 					children: [
 						// Path for company

@@ -143,6 +143,11 @@ const menuTree = ref([
 		],
 	},
 	{
+		label: 'FAQ',
+		icon: 'help_outline',
+		path: '/faq',
+	},
+	{
 		label: 'Logout',
 		icon: 'logout',
 		path: '/logout',
