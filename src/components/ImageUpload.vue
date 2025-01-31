@@ -27,6 +27,14 @@
 			<p class="text-sm">
 				{{ preview ? 'Successfully Uploaded' : 'Click to Upload' }}
 			</p>
+			<button
+				v-if="!readonly && preview"
+				@click="deleteImage"
+				type="button"
+				class="w-full rounded-md px-4 py-2 text-sm text-white bg-pinkDark hover:bg-pinkOrange focus:outline-none focus:ring focus:ring-pinkDark focus:ring-opacity-25"
+			>
+				Delete Image
+			</button>
 		</div>
 	</div>
 	<input
@@ -70,6 +78,15 @@ const loading = ref(false) // For loading state
 const triggerFileInput = () => {
 	if (!props.readonly) {
 		fileInput.value.click()
+	}
+}
+
+const deleteImage = async () => {
+	if (props.modelValue && typeof props.modelValue === 'string') {
+		await axiosInstance.delete('/delete-image', {
+			params: { url: props.modelValue },
+		})
+		emit('update:modelValue', null)
 	}
 }
 

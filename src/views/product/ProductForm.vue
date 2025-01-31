@@ -42,6 +42,7 @@
 						:error="formError.name"
 						:readonly="mode === 'view'"
 					/>
+					<!-- Category -->
 					<div>
 						<label
 							for="dropdown"
@@ -110,27 +111,55 @@
 							Images<span class="text-pinkDark">*</span>
 						</label>
 
+						<!-- Pagination Buttons at the Top -->
+						<button
+							v-if="startIndex > 0"
+							type="button"
+							@click="prevPage"
+							class="w-full mb-2 pt-1 px-4 bg-pinkGray text-pinkOrange border border-pinkOrange border-opacity-25 rounded-lg hover:bg-pinkDark hover:text-white transition duration-300 justify-center items-center"
+						>
+							<i class="material-icons"
+								>keyboard_double_arrow_up</i
+							>
+						</button>
+
+						<!-- Transition Group for Animated Scrolling Effect -->
 						<TransitionGroup
 							tag="div"
-							name="image-transition"
+							name="scroll-transition"
 							class="space-y-2"
 						>
 							<div
-								v-for="(image, index) in form.images"
-								:key="index"
+								v-for="(image, index) in paginatedImages"
+								:key="startIndex + index"
+								class="rounded-lg shadow-sm bg-white"
 							>
 								<ImageUpload
-									v-model="form.images[index]"
+									v-model="form.images[startIndex + index]"
 									:readonly="mode === 'view'"
 									:uploadFile="'/upload-product'"
 								/>
 							</div>
 						</TransitionGroup>
+
+						<!-- Pagination Buttons at the Bottom -->
 						<button
-							v-if="mode !== 'view' && form.images[-1] !== ''"
+							v-if="startIndex + pageSize < form.images.length"
+							type="button"
+							@click="nextPage"
+							class="mt-2 w-full pt-1 px-4 bg-pinkGray text-pinkOrange border border-pinkOrange border-opacity-25 rounded-lg hover:bg-pinkDark hover:text-white transition duration-300 justify-center items-center"
+						>
+							<i class="material-icons"
+								>keyboard_double_arrow_down</i
+							>
+						</button>
+
+						<!-- Add Image Button (only on last page) -->
+						<button
+							v-if="mode !== 'view' && isLastPage"
 							@click="addImage"
 							type="button"
-							class="w-full px-4 py-2 bg-pinkDark text-white rounded-lg hover:bg-pinkDarker transition duration-300 mt-4"
+							class="w-full px-4 py-2 bg-pinkDark text-white rounded-lg hover:bg-pinkDarker transition duration-300 mt-2"
 						>
 							+ Add Image
 						</button>
@@ -154,6 +183,7 @@
 					/>
 				</div>
 			</div>
+			<FormSectionHeader title="Generate Product Code" icon="build" />
 		</form>
 	</div>
 </template>
@@ -182,7 +212,7 @@
 </style>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, toRaw, watch } from 'vue'
+import { ref, onMounted, computed, toRaw, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import Cookies from 'js-cookie'
@@ -198,6 +228,7 @@ import Dropdown from '../../components/Dropdown.vue'
 import EditableCat from '../../components/EditableCat.vue'
 import { act } from 'react'
 import ImageUpload from '../../components/ImageUpload.vue'
+import TableData from '../../components/TableData.vue'
 
 const props = defineProps({
 	mode: { type: String, required: true },
@@ -206,6 +237,46 @@ const router = useRouter()
 const store = useStore()
 const smallMenu = computed(() => store.getters.smallMenu)
 const id = router.currentRoute.value.params.id
+
+// Constant for Product Code
+const columns = Object.freeze([
+	{
+		data: 'no',
+		title: 'No',
+		width: '5%',
+	},
+	{
+		data: 'id',
+		title: 'Id',
+		visible: false,
+	},
+	{
+		data: 'code',
+		title: 'Code',
+	},
+	{
+		data: 'weight',
+		title: 'Weight',
+	},
+	{
+		data: 'fixed_price',
+		title: 'Price per Gram',
+	},
+	{
+		data: 'status',
+		title: 'Status',
+		visible: false,
+	},
+	{
+		data: 'description',
+		title: 'Description',
+		visible: false,
+	},
+	{
+		data: 'action',
+		title: 'Action',
+	},
+])
 
 // Form Data for Product
 const form = ref({
@@ -310,10 +381,48 @@ const fetchPrice = async (type_id) => {
 	}
 }
 
-// Add Image Button
+// Pagination state
+const pageSize = 2 // Show max 2 images at a time
+const startIndex = ref(0)
+
+// Compute paginated images
+const paginatedImages = computed(() =>
+	form.value.images.slice(startIndex.value, startIndex.value + pageSize)
+)
+
+// Function to add images
 const addImage = () => {
+	if (form.value.images.some((image) => image === '')) {
+		showAlert(
+			'warning',
+			'Warning!',
+			'Please fill the existing image form first.'
+		)
+		return
+	}
 	form.value.images.push('')
+	if (startIndex.value + pageSize < form.value.images.length) {
+		startIndex.value += 1
+	}
 }
+
+// Pagination controls
+const nextPage = async () => {
+	if (startIndex.value + pageSize - 1 < form.value.images.length) {
+		startIndex.value += pageSize - 1
+	}
+}
+
+const prevPage = async () => {
+	if (startIndex.value > 0) {
+		startIndex.value -= 1
+	}
+}
+
+// Check if last page
+const isLastPage = computed(() => {
+	return startIndex.value + pageSize >= form.value.images.length
+})
 
 const resetError = () => {
 	Object.keys(formError.value).forEach((key) => {
@@ -371,7 +480,6 @@ const submitProduct = async () => {
 		showAlert('error', 'Error!', 'Failed to submit product data.')
 	}
 }
-
 // Submit Form
 const submit = async () => {
 	onSubmit.value = true
