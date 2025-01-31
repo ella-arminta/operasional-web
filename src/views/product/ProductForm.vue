@@ -2,189 +2,237 @@
 	<div class="content min-h-screen" :class="{ 'full-width': smallMenu }">
 		<PageTitle />
 		<!-- Form section -->
-		<form
-			class="w-full bg-white h-auto rounded-lg shadow-sm py-3 px-4"
-			@submit.prevent="submit"
-		>
-			<FormHeader
-				:title="
-					mode === 'edit'
-						? 'Edit Product'
-						: mode === 'add'
-							? 'Add Product'
-							: 'Product Detail'
-				"
-				:showResetButton="mode === 'edit' && hasUnsavedChanges.value"
-				:showSaveButton="mode !== 'view'"
-				@reset="resetForm"
+		<div class="w-full bg-white h-auto rounded-lg shadow-sm py-3 px-4">
+			<form @submit.prevent="submit">
+				<FormHeader
+					:title="
+						mode === 'edit'
+							? 'Edit Product'
+							: mode === 'add'
+								? 'Add Product'
+								: 'Product Detail'
+					"
+					:showResetButton="
+						mode === 'edit' && hasUnsavedChanges.value
+					"
+					:showSaveButton="mode !== 'view'"
+					@reset="resetForm"
+				/>
+				<FormSectionHeader
+					title="Basic Product Information"
+					icon="info"
+				/>
+				<div class="grid grid-cols-3 gap-6 mt-4">
+					<div class="space-y-3">
+						<!-- Code -->
+						<InputForm
+							v-if="mode !== 'add'"
+							v-model="form.code"
+							id="code"
+							label="Code"
+							placeholder="Code"
+							required
+							:error="formError.code"
+							:readonly="mode !== 'add'"
+						/>
+						<!-- Name -->
+						<InputForm
+							v-model="form.name"
+							id="name"
+							label="Name"
+							placeholder="Name"
+							required
+							:error="formError.name"
+							:readonly="mode === 'view'"
+						/>
+						<!-- Category -->
+						<div>
+							<label
+								for="dropdown"
+								class="block text-sm text-grey-900 font-medium mb-1"
+							>
+								Category<span class="text-pinkDark">*</span>
+							</label>
+							<Dropdown
+								:items="categories"
+								v-model="form.category_id"
+								placeholder="Select a category"
+								:multiple="false"
+								:searchable="true"
+								:disabled="mode === 'view'"
+								:addRoute="'/master/category/add'"
+							/>
+							<p
+								v-if="formError.category_id"
+								class="text-pinkDark text-xs italic transition duration-300"
+							>
+								{{ formError.category_id }}
+							</p>
+						</div>
+						<!-- Type -->
+						<div>
+							<label
+								for="dropdown"
+								class="block text-sm text-grey-900 font-medium mb-1"
+							>
+								Type<span class="text-pinkDark">*</span>
+							</label>
+							<Dropdown
+								:items="types"
+								v-model="form.type_id"
+								placeholder="Select a type"
+								:multiple="false"
+								:searchable="true"
+								:disabled="mode === 'view'"
+								:addRoute="`/master/category/view/${form.category_id}`"
+							/>
+							<p
+								v-if="formError.type_id"
+								class="text-pinkDark text-xs italic transition duration-300"
+							>
+								{{ formError.type_id }}
+							</p>
+						</div>
+						<!-- Price -->
+						<InputForm
+							v-model="form.price"
+							id="price"
+							label="Active Price"
+							placeholder="Active Price"
+							required
+							:error="formError.price"
+							:readonly="true"
+						/>
+					</div>
+					<div class="space-y-3">
+						<!-- Images -->
+						<div>
+							<label
+								for="image"
+								class="block text-sm text-grey-900 font-medium mb-1"
+							>
+								Images<span class="text-pinkDark">*</span>
+							</label>
+
+							<!-- Pagination Buttons at the Top -->
+							<button
+								v-if="startIndex > 0"
+								type="button"
+								@click="prevPage"
+								class="w-full mb-2 pt-1 px-4 bg-pinkGray text-pinkOrange border border-pinkOrange border-opacity-25 rounded-lg hover:bg-pinkDark hover:text-white transition duration-300 justify-center items-center"
+							>
+								<i class="material-icons"
+									>keyboard_double_arrow_up</i
+								>
+							</button>
+
+							<!-- Transition Group for Animated Scrolling Effect -->
+							<TransitionGroup
+								tag="div"
+								name="scroll-transition"
+								class="space-y-2"
+							>
+								<div
+									v-for="(image, index) in paginatedImages"
+									:key="startIndex + index"
+									class="rounded-lg shadow-sm bg-white"
+								>
+									<ImageUpload
+										v-model="
+											form.images[startIndex + index]
+										"
+										:readonly="mode === 'view'"
+										:uploadFile="'/upload-product'"
+									/>
+								</div>
+							</TransitionGroup>
+
+							<!-- Pagination Buttons at the Bottom -->
+							<button
+								v-if="
+									startIndex + pageSize < form.images.length
+								"
+								type="button"
+								@click="nextPage"
+								class="mt-2 w-full pt-1 px-4 bg-pinkGray text-pinkOrange border border-pinkOrange border-opacity-25 rounded-lg hover:bg-pinkDark hover:text-white transition duration-300 justify-center items-center"
+							>
+								<i class="material-icons"
+									>keyboard_double_arrow_down</i
+								>
+							</button>
+
+							<!-- Add Image Button (only on last page) -->
+							<button
+								v-if="mode !== 'view' && isLastPage"
+								@click="addImage"
+								type="button"
+								class="w-full px-4 py-2 bg-pinkDark text-white rounded-lg hover:bg-pinkDarker transition duration-300 mt-2"
+							>
+								+ Add Image
+							</button>
+							<p
+								v-if="formError.images"
+								class="text-pinkDark text-xs italic transition duration-300"
+							>
+								{{ formError.images }}
+							</p>
+						</div>
+					</div>
+					<div class="space-y-3">
+						<!-- Description -->
+						<TextareaForm
+							v-model="form.description"
+							id="description"
+							label="Description"
+							placeholder="Description"
+							:error="formError.description"
+							:readonly="mode === 'view'"
+						/>
+					</div>
+				</div>
+			</form>
+			<form @submit.prevent="generateCode" v-if="mode !== 'add'">
+				<FormSectionHeader title="Generate Product Code" icon="build" />
+				<div class="grid grid-cols-3 gap-6 mt-4">
+					<div>
+						<!-- Weight -->
+						<InputForm
+							v-model="formCode.weight"
+							type="number"
+							id="weight"
+							label="Weight"
+							placeholder="Weight"
+							required
+						/>
+					</div>
+					<div class="flex justify-end items-end">
+						<!-- Generate -->
+						<button
+							type="button"
+							@click="generateCode"
+							class="w-full px-4 py-2 border border-pinkDark bg-pinkDark text-white hover:bg-pinkOrange rounded-lg transition duration-300 ease-in-out hover:ring hover:ring-pinkOrange hover:ring-opacity-25"
+						>
+							Generate
+						</button>
+					</div>
+				</div>
+			</form>
+		</div>
+		<div class="w-full bg-white h-auto rounded-lg shadow-sm mt-4">
+			<h1 class="text-xl text-pinkDark font-bold pt-3 px-4">
+				Product Codes
+			</h1>
+			<TableData
+				:columns="columns"
+				:addPath="''"
+				:export="false"
+				:reload="true"
+				:ajaxPath="`/inventory/product-codes/${id}`"
+				:editPath="''"
+				:deletePath="'/inventory/product-code'"
+				:infoPath="''"
 			/>
-			<FormSectionHeader title="Basic Product Information" icon="info" />
-			<div class="grid grid-cols-3 gap-6 mt-4">
-				<div class="space-y-3">
-					<!-- Code -->
-					<InputForm
-						v-if="mode !== 'add'"
-						v-model="form.code"
-						id="code"
-						label="Code"
-						placeholder="Code"
-						required
-						:error="formError.code"
-						:readonly="mode !== 'add'"
-					/>
-					<!-- Name -->
-					<InputForm
-						v-model="form.name"
-						id="name"
-						label="Name"
-						placeholder="Name"
-						required
-						:error="formError.name"
-						:readonly="mode === 'view'"
-					/>
-					<!-- Category -->
-					<div>
-						<label
-							for="dropdown"
-							class="block text-sm text-grey-900 font-medium mb-1"
-						>
-							Category<span class="text-pinkDark">*</span>
-						</label>
-						<Dropdown
-							:items="categories"
-							v-model="form.category_id"
-							placeholder="Select a category"
-							:multiple="false"
-							:searchable="true"
-							:disabled="mode === 'view'"
-							:addRoute="'/master/category/add'"
-						/>
-						<p
-							v-if="formError.category_id"
-							class="text-pinkDark text-xs italic transition duration-300"
-						>
-							{{ formError.category_id }}
-						</p>
-					</div>
-					<!-- Type -->
-					<div>
-						<label
-							for="dropdown"
-							class="block text-sm text-grey-900 font-medium mb-1"
-						>
-							Type<span class="text-pinkDark">*</span>
-						</label>
-						<Dropdown
-							:items="types"
-							v-model="form.type_id"
-							placeholder="Select a type"
-							:multiple="false"
-							:searchable="true"
-							:disabled="mode === 'view'"
-							:addRoute="`/master/category/view/${form.category_id}`"
-						/>
-						<p
-							v-if="formError.type_id"
-							class="text-pinkDark text-xs italic transition duration-300"
-						>
-							{{ formError.type_id }}
-						</p>
-					</div>
-					<!-- Price -->
-					<InputForm
-						v-model="form.price"
-						id="price"
-						label="Price"
-						placeholder="Price"
-						required
-						:error="formError.price"
-						:readonly="true"
-					/>
-				</div>
-				<div class="space-y-3">
-					<!-- Images -->
-					<div>
-						<label
-							for="image"
-							class="block text-sm text-grey-900 font-medium mb-1"
-						>
-							Images<span class="text-pinkDark">*</span>
-						</label>
-
-						<!-- Pagination Buttons at the Top -->
-						<button
-							v-if="startIndex > 0"
-							type="button"
-							@click="prevPage"
-							class="w-full mb-2 pt-1 px-4 bg-pinkGray text-pinkOrange border border-pinkOrange border-opacity-25 rounded-lg hover:bg-pinkDark hover:text-white transition duration-300 justify-center items-center"
-						>
-							<i class="material-icons"
-								>keyboard_double_arrow_up</i
-							>
-						</button>
-
-						<!-- Transition Group for Animated Scrolling Effect -->
-						<TransitionGroup
-							tag="div"
-							name="scroll-transition"
-							class="space-y-2"
-						>
-							<div
-								v-for="(image, index) in paginatedImages"
-								:key="startIndex + index"
-								class="rounded-lg shadow-sm bg-white"
-							>
-								<ImageUpload
-									v-model="form.images[startIndex + index]"
-									:readonly="mode === 'view'"
-									:uploadFile="'/upload-product'"
-								/>
-							</div>
-						</TransitionGroup>
-
-						<!-- Pagination Buttons at the Bottom -->
-						<button
-							v-if="startIndex + pageSize < form.images.length"
-							type="button"
-							@click="nextPage"
-							class="mt-2 w-full pt-1 px-4 bg-pinkGray text-pinkOrange border border-pinkOrange border-opacity-25 rounded-lg hover:bg-pinkDark hover:text-white transition duration-300 justify-center items-center"
-						>
-							<i class="material-icons"
-								>keyboard_double_arrow_down</i
-							>
-						</button>
-
-						<!-- Add Image Button (only on last page) -->
-						<button
-							v-if="mode !== 'view' && isLastPage"
-							@click="addImage"
-							type="button"
-							class="w-full px-4 py-2 bg-pinkDark text-white rounded-lg hover:bg-pinkDarker transition duration-300 mt-2"
-						>
-							+ Add Image
-						</button>
-						<p
-							v-if="formError.images"
-							class="text-pinkDark text-xs italic transition duration-300"
-						>
-							{{ formError.images }}
-						</p>
-					</div>
-				</div>
-				<div class="space-y-3">
-					<!-- Description -->
-					<TextareaForm
-						v-model="form.description"
-						id="description"
-						label="Description"
-						placeholder="Description"
-						:error="formError.description"
-						:readonly="mode === 'view'"
-					/>
-				</div>
-			</div>
-			<FormSectionHeader title="Generate Product Code" icon="build" />
-		</form>
+		</div>
 	</div>
 </template>
 <style scoped>
@@ -251,7 +299,7 @@ const columns = Object.freeze([
 		visible: false,
 	},
 	{
-		data: 'code',
+		data: 'barcode',
 		title: 'Code',
 	},
 	{
@@ -268,13 +316,9 @@ const columns = Object.freeze([
 		visible: false,
 	},
 	{
-		data: 'description',
-		title: 'Description',
-		visible: false,
-	},
-	{
 		data: 'action',
 		title: 'Action',
+		width: '5%',
 	},
 ])
 
@@ -374,6 +418,7 @@ const fetchPrice = async (type_id) => {
 		if (response.data) {
 			const res = response.data.data
 			form.value.price = res[0].price
+			formCode.value.fixed_price = res[0].price
 		}
 	} catch (error) {
 		showAlert('error', 'Error!', 'Failed to fetch price data.')
@@ -511,6 +556,29 @@ const submit = async () => {
 	onSubmit.value = false
 }
 
+// Generate Code [For mode EDIT and VIEW only]
+const formCode = ref({
+	weight: 0,
+	fixed_price: '',
+})
+
+// submit generate code
+const generateCode = async () => {
+	try {
+		const response = await axiosInstance.post(
+			`/inventory/generate-product-code/${id}`,
+			formCode.value
+		)
+		if (response.data) {
+			showAlert('success', 'Success!', response.data.message)
+			formCode.value.weight = 0
+		}
+	} catch (error) {
+		showAlert('error', 'Error!', error.data.message)
+	}
+	formCode.value.weight = 0
+}
+
 const showAlert = (
 	type: 'success' | 'error' | 'warning',
 	title: string,
@@ -539,6 +607,7 @@ onMounted(async () => {
 			form.value = { ...response.data.data }
 			form.value.category_id = [form.value.type.category_id]
 			form.value.type_id = [form.value.type_id]
+			form.value.price = 0
 			formCopy.value = await JSON.parse(JSON.stringify(form.value))
 			console.log(form.value, formCopy.value)
 		} catch (error) {

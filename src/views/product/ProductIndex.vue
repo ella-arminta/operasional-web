@@ -53,7 +53,7 @@ const columns = [
 		title: 'Avg. Price',
 		render: (data) => {
 			const total = data.reduce(
-				(acc, curr) => acc + (curr.fixed_price ?? 0),
+				(acc, curr) => acc + (parseFloat(curr.fixed_price) ?? 0),
 				0
 			)
 			return formatPrice(total / (data.length > 0 ? data.length : 1))
