@@ -233,6 +233,22 @@ const router = createRouter({
 					],
 				},
 				{
+					path: 'marketplace',
+					children: [
+						{
+							path: 'voucher',
+							component: () => import('../views/marketplace/VoucherIndex.vue'),
+						},
+						{
+							path: 'voucher/:mode/:id?',
+							component: () => import('../views/marketplace/VoucherForm.vue'),
+							props: (route) => ({
+								mode: route.params.mode,
+							}),
+						},
+					],
+				},
+				{
 					path: 'settings',
 					children: [
 						{
