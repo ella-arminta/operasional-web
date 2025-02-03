@@ -34,6 +34,10 @@ const router = createRouter({
 					component: () => import('../views/faq/FAQIndex.vue'),
 				},
 				{
+					path: '/customer',
+					component: () => import('../views/customer/CustomerForm.vue'),
+				},
+				{
 					path: 'master',
 					children: [
 						// Path for company
