@@ -171,17 +171,17 @@ const form = ref({
 	code: null,
 	name: '',
 	description: '',
-	company_id: null,
-	account_type_id: null,
-	store_id: null,
+	company_id: [],
+	account_type_id: [],
+	store_id: [],
 })
 const formCopy = ref({
 	code: null,
 	name: '',
 	description: '',
-	company_id: null,
-	account_type_id: null,
-	store_id: null,
+	company_id: [],
+	account_type_id: [],
+	store_id: [],
 })
 const formError = ref({
 	code: '',
@@ -200,10 +200,13 @@ const smallMenu = computed(() => store.getters.smallMenu)
 
 onMounted(async () => {
 	const companyData = await axiosInstance.get('/master/company')
-	companyItems.value = companyData.data.data.map((company) => ({
-		label: company.name,
-		id: company.id,
-	}))
+	companyItems.value = companyData.data.data.map((company) => (
+		console.log('company',company),
+		{
+			label: company.name,
+			id: company.id,
+		}
+	))
 	const storeData = await axiosInstance.get('/master/store')
 	storeItems.value = storeData.data.data.map((store) => ({
 		label: store.name,
@@ -314,7 +317,7 @@ const submit = async () => {
 			store.dispatch('triggerAlert', {
 				type: 'success',
 				title: 'Success!',
-				message: `Store ${response.data.data.name} ${action}.`,
+				message: `Account ${response.data.data.name} ${action}.`,
 				actions: [
 					{
 						label: 'close',
