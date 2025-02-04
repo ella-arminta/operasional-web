@@ -30,6 +30,14 @@ const router = createRouter({
 					component: Home,
 				},
 				{
+					path: '/faq',
+					component: () => import('../views/faq/FAQIndex.vue'),
+				},
+				{
+					path: '/customer',
+					component: () => import('../views/customer/CustomerForm.vue'),
+				},
+				{
 					path: 'master',
 					children: [
 						// Path for company
@@ -225,6 +233,22 @@ const router = createRouter({
 							path: 'stock-mutation',
 							component: () =>
 								import('../views/stock/StockMutationIndex.vue'),
+						},
+					],
+				},
+				{
+					path: 'marketplace',
+					children: [
+						{
+							path: 'voucher',
+							component: () => import('../views/marketplace/VoucherIndex.vue'),
+						},
+						{
+							path: 'voucher/:mode/:id?',
+							component: () => import('../views/marketplace/VoucherForm.vue'),
+							props: (route) => ({
+								mode: route.params.mode,
+							}),
 						},
 					],
 				},

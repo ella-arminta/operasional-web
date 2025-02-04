@@ -3,18 +3,9 @@
 		<div class="logo">
 			<img src="https://inspiraworld.com/favicon.png" alt="" />
 		</div>
-		<MenuItem
-			v-for="(item, index) in menuTree"
-			:key="index"
-			:data="item.children"
-			:label="item.label"
-			:path="item.path"
-			:icon="item.icon"
-			:depth="0"
-		/>
-		<i @click="store.dispatch('toggleSmallMenu')" class="material-icons"
-			>menu</i
-		>
+		<MenuItem v-for="(item, index) in menuTree" :key="index" :data="item.children" :label="item.label"
+			:path="item.path" :icon="item.icon" :depth="0" />
+		<i @click="store.dispatch('toggleSmallMenu')" class="material-icons">menu</i>
 	</div>
 </template>
 
@@ -133,6 +124,16 @@ const menuTree = ref([
 		],
 	},
 	{
+		label: 'Marketplace',
+		icon: 'storefront',
+		children: [
+			{
+				label: 'Voucher',
+				path: '/marketplace/voucher',
+			},
+		],
+	},
+	{
 		label: 'Settings',
 		icon: 'settings',
 		children: [
@@ -141,6 +142,11 @@ const menuTree = ref([
 				path: '/settings/password/change',
 			},
 		],
+	},
+	{
+		label: 'FAQ',
+		icon: 'help_outline',
+		path: '/faq',
 	},
 	{
 		label: 'Logout',
@@ -167,6 +173,7 @@ const menuTree = ref([
 	padding-top: 20px;
 	box-shadow: 0px 4px 35.2px 0px #0000001a;
 	z-index: 99;
+
 	i {
 		position: absolute;
 		left: 80%;
@@ -176,12 +183,14 @@ const menuTree = ref([
 		cursor: pointer;
 		transition: all 0.3s ease;
 	}
+
 	&.small-menu {
 		overflow: inherit;
 		min-width: 60px;
 		width: 60px;
 		padding: 0;
 		padding-top: 50px;
+
 		i {
 			left: 20px;
 		}
@@ -193,6 +202,7 @@ const menuTree = ref([
 	.menu {
 		position: fixed;
 		width: 60%;
+
 		&.small-menu {
 			position: relative;
 		}
@@ -206,11 +216,13 @@ const menuTree = ref([
 	height: 70px;
 	padding-top: 20px;
 	margin-bottom: 20px;
+
 	img {
 		width: auto;
 		height: 100%;
 		max-width: 80%;
 	}
+
 	&.small-menu {
 		img {
 			display: none;
