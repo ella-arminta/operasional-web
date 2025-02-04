@@ -28,17 +28,17 @@ onMounted(async () => {
   const storeData = await axiosInstance.get('/master/store');
   var storesFormated = storeData.data.data.map((store) => ({
     label: store.name,
-    value: store.id,
+    id: store.id,
   }));
   const typeData = await axiosInstance.get('/finance/account-type');
   var typesFormated = typeData.data.data.map((type) => ({
     label: type.name,
-    value: type.id,
+    id: type.id,
   }));
   const companyData = await axiosInstance.get('/master/company');
   var companiesFormated = companyData.data.data.map((company) => ({
     label: company.name,
-    value: company.id,
+    id: company.id,
   }));
 
   filters.value = [

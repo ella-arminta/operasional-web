@@ -106,6 +106,10 @@ const menuTree = ref([
 						label: 'Journal',
 						path: '/finance/journal',
 					},
+					{
+						label:'General Ledger',
+						path:'/finance/general-ledger'
+					}
 				],
 			},
 			{

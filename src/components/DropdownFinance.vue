@@ -60,7 +60,13 @@ const selectRange = () => {
     isDropdownOpen.value = false;
     labelFixSelected.value = selectedRange.value.label;
     // Emit the selected range (this will be emitted to the parent component)
-    console.log('emited selectRange')
+    console.log('emited selectRange', selectedRange.value.value.start);
+    if (!(selectedRange.value.value.start instanceof Date)) {
+      selectedRange.value.value.start = new Date(selectedRange.value.value.start);
+    }
+    if (!(selectedRange.value.value.end instanceof Date)) {
+      selectedRange.value.value.end = new Date(selectedRange.value.value.end);
+    }
     selectedRange.value.value.start = selectedRange.value.value.start.toISOString().split('T')[0];
     selectedRange.value.value.end = selectedRange.value.value.end.toISOString().split('T')[0];
     emit("range-selected",  selectedRange.value.value );

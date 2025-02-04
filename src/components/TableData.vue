@@ -6,6 +6,7 @@
 			<div class="flex justify-center items-center gap-4">
 				<div
 					@click="toggleFilters"
+					v-if="props.filters && props.filters.length > 0"
 					:class="{
 						'text-white hover:bg-pinkMed px-2 py-1 cursor-pointer rounded-md flex items-center': true,
 						'bg-pinkDark': !isFiltersOpen,
@@ -74,6 +75,7 @@
 						}}</label>
 						<Dropdown
 							:items="filter.options"
+							:multiple="filter.multiple || false"
 							v-model="filterValues[filter.name]"
 						/>
 					</div>
@@ -120,6 +122,13 @@
 					</th>
 				</tr>
 			</thead>
+			<tfoot v-if="props.totalFooter" class="bg-white">
+				<tr>
+					<th v-for="(column, index) in columns" :key="index">
+						{{ index === 0 ? "Total" : (column.sum ? "Total" : "") }}
+					</th>
+				</tr>
+			</tfoot>
 		</DataTable>
 	</div>
 </template>
@@ -282,6 +291,9 @@ tbody > tr:nth-child(even) > td {
 	border: none !important;
 	box-shadow: none !important;
 }
+.dataTable tfoot th {
+	text-align: start !important;
+}
 </style>
 <script setup lang="ts">
 import DataTable from 'datatables.net-vue3'
@@ -349,6 +361,10 @@ const props = defineProps({
 		type: Object,
 		default: () => [],
 	},
+	totalFooter: {
+		type: Boolean,
+		default: false,
+	}
 })
 
 DataTable.use(DataTablesCore)
@@ -496,7 +512,11 @@ const ajaxOptions = computed(() => ({
 	data: (d) => {
 		for (const key in filterValues.value) {
 			if (filterValues.value[key] !== '') {
-				d[key] = filterValues.value[key]
+				if (filterValues.value[key].length <= 1) {
+					d[key] = filterValues.value[key][0]
+				} else {
+					d[key] = JSON.stringify(filterValues.value[key])
+				} 
 			}
 		}
 	},
@@ -574,6 +594,28 @@ const options = computed(() => ({
 	ajax: ajaxOptions.value,
 	scrollX: props.options.scrollX || false,
 	fixedColumns: props.fixedColumns,
+	footerCallback: function (row, data, start, end, display) {
+		if(dt && props.totalFooter) {
+			// Iterate over each column
+			dt.columns().every(function () {
+				const column = this;
+				const columnIndex = column.index();
+	
+				// Check if the column should be summed
+				if (props.columns[columnIndex]?.sum) {
+					let total = column
+					.data()
+					.reduce((sum, value) => sum + parseFloat(value) || 0, 0);
+	
+					// Update the footer content
+					const footer = column.footer();
+					if (footer) {
+						footer.innerHTML = total.toLocaleString(); // Format number
+					}
+				}
+			});
+		}
+    }
 }))
 
 const handleRangeSelected = (range) => {
@@ -603,6 +645,16 @@ const exportTable = async () => {
 	data.forEach((row) => {
 		worksheet.addRow(Object.values(row))
 	})
+
+	// add total footer
+	if (props.totalFooter) {
+		const footer = dt
+			.columns()
+			.footer()
+			.toArray()
+			.map((footer) => footer.innerText)
+		worksheet.addRow(footer)
+	}
 
 	// Create and save file
 	const buffer = await workbook.xlsx.writeBuffer()

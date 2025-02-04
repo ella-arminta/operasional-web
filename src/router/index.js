@@ -234,6 +234,16 @@ const router = createRouter({
 							component: () =>
 								import('../views/stock/StockMutationIndex.vue'),
 						},
+						{
+							path: 'general-ledger',
+							component: () =>
+								import('../views/general-ledger/GeneralLedgerIndex.vue'),
+						},
+						{
+							path: 'general-ledger/view/:id',
+							component: () =>
+								import('../views/general-ledger/LedgerDetail.vue'),
+						}
 					],
 				},
 				{
