@@ -290,7 +290,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, defineProps, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
 import Cookies from 'js-cookie'

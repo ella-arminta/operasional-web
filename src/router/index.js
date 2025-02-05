@@ -238,13 +238,17 @@ const router = createRouter({
 						{
 							path: 'general-ledger',
 							component: () =>
-								import('../views/general-ledger/GeneralLedgerIndex.vue'),
+								import(
+									'../views/general-ledger/GeneralLedgerIndex.vue'
+								),
 						},
 						{
 							path: 'general-ledger/view/:id',
 							component: () =>
-								import('../views/general-ledger/LedgerDetail.vue'),
-						}
+								import(
+									'../views/general-ledger/LedgerDetail.vue'
+								),
+						},
 					],
 				},
 				{
@@ -290,6 +294,19 @@ const router = createRouter({
 							path: 'password/change',
 							component: () =>
 								import('../views/settings/ChangePassword.vue'),
+						},
+						{
+							path: 'role',
+							component: () =>
+								import('../views/role/RoleIndex.vue'),
+						},
+						{
+							path: 'role/:mode/:id?',
+							component: () =>
+								import('../views/role/RoleForm.vue'),
+							props: (route) => ({
+								mode: route.params.mode,
+							}),
 						},
 					],
 				},
