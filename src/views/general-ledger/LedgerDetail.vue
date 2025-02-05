@@ -5,20 +5,16 @@ import TableData from '../../components/TableData.vue';
 import axiosInstance from '../../axios';
 import { useStore } from 'vuex';
 import DropdownFinance from '../../components/DropdownFinance.vue';
+import { name } from 'eslint-plugin-prettier/recommended';
 
 const columns = [
-  { data: 'name', title: 'Name' },
-  { data: 'code', title: 'Code' },
-  { data: 'debit', title: 'Debit' },
-  { data: 'credit', title: 'Credit' },
-  { data: 'balance', title: 'Balance' },
-  {
-		data: 'action',
-		title: 'Action',
-		width: '5%',
-		searchable: false,
-		orderable: false,
-	},
+  { data: 'infoacc', title: 'Info Acc' },
+  { data: 'date', title: 'Date' },
+  { data: 'code', title: 'Trans Code' },
+  { data: 'description', title: 'Description' },
+  { data: 'Debit', title: 'Debit', sum:true },
+  { data: 'Kredit', title: 'Kredit', sum:true },
+  { data: 'Balance', title: 'Balance', sum:true },
 ];
 const store = useStore();
 const smallMenu = computed(() => store.getters.smallMenu);
@@ -29,7 +25,7 @@ onMounted(async () => {
   filters.value = [
     {
       type: 'selectRangeFinance',
-      label: 'Range',
+      label: 'Date Range',
       name: 'range',
     },
   ];
@@ -38,14 +34,17 @@ onMounted(async () => {
 
 <template>
   <div class="content" :class="{ 'full-width': smallMenu }">
-    <PageTitle />
+    <PageTitle 
+    :title="'General Ledger Detail'"
+    />
 
     <TableData 
       :columns="columns"
       :reload="true"
       :filters="filters"
-      ajaxPath="/finance/journal"
-	    :infoPath="'/finance/journal/view'"
+      :totalFooter="true"
+      :export="true"
+      ajaxPath="/finance/ledger"
     />
   </div>
 </template>
