@@ -72,8 +72,11 @@ const endDate = ref('');
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-5">
-      <LineChart :apiPath="'/finance/gold-price'" :title="'Gold Selling Price'" :startDate="startDate" :endDate="endDate" />
-      <LineChart :apiPath="'/finance/gold-price'" :title="'Sales'" :startDate="startDate" :endDate="endDate" />
+      <!-- <LineChart :apiPath="'/finance/gold-price'" :title="'Gold Selling Price'" :startDate="startDate" :endDate="endDate" />
+      <LineChart :apiPath="'/finance/gold-price'" :title="'Sales'" :startDate="startDate" :endDate="endDate" /> -->
+      <LineChart :apiPath="''" :title="'Gold Selling Price'" :startDate="startDate" :endDate="endDate" />
+      <LineChart :apiPath="''" :title="'Sales'" :startDate="startDate" :endDate="endDate" />
+
     </div>
   </div>
 </template>
