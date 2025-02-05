@@ -178,21 +178,21 @@
 			/>
 			<div class="grid grid-cols-3 gap-6 mt-4">
 				<div class="space-y-3">
-					<!-- Marketplace poin -->
-					<InputForm
-						v-model="form.poin_config"
-						id="poin_config"
-						type="number"
-						label="Marketplace Poin"
-						placeholder="Marketplace Poin"
-						:readonly="mode === 'view'"
-						:error="formError.poin_config"
-					/>
 					<!-- Activation Status -->
 					<ToggleForm
 						v-model="form.is_active"
 						label="Active Status"
 						:disabled="mode === 'view'"
+					/>
+					<!-- Tax Percentage -->
+					<InputForm
+						v-model="form.tax_percentage"
+						id="tax_percentage"
+						type="number"
+						label="Tax Percentage (%)"
+						placeholder="Tax Percentage (%)"
+						:readonly="mode === 'view'"
+						:error="formError.tax_percentage"
 					/>
 					<!-- Flexible Price -->
 					<ToggleForm
@@ -206,6 +206,117 @@
 						label="Floating Product Price"
 						:disabled="mode === 'view'"
 					/>
+					<!-- Marketplace poin -->
+					<InputForm
+						v-model="form.poin_config"
+						id="poin_config"
+						type="number"
+						label="Marketplace Poin"
+						placeholder="Marketplace Poin"
+						:readonly="mode === 'view'"
+						:error="formError.poin_config"
+					/>
+				</div>
+				<div class="space-y-3">
+					<!-- Defect -->
+					<div>
+						<label
+							for="defect"
+							class="block text-sm text-grey-900 font-medium mb-1"
+						>
+							Defect Discount
+						</label>
+						<div
+							class="space-y-3 px-3 py-3 rounded-lg border border-pinkOrange border-opacity-25"
+						>
+							<!-- Defect Nominal -->
+							<InputForm
+								v-model="form.defect_nominal"
+								id="defect_nominal"
+								type="number"
+								label="Defect Nominal (Rp)"
+								placeholder="Defect Nominal (Rp)"
+								:readonly="mode === 'view'"
+								:error="formError.defect_nominal"
+							/>
+							<!-- Defect Percentage -->
+							<InputForm
+								v-model="form.defect_percentage"
+								id="defect_percentage"
+								type="number"
+								label="Defect Percentage (%)"
+								placeholder="Defect Percentage (%)"
+								:readonly="mode === 'view'"
+								:error="formError.defect_percentage"
+							/>
+						</div>
+					</div>
+					<!-- Discount Buy -->
+					<div>
+						<label
+							for="defect"
+							class="block text-sm text-grey-900 font-medium mb-1"
+						>
+							Potongan Harga beli minimum TT/KBL
+						</label>
+						<div
+							class="space-y-3 px-3 py-3 rounded-lg border border-pinkOrange border-opacity-25"
+						>
+							<!-- Minimum Trade in (%) -->
+							<InputForm
+								v-model="form.discount_trade"
+								id="discount_trade"
+								type="number"
+								label="Discount (%) in minimum Trade in"
+								placeholder="Discount (%) in minimum Trade in"
+								:readonly="mode === 'view'"
+								:error="formError.discount_trade"
+							/>
+							<!-- Defect Percentage -->
+							<InputForm
+								v-model="form.discount_kbl"
+								id="discount_kbl"
+								type="number"
+								label="Discount (%) in minimum KBL"
+								placeholder="Discount (%) in minimum KBL"
+								:readonly="mode === 'view'"
+								:error="formError.discount_kbl"
+							/>
+						</div>
+					</div>
+					<!-- Adjustment Price TT/KBL -->
+					<div>
+						<label
+							for="defect"
+							class="block text-sm text-grey-900 font-medium mb-1"
+						>
+							Price Adjustment TT/KBL
+						</label>
+						<div
+							class="space-y-3 px-3 py-3 rounded-lg border border-pinkOrange border-opacity-25"
+						>
+							<!-- Minimum Trade in (%) -->
+							<InputForm
+								v-model="form.adjustment_price_trade"
+								id="adjustment_price_trade"
+								type="number"
+								label="Discount (%) in minimum Trade in"
+								placeholder="Discount (%) in minimum Trade in"
+								:readonly="mode === 'view'"
+								:error="formError.adjustment_price_trade"
+							/>
+							<!-- Defect Percentage -->
+							<InputForm
+								v-model="form.adjustment_price_kbl"
+								id="adjustment_price_kbl"
+								type="number"
+								label="Discount (%) in minimum KBL"
+								placeholder="Discount (%) in minimum KBL"
+								:readonly="mode === 'view'"
+								:error="formError.adjustment_price_kbl"
+							/>
+						</div>
+					</div>
 				</div>
 			</div>
 		</form>
@@ -297,6 +408,9 @@ const form = ref({
 	is_active: true,
 	is_flex_price: false,
 	is_float_price: false,
+	tax_percentage: 0,
+	defect_nominal: 0,
+	defect_percentage: 0,
 })
 const formCopy = ref({ ...form.value })
 const formError = ref({
@@ -314,6 +428,9 @@ const formError = ref({
 	is_active: '',
 	is_flex_price: '',
 	is_float_price: '',
+	tax_percentage: '',
+	defect_nominal: '',
+	defect_percentage: '',
 })
 
 // MapPicker

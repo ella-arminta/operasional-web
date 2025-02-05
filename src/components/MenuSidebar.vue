@@ -3,9 +3,18 @@
 		<div class="logo">
 			<img src="https://inspiraworld.com/favicon.png" alt="" />
 		</div>
-		<MenuItem v-for="(item, index) in menuTree" :key="index" :data="item.children" :label="item.label"
-			:path="item.path" :icon="item.icon" :depth="0" />
-		<i @click="store.dispatch('toggleSmallMenu')" class="material-icons">menu</i>
+		<MenuItem
+			v-for="(item, index) in menuTree"
+			:key="index"
+			:data="item.children"
+			:label="item.label"
+			:path="item.path"
+			:icon="item.icon"
+			:depth="0"
+		/>
+		<i @click="store.dispatch('toggleSmallMenu')" class="material-icons"
+			>menu</i
+		>
 	</div>
 </template>
 
@@ -92,6 +101,16 @@ const menuTree = ref([
 			{
 				label: 'Cashier Closing',
 				path: '/finance/cashier-closing',
+			},
+		],
+	},
+	{
+		label: 'Transaction',
+		icon: 'shopping_cart',
+		children: [
+			{
+				label: 'Sales',
+				path: '/transaction/sales',
 			},
 		],
 	},

@@ -22,7 +22,6 @@ const store = useStore()
 const smallMenu = computed(() => store.getters.smallMenu)
 const columns = [
 	{ data: 'no', title: 'No', width: '5%' },
-	{ data: 'id', title: 'Id', visible: false },
 	{
 		data: 'date',
 		title: 'Date',

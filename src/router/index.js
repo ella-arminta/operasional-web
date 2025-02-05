@@ -35,7 +35,8 @@ const router = createRouter({
 				},
 				{
 					path: '/customer',
-					component: () => import('../views/customer/CustomerForm.vue'),
+					component: () =>
+						import('../views/customer/CustomerForm.vue'),
 				},
 				{
 					path: 'master',
@@ -237,15 +238,35 @@ const router = createRouter({
 					],
 				},
 				{
+					path: 'transaction',
+					children: [
+						{
+							path: 'sales',
+							component: () =>
+								import('../views/sales/SalesIndex.vue'),
+						},
+						{
+							path: 'sales/:mode/:id?',
+							component: () =>
+								import('../views/sales/SalesForm.vue'),
+							props: (route) => ({
+								mode: route.params.mode,
+							}),
+						},
+					],
+				},
+				{
 					path: 'marketplace',
 					children: [
 						{
 							path: 'voucher',
-							component: () => import('../views/marketplace/VoucherIndex.vue'),
+							component: () =>
+								import('../views/marketplace/VoucherIndex.vue'),
 						},
 						{
 							path: 'voucher/:mode/:id?',
-							component: () => import('../views/marketplace/VoucherForm.vue'),
+							component: () =>
+								import('../views/marketplace/VoucherForm.vue'),
 							props: (route) => ({
 								mode: route.params.mode,
 							}),

@@ -55,7 +55,9 @@
 					>
 						{{ col.label }}
 					</th>
-					<th class="px-4 py-2 text-white">Actions</th>
+					<th v-if="!readonly" class="px-4 py-2 text-white">
+						Actions
+					</th>
 				</tr>
 			</thead>
 
@@ -80,13 +82,18 @@
 								(c) => !c.hidden
 							)"
 							:key="colIndex"
+							:style="{ width: col.width ? col.width : 'auto' }"
 							class="relative px-0 h-full after:absolute after:right-0 after:top-1/2 after:-translate-y-1/2 after:h-4/5 after:w-[1px] after:bg-gray-300 text-start"
 						>
 							<div
 								class="px-4 py-2 w-full h-full flex flex-col items-start"
 							>
 								<div>
-									{{ row[col.key] }}
+									{{
+										col.formatCurrency
+											? formatCurrency(row[col.key])
+											: row[col.key]
+									}}
 								</div>
 								<span
 									v-if="errorRows[rowIndex]?.[col.key]"
@@ -96,7 +103,7 @@
 								</span>
 							</div>
 						</td>
-						<td class="px-4 py-2 w-12 text-center">
+						<td class="px-4 py-2 w-12 text-center" v-if="!readonly">
 							<div class="flex items-center justify-center gap-2">
 								<div
 									v-if="!allActive"
@@ -123,6 +130,7 @@
 								(c) => !c.hidden
 							)"
 							:key="colIndex"
+							:style="{ width: col.width ? col.width : 'auto' }"
 							class="relative px-0 h-full after:absolute after:right-0 after:top-1/2 after:-translate-y-1/2 after:h-4/5 after:w-[1px] after:bg-gray-300"
 						>
 							<div
@@ -165,7 +173,7 @@
 								</span>
 							</div>
 						</td>
-						<td class="px-4 py-2 w-12 text-center">
+						<td class="px-4 py-2 w-12 text-center" v-if="!readonly">
 							<div class="flex items-center justify-center gap-2">
 								<div
 									v-if="!allActive"
@@ -239,6 +247,14 @@ const props = defineProps({
 	addable: {
 		type: Boolean,
 		default: true,
+	},
+	deletable: {
+		type: Boolean,
+		default: true,
+	},
+	readonly: {
+		type: Boolean,
+		default: false,
 	},
 
 	// Optional For Add and Edit Data Not by emit(value) [Only for independent]
@@ -562,6 +578,16 @@ const validateAndParseInput = (event, rowIndex, key) => {
 	// Update the row value
 	rows.value[rowIndex][key] = parseFloat(value)
 	return value
+}
+
+// Formatter
+const formatCurrency = (value: number) => {
+	// value = Math.round(value)
+	if (!value) return 'Rp 0'
+	return new Intl.NumberFormat('id-ID', {
+		style: 'currency',
+		currency: 'IDR',
+	}).format(value)
 }
 
 onMounted(() => {
