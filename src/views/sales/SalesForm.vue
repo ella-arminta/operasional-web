@@ -130,12 +130,14 @@
 					</div>
 				</div>
 			</div>
-			<!-- Display Transaction Review (Only in Edit & View Mode) -->
+			<!-- Customer Reviews Section -->
 			<div v-if="mode !== 'add'" class="mt-6">
 				<FormSectionHeader title="Customer Reviews" icon="star" />
+
 				<div v-if="form.transaction_details.some(item => item.TransactionReview)">
 					<div v-for="item in form.transaction_details" :key="item.id"
 						class="bg-white p-4 rounded-lg shadow-md border border-gray-200 mb-4">
+
 						<h5 class="font-semibold text-gray-800">
 							{{ item.product_code ? item.product_code.barcode : "Unknown Product" }}
 						</h5>
@@ -165,13 +167,13 @@
 							</button>
 						</div>
 						</p>
+
 						<p v-else class="text-gray-500 italic">No review available for this product.</p>
 					</div>
 				</div>
+
 				<p v-else class="text-gray-500 text-sm italic">No customer reviews found for this transaction.</p>
 			</div>
-
-
 		</form>
 	</div>
 </template>
@@ -418,6 +420,47 @@ watch(
 		}
 	}
 )
+
+const submitAdminReply = async (item) => {
+	if (!item.adminReply || item.adminReply.trim() === '') {
+		store.dispatch('triggerAlert', {
+			type: 'error',
+			title: 'Error!',
+			message: 'Reply cannot be empty.',
+		});
+		return;
+	}
+
+	try {
+		const response = await axiosInstance.put(
+			`/transaction/review/${item.TransactionReview.id}`,
+			{
+				reply_admin: item.adminReply,
+			}
+		);
+
+		if (response.status === 201) {
+			store.dispatch('triggerAlert', {
+				type: 'success',
+				title: 'Success!',
+				message: 'Reply submitted successfully.',
+			});
+
+			// Update the UI without reloading
+			item.TransactionReview.reply_admin = item.adminReply;
+			item.adminReply = ''; // Clear input field
+		} else {
+			throw new Error(response.data.message);
+		}
+	} catch (error) {
+		store.dispatch('triggerAlert', {
+			type: 'error',
+			title: 'Error!',
+			message: error.response?.data?.message || 'Failed to submit reply.',
+		});
+	}
+};
+
 
 // Data Operations
 const operations = ref([])
