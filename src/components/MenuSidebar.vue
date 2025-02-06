@@ -171,6 +171,10 @@ const menuTree = ref([
 						label: 'Role',
 						path: '/settings/role',
 					},
+					{
+						label: 'User Role',
+						path: '/settings/user-role',
+					},
 				],
 			},
 		],

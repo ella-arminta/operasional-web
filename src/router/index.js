@@ -308,6 +308,11 @@ const router = createRouter({
 								mode: route.params.mode,
 							}),
 						},
+						{
+							path: 'user-role',
+							component: () =>
+								import('../views/role/UserRole.vue'),
+						},
 					],
 				},
 			],
