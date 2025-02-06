@@ -3,10 +3,10 @@
 		<PageTitle />
 		<form class="w-full bg-white h-auto rounded-lg shadow-sm py-3 px-4" @submit.prevent="submit">
 			<FormHeader :title="mode === 'edit'
-					? 'Edit Sales Transaction'
-					: mode === 'add'
-						? 'Sales Transaction Form'
-						: 'Sales Transaction Detail'
+				? 'Edit Sales Transaction'
+				: mode === 'add'
+					? 'Sales Transaction Form'
+					: 'Sales Transaction Detail'
 				" :showResetButton="mode === 'edit' && hasUnsavedChanges" :showSaveButton="mode !== 'view'" @reset="resetForm" />
 			<FormSectionHeader title="Transaction Information" icon="info" />
 			<div class="grid grid-cols-3 gap-6 mt-4">
@@ -130,6 +130,48 @@
 					</div>
 				</div>
 			</div>
+			<!-- Display Transaction Review (Only in Edit & View Mode) -->
+			<div v-if="mode !== 'add'" class="mt-6">
+				<FormSectionHeader title="Customer Reviews" icon="star" />
+				<div v-if="form.transaction_details.some(item => item.TransactionReview)">
+					<div v-for="item in form.transaction_details" :key="item.id"
+						class="bg-white p-4 rounded-lg shadow-md border border-gray-200 mb-4">
+						<h5 class="font-semibold text-gray-800">
+							{{ item.product_code ? item.product_code.barcode : "Unknown Product" }}
+						</h5>
+						<p class="text-gray-600 text-sm">{{ item.name || "Unnamed Product" }}</p>
+
+						<!-- Display Review If Available -->
+						<p v-if="item.TransactionReview">
+							<span class="text-yellow-500 font-bold">⭐ {{ item.TransactionReview.rating }} / 5</span>
+							<br />
+							<span class="text-gray-700 italic">"{{ item.TransactionReview.review }}"</span>
+							<br />
+
+							<!-- Show admin reply (read-only) if reply_admin exists -->
+						<p v-if="item.TransactionReview.reply_admin" class="text-gray-700 text-sm mt-2">
+							<b class="text-gray-800">Admin Reply:</b> {{ item.TransactionReview.reply_admin }}
+						</p>
+
+						<!-- Show input field for reply only if there's no reply_admin yet -->
+						<div v-else-if="mode === 'edit'" class="mt-2">
+							<label class="text-gray-700 text-sm font-semibold">Admin Reply:</label>
+							<input v-model="item.adminReply" type="text"
+								class="border rounded px-2 py-1 w-full mt-1 text-gray-800 focus:border-pinkDark focus:ring-pinkDark"
+								placeholder="Type your reply here..." />
+							<button @click="submitAdminReply(item)"
+								class="mt-2 px-3 py-1 bg-pinkDark text-white text-sm rounded hover:bg-pinkOrange transition">
+								Submit Reply
+							</button>
+						</div>
+						</p>
+						<p v-else class="text-gray-500 italic">No review available for this product.</p>
+					</div>
+				</div>
+				<p v-else class="text-gray-500 text-sm italic">No customer reviews found for this transaction.</p>
+			</div>
+
+
 		</form>
 	</div>
 </template>
@@ -434,6 +476,7 @@ watch(
 		let total = 0
 		let weight = 0
 		newValue.forEach((item) => {
+			console.log(item);
 			if (item.detail_type != 'operation') {
 				weight += item.quantity
 			}
@@ -569,6 +612,7 @@ const fetchTransaction = async () => {
 					product.detail_type = 'product';
 					product.quantity = parseFloat(product.weight);
 					product.unit = 'gram';
+					product.TransactionReview = product.TransactionReview || null; // ✅ Handle null review
 					return product;
 				}),
 				...data.transaction_operations.map((operation) => {
@@ -587,6 +631,7 @@ const fetchTransaction = async () => {
 		form.value.status = [form.value.status];
 		form.value.payment_method = [form.value.payment_method];
 		formCopy.value = { ...form.value };
+		console.log("Ini Form Copy", formCopy.value);
 	} else {
 		store.dispatch('triggerAlert', {
 			type: 'error',
