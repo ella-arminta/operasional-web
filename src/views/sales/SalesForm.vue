@@ -1,148 +1,60 @@
 <template>
 	<div class="content min-h-screen" :class="{ 'full-width': smallMenu }">
 		<PageTitle />
-		<form
-			class="w-full bg-white h-auto rounded-lg shadow-sm py-3 px-4"
-			@submit.prevent="submit"
-		>
-			<FormHeader
-				:title="
-					mode === 'edit'
-						? 'Edit Sales Transaction'
-						: mode === 'add'
-							? 'Sales Transaction Form'
-							: 'Sales Transaction Detail'
-				"
-				:showResetButton="mode === 'edit' && hasUnsavedChanges"
-				:showSaveButton="mode !== 'view'"
-				@reset="resetForm"
-			/>
+		<form class="w-full bg-white h-auto rounded-lg shadow-sm py-3 px-4" @submit.prevent="submit">
+			<FormHeader :title="mode === 'edit'
+					? 'Edit Sales Transaction'
+					: mode === 'add'
+						? 'Sales Transaction Form'
+						: 'Sales Transaction Detail'
+				" :showResetButton="mode === 'edit' && hasUnsavedChanges" :showSaveButton="mode !== 'view'" @reset="resetForm" />
 			<FormSectionHeader title="Transaction Information" icon="info" />
 			<div class="grid grid-cols-3 gap-6 mt-4">
 				<div class="space-y-3">
-					<InputForm
-						v-if="mode !== 'add'"
-						v-model="form.code"
-						id="code"
-						label="Code"
-						placeholder="Code"
-						required
-						:error="formError.code"
-						:readonly="mode !== 'add'"
-					/>
-					<InputForm
-						v-model="form.date"
-						id="date"
-						type="date"
-						label="Date"
-						placeholder="Date"
-						required
-						:error="formError.date"
-						:readonly="mode !== 'add'"
-					/>
-					<InputForm
-						v-if="mode !== 'add'"
-						v-model="form.employee"
-						id="employee"
-						label="employee"
-						placeholder="employee"
-						required
-						:error="formError.employee"
-						:readonly="mode !== 'add'"
-					/>
+					<InputForm v-if="mode !== 'add'" v-model="form.code" id="code" label="Code" placeholder="Code"
+						required :error="formError.code" :readonly="mode !== 'add'" />
+					<InputForm v-model="form.date" id="date" type="date" label="Date" placeholder="Date" required
+						:error="formError.date" :readonly="mode !== 'add'" />
+					<InputForm v-if="mode !== 'add'" v-model="form.employee" id="employee" label="employee"
+						placeholder="employee" required :error="formError.employee" :readonly="mode !== 'add'" />
 					<!-- Toogle Button to either SELECT from DROPDOWN or QR CODE SCANNER -->
 					<div v-if="mode === 'add'">
-						<label
-							for="dropdown"
-							class="block text-sm text-grey-900 font-medium mb-1"
-						>
+						<label for="dropdown" class="block text-sm text-grey-900 font-medium mb-1">
 							Select Customer<span class="text-pinkDark">*</span>
 						</label>
-						<Dropdown
-							:items="customerSelection"
-							v-model="selectedWay"
-							placeholder="Select a way to select customer"
-							:multiple="false"
-							:searchable="false"
-							:disabled="mode === 'view'"
-							:addRoute="''"
-						/>
-						<a
-							href="/customer"
-							class="text-pinkDark text-sm underline"
-							>+ Add Customer</a
-						>
+						<Dropdown :items="customerSelection" v-model="selectedWay"
+							placeholder="Select a way to select customer" :multiple="false" :searchable="false"
+							:disabled="mode === 'view'" :addRoute="''" />
+						<a href="/customer" class="text-pinkDark text-sm underline">+ Add Customer</a>
 					</div>
 					<!-- Use Dropdown Search email -->
 					<div v-if="mode === 'add' && selectedWay == 2">
-						<label
-							for="dropdown"
-							class="block text-sm text-grey-900 font-medium mb-1"
-						>
+						<label for="dropdown" class="block text-sm text-grey-900 font-medium mb-1">
 							Customer ID<span class="text-pinkDark">*</span>
 						</label>
-						<Dropdown
-							:items="customers"
-							v-model="form.customer_id"
-							placeholder="Select a customer"
-							:multiple="false"
-							:searchable="true"
-							:disabled="mode === 'view'"
-							:addRoute="'/customer'"
-						/>
-						<p
-							v-if="formError.customer_id"
-							class="text-pinkDark text-xs italic transition duration-300"
-						>
+						<Dropdown :items="customers" v-model="form.customer_id" placeholder="Select a customer"
+							:multiple="false" :searchable="true" :disabled="mode === 'view'" :addRoute="'/customer'" />
+						<p v-if="formError.customer_id" class="text-pinkDark text-xs italic transition duration-300">
 							{{ formError.customer_id }}
 						</p>
 					</div>
 					<!-- Use Barcode -- QR Code -- TODO: CHANGE INTO QR CODE ACTIVATION CAMERA LATER!! -->
 					<div v-if="mode === 'add' && selectedWay == 1">
-						<InputForm
-							v-model="form.customer_id"
-							id="customer_id"
-							label="Customer ID"
-							placeholder="Customer ID"
-							required
-							:error="formError.customer_id"
-							:readonly="mode !== 'add'"
-						/>
+						<InputForm v-model="form.customer_id" id="customer_id" label="Customer ID"
+							placeholder="Customer ID" required :error="formError.customer_id"
+							:readonly="mode !== 'add'" />
 					</div>
 				</div>
 				<div class="space-y-3">
-					<InputForm
-						v-model="form.name"
-						id="name"
-						label="Customer Name"
-						placeholder="Customer"
-						required
-						:error="formError.name"
-						:readonly="true"
-					/>
-					<InputForm
-						v-model="form.email"
-						id="email"
-						label="Email"
-						placeholder="Email"
-						required
-						:error="formError.email"
-						:readonly="true"
-					/>
-					<InputForm
-						v-model="form.phone"
-						id="phone"
-						label="Phone Number"
-						placeholder="Phone Number"
-						required
-						:error="formError.phone"
-						:readonly="true"
-					/>
+					<InputForm v-model="form.name" id="name" label="Customer Name" placeholder="Customer" required
+						:error="formError.name" :readonly="true" />
+					<InputForm v-model="form.email" id="email" label="Email" placeholder="Email" required
+						:error="formError.email" :readonly="true" />
+					<InputForm v-model="form.phone" id="phone" label="Phone Number" placeholder="Phone Number" required
+						:error="formError.phone" :readonly="true" />
 				</div>
 				<div class="space-y-3">
-					<div
-						class="space-y-3 px-3 py-3 rounded-lg border border-pinkOrange border-opacity-25"
-					>
+					<div class="space-y-3 px-3 py-3 rounded-lg border border-pinkOrange border-opacity-25">
 						<div>
 							<h4 class="text-md mb-0">Pembayaran</h4>
 							<h1 class="text-pinkDark text-2xl mt-0 pt-0">
@@ -150,134 +62,67 @@
 							</h1>
 						</div>
 						<div>
-							<label
-								for="dropdown"
-								class="block text-sm text-grey-900 font-medium mb-1"
-								>Payment Method<span class="text-pinkDark"
-									>*</span
-								></label
-							>
-							<Dropdown
-								:items="paymentMethod"
-								v-model="form.payment_method"
-								placeholder="Select a payment method"
-								:multiple="false"
-								:searchable="false"
-								:disabled="mode === 'view'"
-								:addRoute="''"
-							/>
+							<label for="dropdown" class="block text-sm text-grey-900 font-medium mb-1">Payment
+								Method<span class="text-pinkDark">*</span></label>
+							<Dropdown :items="paymentMethod" v-model="form.payment_method"
+								placeholder="Select a payment method" :multiple="false" :searchable="false"
+								:disabled="mode === 'view'" :addRoute="''" />
 						</div>
 						<div>
-							<label
-								for="dropdown"
-								class="block text-sm text-grey-900 font-medium mb-1"
-								>Status<span class="text-pinkDark"
-									>*</span
-								></label
-							>
-							<Dropdown
-								:items="status"
-								v-model="form.status"
-								placeholder="Select a status"
-								:multiple="false"
-								:searchable="false"
-								:disabled="mode === 'view'"
-								:addRoute="''"
-							/>
+							<label for="dropdown" class="block text-sm text-grey-900 font-medium mb-1">Status<span
+									class="text-pinkDark">*</span></label>
+							<Dropdown :items="status" v-model="form.status" placeholder="Select a status"
+								:multiple="false" :searchable="false" :disabled="mode === 'view'" :addRoute="''" />
 						</div>
 					</div>
 				</div>
 			</div>
-			<FormSectionHeader
-				title="Transaction Details"
-				icon="shopping_cart"
-			/>
+			<FormSectionHeader title="Transaction Details" icon="shopping_cart" />
 			<div class="mt-4">
 				<div v-if="mode !== 'view'" class="grid grid-cols-3 gap-6 mb-4">
 					<div>
-						<label
-							for="dropdown"
-							class="block text-sm text-grey-900 font-medium mb-1"
-						>
+						<label for="dropdown" class="block text-sm text-grey-900 font-medium mb-1">
 							Type of Sales<span class="text-pinkDark">*</span>
 						</label>
-						<Dropdown
-							:items="type"
-							v-model="selectedType"
-							placeholder="Select a type of sales"
-							:multiple="false"
-							:searchable="false"
-							:disabled="mode === 'view'"
-							:addRoute="''"
-						/>
+						<Dropdown :items="type" v-model="selectedType" placeholder="Select a type of sales"
+							:multiple="false" :searchable="false" :disabled="mode === 'view'" :addRoute="''" />
 					</div>
 					<div v-if="selectedType == 1">
-						<InputForm
-							v-model="itemSelected"
-							id="item"
-							label="Product Code"
-							placeholder="Product Code"
-							required
-							:readonly="mode === 'view'"
-						/>
+						<InputForm v-model="itemSelected" id="item" label="Product Code" placeholder="Product Code"
+							required :readonly="mode === 'view'" />
 					</div>
 					<div v-if="selectedType == 2">
-						<label
-							for="dropdown"
-							class="block text-sm text-grey-900 font-medium mb-1"
-						>
+						<label for="dropdown" class="block text-sm text-grey-900 font-medium mb-1">
 							Operation<span class="text-pinkDark">*</span>
 						</label>
-						<Dropdown
-							:items="operations"
-							v-model="operationSelected"
-							placeholder="Select an Operation"
-							:multiple="false"
-							:searchable="true"
-							:disabled="mode === 'view'"
-							:addRoute="'/inventory/operation'"
-						/>
+						<Dropdown :items="operations" v-model="operationSelected" placeholder="Select an Operation"
+							:multiple="false" :searchable="true" :disabled="mode === 'view'"
+							:addRoute="'/inventory/operation'" />
 					</div>
 					<div v-if="selectedType.length > 0" class="flex items-end">
-						<button
-							type="button"
+						<button type="button"
 							class="w-full bg-pinkDark text-white rounded-lg py-2 px-4 hover:bg-pinkOrange transition duration-300"
-							@click="handleInsert"
-						>
+							@click="handleInsert">
 							Add Item
 						</button>
 					</div>
 				</div>
-				<EditableCat
-					:initialRows="form.transaction_details"
-					:columns="transactionDetailsColumns"
-					:required="false"
-					:readonly="mode === 'view'"
-					:allActive="false"
-					:independent="mode !== 'add'"
-					:addable="false"
-					title="Items Detail"
-					@update:rows="handleRowsUpdate"
-					:addPath="'/transaction/detail'"
-					:editPath="'/transaction/detail'"
-					:deletePath="'/transaction/detail'"
-					:noDataState="noDataState"
-				/>
+				<EditableCat :initialRows="form.transaction_details" :columns="transactionDetailsColumns"
+					:required="false" :readonly="mode === 'view'" :allActive="false" :independent="mode !== 'add'"
+					:addable="false" title="Items Detail" @update:rows="handleRowsUpdate"
+					:addPath="'/transaction/detail'" :editPath="'/transaction/detail'"
+					:deletePath="'/transaction/detail'" :noDataState="noDataState" />
 				<div class="grid grid-cols-5 gap-6 mt-8 place-items-end mr-4">
 					<div class="col-start-4 space-y-2">
 						<h5>Weight Total</h5>
 						<h5>Sub Total</h5>
 						<h5>
 							Tax
-							<span class="text-sm text-pinkDark"
-								>({{ tax }}%)</span
-							>
+							<span class="text-sm text-pinkDark">({{ tax }}%)</span>
 						</h5>
 						<h5>Total</h5>
 					</div>
-					<div
-						class="space-y-2 flex flex-col items-end text-pinkDark text-md"
-					>
+					<div class="space-y-2 flex flex-col items-end text-pinkDark text-md">
 						<h5>{{ form.weight_total }} gram</h5>
 						<h5>{{ formatNumber(form.sub_total_price) }}</h5>
 						<h5>{{ formatNumber(form.tax_price) }}</h5>
@@ -557,10 +402,11 @@ const paymentMethod = [
 	{ id: 2, label: 'Transfer' },
 	{ id: 3, label: 'Credit Card' },
 	{ id: 4, label: 'Debit' },
+	{ id: 5, label: 'MidTrans' },
 ]
 
 // Reset Form
-const resetForm = () => {}
+const resetForm = () => { }
 
 // Formatter
 const formatNumber = (value: number) => {
@@ -708,45 +554,48 @@ const fetchTax = async () => {
 }
 
 const fetchTransaction = async () => {
-	const response = await axiosInstance.get(`/transaction/transaction/${id}`)
+	const response = await axiosInstance.get(`/transaction/transaction/${id}`);
 
 	if (response.data.success) {
-		const data = response.data.data
-		console.log(data)
+		const data = response.data.data;
+		console.log(data);
+
 		form.value = {
 			...data,
-			employee: data.employee.email,
+			employee: data.employee ? data.employee.email : "N/A", // ✅ Handle null employee
 			date: data.date.split('T')[0],
 			transaction_details: [
 				...data.transaction_products.map((product) => {
-					product.detail_type = 'product'
-					product.quantity = parseFloat(product.weight)
-					product.unit = 'gram'
-					return product
+					product.detail_type = 'product';
+					product.quantity = parseFloat(product.weight);
+					product.unit = 'gram';
+					return product;
 				}),
 				...data.transaction_operations.map((operation) => {
-					operation.detail_type = 'operation'
-					operation.quantity = parseFloat(operation.unit)
-					operation.unit = operation.operation.uom
-					return operation
+					operation.detail_type = 'operation';
+					operation.quantity = parseFloat(operation.unit);
+					operation.unit = operation.operation.uom;
+					return operation;
 				}),
 			],
 			weight_total: data.transaction_products.reduce(
 				(acc, product) => acc + parseFloat(product.weight),
 				0
 			),
-		}
-		form.value.status = [form.value.status]
-		form.value.payment_method = [form.value.payment_method]
-		formCopy.value = { ...form.value }
+		};
+
+		form.value.status = [form.value.status];
+		form.value.payment_method = [form.value.payment_method];
+		formCopy.value = { ...form.value };
 	} else {
 		store.dispatch('triggerAlert', {
 			type: 'error',
 			title: 'Error!',
 			message: response.data.message,
-		})
+		});
 	}
-}
+};
+
 
 onMounted(async () => {
 	await fetchOperation()
