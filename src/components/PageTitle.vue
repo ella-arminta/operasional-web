@@ -45,6 +45,7 @@
 <script setup lang="ts">
 import Cookies from 'js-cookie'
 import { useRouter } from 'vue-router'
+import { decryptData } from '../utils/crypto'
 
 const props = defineProps({
 	title: {
@@ -72,7 +73,7 @@ const title =
 			: path.split('/').pop()?.charAt(0).toUpperCase() +
 				path.split('/').pop()?.substring(1)
 
-const userdata = JSON.parse(Cookies.get('userdata'))
+const userdata = decryptData(Cookies.get('userdata'))
 const name = userdata.email.split('@')[0]
 const inisial = name
 	.split(' ')

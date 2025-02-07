@@ -183,6 +183,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
 import Cookies from 'js-cookie'
+import { decryptData } from '../../utils/crypto'
 import FormSectionHeader from '../../components/FormSectionHeader.vue'
 import PageTitle from '../../components/PageTitle.vue'
 import FormHeader from '../../components/FormHeader.vue'
@@ -264,7 +265,7 @@ const handleInsert = async () => {
 			`/inventory/product-barcode/${itemSelected.value}`,
 			{
 				params: {
-					store: JSON.parse(Cookies.get('userdata')).store_id,
+					store: decryptData(Cookies.get('userdata')).store_id,
 				},
 			}
 		)
@@ -689,8 +690,8 @@ onMounted(async () => {
 	await fetchOperation()
 	await fetchCustomer()
 	if (props.mode === 'add') {
-		form.value.store_id = JSON.parse(Cookies.get('userdata')).store_id
-		form.value.employee_id = JSON.parse(Cookies.get('userdata')).id
+		form.value.store_id = decryptData(Cookies.get('userdata')).store_id
+		form.value.employee_id = decryptData(Cookies.get('userdata')).id
 		form.value.date = new Date().toISOString().split('T')[0]
 	} else {
 		// Fetch Data

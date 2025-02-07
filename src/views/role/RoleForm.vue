@@ -96,6 +96,7 @@ import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import axiosInstance from '../../axios'
 import Cookies from 'js-cookie'
+import { decryptData } from '../../utils/crypto'
 import PageTitle from '../../components/PageTitle.vue'
 import InputForm from '../../components/InputForm.vue'
 import FormSectionHeader from '../../components/FormSectionHeader.vue'
@@ -122,7 +123,7 @@ const fetchCompany = async () => {
 	try {
 		const response = await axiosInstance.get('/master/company', {
 			params: {
-				owner_id: JSON.parse(Cookies.get('userdata')).id,
+				owner_id: decryptData(Cookies.get('userdata')).id,
 			},
 		})
 		if (response.data) {

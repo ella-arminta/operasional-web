@@ -385,6 +385,7 @@ import TextareaForm from '../../components/TextareaForm.vue'
 import FormSectionHeader from '../../components/FormSectionHeader.vue'
 import ToggleForm from '../../components/ToggleForm.vue'
 import FormHeader from '../../components/FormHeader.vue'
+import { decryptData } from '../../utils/crypto'
 const smallMenu = computed(() => store.getters.smallMenu)
 // Dropdown Items
 const companies = ref([])
@@ -465,9 +466,11 @@ const id = router.currentRoute.value.params.id
 
 onMounted(async () => {
 	try {
+		const owner_id = decryptData(Cookies.get('userdata')).id
+		console.log('owner', owner_id)
 		const response = await axiosInstance.get('/master/company', {
 			params: {
-				owner_id: JSON.parse(Cookies.get('userdata')).id,
+				owner_id: owner_id,
 			},
 		})
 		if (response.data) {

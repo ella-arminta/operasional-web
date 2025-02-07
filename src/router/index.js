@@ -4,6 +4,7 @@ import Login from '../views/Login.vue'
 import InternalLayout from '../layouts/InternalLayout.vue'
 import Logout from '../components/Logout.vue'
 import Cookies from 'js-cookie'
+import { decryptData } from '../utils/crypto'
 
 const router = createRouter({
 	history: createWebHistory(),
@@ -327,7 +328,7 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
 	if (to.matched.some((record) => record.meta.requiresAuth)) {
 		try {
-			const token = Cookies.get('token')
+			const token = decryptData(Cookies.get('token'))
 			if (token) {
 				next()
 			} else {

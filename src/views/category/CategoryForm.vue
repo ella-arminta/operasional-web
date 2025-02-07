@@ -161,6 +161,7 @@ import { ref, onMounted, computed, toRaw } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import Cookies from 'js-cookie'
+import { decryptData } from '../../utils/crypto'
 import axiosInstance from '../../axios'
 
 // Components
@@ -213,7 +214,7 @@ const fetchCompany = async () => {
 	try {
 		const response = await axiosInstance.get('/master/company', {
 			params: {
-				owner_id: JSON.parse(Cookies.get('userdata')).id,
+				owner_id: decryptData(Cookies.get('userdata')).id,
 			},
 		})
 		if (response.data) {

@@ -264,6 +264,7 @@ import { ref, onMounted, computed, toRaw, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import Cookies from 'js-cookie'
+import { decryptData } from '../../utils/crypto'
 import axiosInstance from '../../axios'
 
 // Components
@@ -352,7 +353,7 @@ const fetchCategory = async () => {
 	try {
 		const response = await axiosInstance.get('/inventory/category', {
 			params: {
-				company_id: JSON.parse(Cookies.get('userdata')).company_id,
+				company_id: decryptData(Cookies.get('userdata')).company_id,
 			},
 		})
 		if (response.data) {
@@ -615,6 +616,6 @@ onMounted(async () => {
 			showAlert('error', 'Error!', 'Failed to fetch Product data.')
 		}
 	}
-	form.value.store_id = JSON.parse(Cookies.get('userdata')).store_id
+	form.value.store_id = decryptData(Cookies.get('userdata')).store_id
 })
 </script>

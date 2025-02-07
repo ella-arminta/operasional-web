@@ -138,6 +138,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 import Cookies from 'js-cookie'
+import { decryptData } from '../../utils/crypto'
 import FormSectionHeader from '../../components/FormSectionHeader.vue'
 import PageTitle from '../../components/PageTitle.vue'
 import axiosInstance from '../../axios'
@@ -147,7 +148,7 @@ import FormHeader from '../../components/FormHeader.vue'
 const store = useStore()
 const smallMenu = computed(() => store.getters.smallMenu)
 // ID
-const id = JSON.parse(Cookies.get('userdata')).id
+const id = decryptData(Cookies.get('userdata')).id
 
 // Selecting 0-> idle, 1-> employee, 2-> role, 3-> lock
 const selecting = ref(0)

@@ -58,6 +58,7 @@ import axiosInstance from '../axios'
 import { useRouter } from 'vue-router'
 import Cookies from 'js-cookie'
 import { useStore } from 'vuex'
+import { encryptData } from '../utils/crypto'
 
 export default {
 	name: 'Login',
@@ -77,12 +78,22 @@ export default {
 				// Check if response contains token
 				if (response.data) {
 					// Save JWT token in a cookie for 5 hours
-					Cookies.set('token', response.data.data.token, {
-						expires: 5 / 24,
-					})
+					console.log(response.data.data)
+					Cookies.set(
+						'token',
+						encryptData(response.data.data.token),
+						{
+							expires: 5 / 24,
+						}
+					)
 					Cookies.set(
 						'userdata',
-						JSON.stringify(response.data.data),
+						encryptData({
+							id: response.data.data.id,
+							email: response.data.data.email,
+							company_id: response.data.data.company_id,
+							store_id: response.data.data.store_id,
+						}),
 						{ expires: 5 / 24 }
 					) // 5 hours
 					store.dispatch('triggerAlert', {
