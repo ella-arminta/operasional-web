@@ -13,6 +13,65 @@
 			/>
 			<FormSectionHeader title="Assign User Role" icon="person" />
 			<div class="grid grid-cols-1 gap-8 md:gap-24 md:grid-cols-2 h-full">
+				<!-- Role -->
+				<div class="w-full shadow-xl rounded-lg bg-white">
+					<div
+						class="flex items-center justify-between bg-pinkDark px-4 py-2 text-white rounded-t-lg font-bold"
+					>
+						<span>Role Section</span>
+						<span class="text-xs font-light"
+							>{{ activeRoles.length }} roles active</span
+						>
+					</div>
+					<div
+						class="flex items-center justify-between px-4 py-2 border-b border-gray-200"
+					>
+						<input
+							v-model="filterRole"
+							type="text"
+							class="w-full border-none rounded-sm focus:outline-none focus:ring-none"
+							placeholder="Search Role"
+						/>
+						<div class="flex items-center justify-center gap-1 h-6">
+							<RouterLink
+								to="/settings/role/add"
+								class="flex items-center justify-center text-pinkDark text-sm rounded-lg hover:bg-pinkGray hover:bg-opacity-75 h-6"
+							>
+								<i class="material-icons">add</i>
+							</RouterLink>
+						</div>
+					</div>
+					<div class="scroll-smooth max-h-96 snap overflow-y-auto">
+						<template v-for="role in roles">
+							<div
+								class="flex items-center justify-between px-4 py-2 border-b border-gray-200 hover:bg-pinkGray hover:bg-opacity-75 cursor-pointer"
+								@click="clickRole(role)"
+							>
+								<div class="text-md text-gray-800">
+									{{
+										`${role.name} - ${role.company.code} - ${role.store?.code ?? 'all store'}`
+									}}
+								</div>
+								<input
+									:checked="activeRoles.includes(role.id)"
+									type="checkbox"
+									class="accent-pinkDark w-4 h-4 border-1 rounded-sm"
+									@click.prevent="clickRole(role)"
+								/>
+							</div>
+						</template>
+					</div>
+					<div
+						class="text-center py-2 text-md text-gray-800"
+						v-if="roles.length === 0"
+					>
+						{{
+							filterRole !== ''
+								? 'No Role with that name'
+								: 'No Role Found create new one'
+						}}
+					</div>
+				</div>
 				<!-- Employee -->
 				<div class="w-full shadow-xl rounded-lg bg-white">
 					<div
@@ -70,63 +129,6 @@
 									: 'No Employee Found create new one'
 							}}
 						</div>
-					</div>
-				</div>
-				<!-- Role -->
-				<div class="w-full shadow-xl rounded-lg bg-white">
-					<div
-						class="flex items-center justify-between bg-pinkDark px-4 py-2 text-white rounded-t-lg font-bold"
-					>
-						<span>Role Section</span>
-						<span class="text-xs font-light"
-							>{{ activeRoles.length }} roles active</span
-						>
-					</div>
-					<div
-						class="flex items-center justify-between px-4 py-2 border-b border-gray-200"
-					>
-						<input
-							v-model="filterRole"
-							type="text"
-							class="w-full border-none rounded-sm focus:outline-none focus:ring-none"
-							placeholder="Search Role"
-						/>
-						<div class="flex items-center justify-center gap-1 h-6">
-							<RouterLink
-								to="/settings/role/add"
-								class="flex items-center justify-center text-pinkDark text-sm rounded-lg hover:bg-pinkGray hover:bg-opacity-75 h-6"
-							>
-								<i class="material-icons">add</i>
-							</RouterLink>
-						</div>
-					</div>
-					<div class="scroll-smooth max-h-96 snap overflow-y-auto">
-						<template v-for="role in roles">
-							<div
-								class="flex items-center justify-between px-4 py-2 border-b border-gray-200 hover:bg-pinkGray hover:bg-opacity-75 cursor-pointer"
-								@click="clickRole(role)"
-							>
-								<div class="text-md text-gray-800">
-									{{ role.name }}
-								</div>
-								<input
-									:checked="activeRoles.includes(role.id)"
-									type="checkbox"
-									class="accent-pinkDark w-4 h-4 border-1 rounded-sm"
-									@click.prevent="clickRole(role)"
-								/>
-							</div>
-						</template>
-					</div>
-					<div
-						class="text-center py-2 text-md text-gray-800"
-						v-if="roles.length === 0"
-					>
-						{{
-							filterRole !== ''
-								? 'No Role with that name'
-								: 'No Role Found create new one'
-						}}
 					</div>
 				</div>
 			</div>
@@ -308,8 +310,15 @@ const fetchEmployee = async (role_id: string) => {
 	}
 }
 watch(filterRole, () => {
-	roles.value = rolesCopy.value.filter((role) =>
-		role.name.toLowerCase().includes(filterRole.value.toLowerCase())
+	roles.value = rolesCopy.value.filter(
+		(role) =>
+			role.name.toLowerCase().includes(filterRole.value.toLowerCase()) ||
+			role.company.code
+				.toLowerCase()
+				.includes(filterRole.value.toLowerCase()) ||
+			(role.store?.code ?? 'all store')
+				.toLowerCase()
+				.includes(filterRole.value.toLowerCase())
 	)
 })
 
