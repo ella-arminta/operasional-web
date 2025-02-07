@@ -102,6 +102,10 @@ const menuTree = ref([
 				label: 'Cashier Closing',
 				path: '/finance/cashier-closing',
 			},
+			{
+				label: 'Recurring Income/Expense',
+				path: '/finance/recurring',
+			}
 		],
 	},
 	{

@@ -1,44 +1,60 @@
 <template>
-    <div class="editable rounded">
-        <table class="table-auto border border-pinkOrange w-full h-full">
+    <div class="editable rounded-lg shadow-md">
+        <table class="table-auto border-none w-full h-full">
             <!-- Table Header -->
-            <thead class="bg-pinkGray">
+            <thead class="bg-pinkDark border-none">
                 <tr>
                     <!-- colspan count columns -->
-                    <th class="px-4 py-2 text-start" :colspan="columns.length">{{ title }}</th>
+                    <th class="px-4 py-2 text-start text-white" :colspan="columns.length">{{ title }}
+                        <span class="text-white inline" v-if="required">*</span>
+                    </th>
                     <!-- Add Row Button -->
                     <th class="flex justify-end items-center mx-4 my-2">
                         <button @click="addRow" type="button"
-                            class="bg-pinkDark text-white px-3 py-2 rounded-lg shadow hover:bg-pinkMed flex items-center"><i
+                            class="bg-pinkLight text-white px-3 py-2 rounded-lg shadow hover:bg-pinkMed flex items-center transition duration-300 ease-in-out"><i
                                 class="material-icons">add</i>
                         </button>
                     </th>
                 </tr>
                 <tr>
-                    <th v-for="(col, index) in columns" :key="index" class="border border-pinkOrange px-4 py-2">
+                    <th v-for="(col, index) in columns" :key="index" class="text-white px-4 py-2">
                         {{ col.label }}
+                        <span v-if="col.required" class="text-white inline">*</span>
                     </th>
-                    <th class="border px-4 py-2 border-pinkOrange">Actions</th>
+                    <th class="text-white px-4 py-2">Actions</th>
                 </tr>
             </thead>
 
             <!-- Table Body -->
-            <tbody>
+            <tbody class="border-none">
                 <tr v-for="(row, rowIndex) in rows" :key="rowIndex">
-                    <td v-for="(col, colIndex) in columns" :key="colIndex" class="border border-pinkOrange px-0 h-full">
+                    <td v-for="(col, colIndex) in columns" 
+                        :key="colIndex" 
+                        class="px-0 h-full border-r"
+                        :class="{
+                            'bg-white': rowIndex % 2 === 0,
+                            'bg-pinkGray': rowIndex % 2 !== 0,
+                            'border-gray-300': colIndex !== columns.length - 1, 
+                        }"
+                        >
                         <input 
                             v-if="['int', 'number', 'text'].includes(col.type)" 
                             v-model="rows[rowIndex][col.key]" 
                             :type="col.type == 'number' ? 'text' : col.type"
-                            class="border border-pinkLight rounded px-2 py-1 w-full h-full"
+                            class="bg-transparent rounded px-2 py-1 w-full h-full focus:outline-none"
                             @input="handleInput($event, col, rowIndex)" 
                             />
                         <Dropdown v-else-if="col.type === 'dropdown'" v-model="rows[rowIndex][col.key]" :items="col.items" :position="'sticky'" />
                     </td>
-                    <td class="!border !border-pinkOrange border-2 px-4 py-2 text-center">
-                        <button @click="deleteRow(rowIndex)" type="button" class="text-red-500 hover:underline">
+                    <td class="px-4 py-2 text-center"
+                    :class="{
+                            'bg-white': rowIndex % 2 === 0,
+                            'bg-pinkGray': rowIndex % 2 !== 0,
+                        }"
+                    >
+                        <button @click="deleteRow(rowIndex)" type="button" class="w-8 h-8 bg-pinkLight text-white flex justify-center items-center rounded-full cursor-pointer hover:bg-pinkDark delete-btn transition duration-300 ease-in-out m-auto">
                             <!-- material icons delete -->
-                            <i class="material-icons">delete</i>
+                            <i class="material-icons text-sm">delete</i>
                         </button>
                     </td>
                 </tr>

@@ -18,6 +18,7 @@ const columns = [
 		width: '10%',
 		searchable: false,
 		orderable: false,
+    hiddenExport:true
 	},
 ];
 const store = useStore();
@@ -59,7 +60,7 @@ onMounted(async () => {
     {
       type: 'select',
       label: 'Account',
-      name: 'account_name',
+      name: 'account_id',
       options: [
         { label: 'All Account', id: '' },
         ...accountsFormated,

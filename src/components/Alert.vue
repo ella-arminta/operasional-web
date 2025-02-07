@@ -22,7 +22,8 @@
 			</div>
 
 			<!-- Alert Message -->
-			<p class="text-sm text-gray-500 mb-4">{{ alert.message }}</p>
+			<p class="text-sm text-gray-500 mb-4" v-html="alert.message"></p>
+
 
 			<!-- Action Buttons -->
 			<div class="flex justify-end space-x-3">

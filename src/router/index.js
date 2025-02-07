@@ -226,6 +226,21 @@ const router = createRouter({
 							}),
 						},
 						{
+							path: 'recurring',
+							component: () =>
+								import('../views/recurring/RecurringIndex.vue'),
+						},
+						{
+							path: 'recurring/:mode/:id?',
+							component: () =>
+								import(
+									'../views/recurring/RecurringForm.vue'
+								),
+							props: (route) => ({
+								mode: route.params.mode,
+							}),
+						},
+						{
 							path: 'stock-card',
 							component: () =>
 								import('../views/stock/StockCardIndex.vue'),

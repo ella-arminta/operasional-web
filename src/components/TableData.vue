@@ -511,7 +511,8 @@ const ajaxOptions = computed(() => ({
 	},
 	data: (d) => {
 		for (const key in filterValues.value) {
-			if (filterValues.value[key] !== '') {
+			if (filterValues.value[key] !== '' && filterValues.value[key] !== undefined) {
+				console.log('filterValues', filterValues.value[key])
 				if (filterValues.value[key].length <= 1) {
 					d[key] = filterValues.value[key][0]
 				} else {
@@ -627,48 +628,63 @@ const handleRangeSelected = (range) => {
 }
 
 const exportTable = async () => {
-	const data = dt.rows().data().toArray()
-	console.log(data)
+	const data = dt.rows().data().toArray();
 
-	const workbook = new ExcelJS.Workbook()
-	const worksheet = workbook.addWorksheet('Exported Data')
+	const workbook = new ExcelJS.Workbook();
+	const worksheet = workbook.addWorksheet('Exported Data');
 
-	// Add headers
-	const headers = dt
+	// Get all column indexes
+	const columns = dt.settings()[0].aoColumns;
+
+	// Filter visible columns
+	const visibleColumns = dt
 		.columns()
 		.header()
 		.toArray()
-		.map((header) => header.innerText)
-	worksheet.addRow(headers)
+		.map((header, index) => ({
+			header: header.innerText,
+			index: index,
+			hiddenExport: columns[index].hiddenExport || false,
+		}))
+		.filter((col) => !col.hiddenExport); // Exclude columns with hiddenExport = true
+
+	// Add headers
+	worksheet.addRow(visibleColumns.map((col) => col.header));
 
 	// Add rows
 	data.forEach((row) => {
-		worksheet.addRow(Object.values(row))
-	})
+		console.log('tableexportrow',row);
+		const filteredRow = visibleColumns.map((col) => row[col.index]); // Keep only allowed columns
+		worksheet.addRow(filteredRow);
+	});
 
-	// add total footer
+	// Add total footer (if applicable)
 	if (props.totalFooter) {
 		const footer = dt
 			.columns()
 			.footer()
 			.toArray()
-			.map((footer) => footer.innerText)
-		worksheet.addRow(footer)
+			.map((footer, index) => (!columns[index].hiddenExport ? footer.innerText : null))
+			.filter((value) => value !== null);
+
+		worksheet.addRow(footer);
 	}
 
 	// Create and save file
-	const buffer = await workbook.xlsx.writeBuffer()
+	const buffer = await workbook.xlsx.writeBuffer();
 	const blob = new Blob([buffer], {
 		type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-	})
+	});
 
-	var thispagepath = window.location.pathname
-	// get the last part of the path
-	var thispage = thispagepath.split('/').pop()
-	var timestamp = new Date().getTime()
-	var filename = timestamp + '_' + thispage + '.xlsx'
-	// filename replace '-' with _
-	filename = filename.replace(/-/g, '_')
-	FileSaver.saveAs(blob, filename)
-}
+	var thispagepath = window.location.pathname;
+	var thispage = thispagepath.split('/').pop();
+	var timestamp = new Date().getTime();
+	var filename = timestamp + '_' + thispage + '.xlsx';
+
+	// Replace '-' with '_'
+	filename = filename.replace(/-/g, '_');
+
+	FileSaver.saveAs(blob, filename);
+};
+
 </script>
