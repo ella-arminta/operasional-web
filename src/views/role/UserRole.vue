@@ -16,9 +16,30 @@
 				<!-- Employee -->
 				<div class="w-full shadow-xl rounded-lg bg-white">
 					<div
-						class="bg-pinkDark px-4 py-2 text-white rounded-t-lg font-bold"
+						class="flex items-center justify-between bg-pinkDark px-4 py-2 text-white rounded-t-lg font-bold"
 					>
-						Employee Section
+						<span>Employee Section</span>
+						<span class="text-xs font-light"
+							>{{ activeEmployees.length }} employee active</span
+						>
+					</div>
+					<div
+						class="flex items-center justify-between px-4 py-2 border-b border-gray-200"
+					>
+						<input
+							v-model="filterEmployee"
+							type="text"
+							class="w-full border-none rounded-sm focus:outline-none focus:ring-none"
+							placeholder="Search employee"
+						/>
+						<div class="flex items-center justify-center gap-1 h-6">
+							<RouterLink
+								to="/master/employee/add"
+								class="flex items-center justify-center text-pinkDark text-sm rounded-lg hover:bg-pinkGray hover:bg-opacity-75 h-6"
+							>
+								<i class="material-icons">add</i>
+							</RouterLink>
+						</div>
 					</div>
 					<div class="scroll-smooth max-h-96 snap overflow-y-auto">
 						<template v-for="employee in employees">
@@ -39,14 +60,45 @@
 								/>
 							</div>
 						</template>
+						<div
+							v-if="employees.length === 0"
+							class="text-center py-2 text-md text-gray-800"
+						>
+							{{
+								filterEmployee !== ''
+									? 'No Employee with that name or email'
+									: 'No Employee Found create new one'
+							}}
+						</div>
 					</div>
 				</div>
 				<!-- Role -->
 				<div class="w-full shadow-xl rounded-lg bg-white">
 					<div
-						class="bg-pinkDark px-4 py-2 text-white rounded-t-lg mb-1 font-bold"
+						class="flex items-center justify-between bg-pinkDark px-4 py-2 text-white rounded-t-lg font-bold"
 					>
-						Role Section
+						<span>Role Section</span>
+						<span class="text-xs font-light"
+							>{{ activeRoles.length }} roles active</span
+						>
+					</div>
+					<div
+						class="flex items-center justify-between px-4 py-2 border-b border-gray-200"
+					>
+						<input
+							v-model="filterRole"
+							type="text"
+							class="w-full border-none rounded-sm focus:outline-none focus:ring-none"
+							placeholder="Search Role"
+						/>
+						<div class="flex items-center justify-center gap-1 h-6">
+							<RouterLink
+								to="/settings/role/add"
+								class="flex items-center justify-center text-pinkDark text-sm rounded-lg hover:bg-pinkGray hover:bg-opacity-75 h-6"
+							>
+								<i class="material-icons">add</i>
+							</RouterLink>
+						</div>
 					</div>
 					<div class="scroll-smooth max-h-96 snap overflow-y-auto">
 						<template v-for="role in roles">
@@ -66,6 +118,16 @@
 							</div>
 						</template>
 					</div>
+					<div
+						class="text-center py-2 text-md text-gray-800"
+						v-if="roles.length === 0"
+					>
+						{{
+							filterRole !== ''
+								? 'No Role with that name'
+								: 'No Role Found create new one'
+						}}
+					</div>
 				</div>
 			</div>
 		</form>
@@ -73,7 +135,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 import Cookies from 'js-cookie'
 import FormSectionHeader from '../../components/FormSectionHeader.vue'
@@ -92,6 +154,8 @@ const selecting = ref(0)
 
 // Employees
 const employees = ref([])
+const copyEmployees = ref([])
+const filterEmployee = ref('')
 const fetchEmployees = async () => {
 	const response = await axiosInstance.get('/master/employee', {
 		params: {
@@ -101,9 +165,18 @@ const fetchEmployees = async () => {
 
 	if (response.data.success) {
 		employees.value = response.data.data
+		copyEmployees.value = response.data.data
 	} else {
 	}
 	console.log(employees.value)
+}
+const sortEmployee = () => {
+	// if active on top
+	employees.value = employees.value.sort((a, b) => {
+		if (activeEmployees.value.includes(a.id)) return -1
+		if (activeEmployees.value.includes(b.id)) return 1
+		return 0
+	})
 }
 const activeEmployees = ref([])
 const clickEmployee = async (employee: any) => {
@@ -155,9 +228,26 @@ const fetchRole = async (employee_id: string) => {
 		handleAlert('error', 'Error!', 'Failed to fetch role-user data.')
 	}
 }
+watch(filterEmployee, () => {
+	employees.value = copyEmployees.value.filter(
+		(employee) =>
+			employee.name
+				.toLowerCase()
+				.includes(filterEmployee.value.toLowerCase()) ||
+			employee.email
+				.toLowerCase()
+				.includes(filterEmployee.value.toLowerCase())
+	)
+})
+// If NEEDED SORTED BY ACTIVATION
+// watch(activeEmployees, () => {
+// 	sortEmployee()
+// })
 
 // Roles
 const roles = ref([])
+const rolesCopy = ref([])
+const filterRole = ref('')
 const fetchRoles = async () => {
 	const response = await axiosInstance.get('/auth/role', {
 		params: {
@@ -167,6 +257,7 @@ const fetchRoles = async () => {
 
 	if (response.data.success) {
 		roles.value = response.data.data
+		rolesCopy.value = response.data.data
 	} else {
 	}
 	console.log(roles.value)
@@ -215,6 +306,11 @@ const fetchEmployee = async (role_id: string) => {
 		handleAlert('error', 'Error!', 'Failed to fetch role-user data.')
 	}
 }
+watch(filterRole, () => {
+	roles.value = rolesCopy.value.filter((role) =>
+		role.name.toLowerCase().includes(filterRole.value.toLowerCase())
+	)
+})
 
 const submit = async () => {
 	if (selecting.value === 3) return

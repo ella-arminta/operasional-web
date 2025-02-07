@@ -85,6 +85,7 @@
 					</div>
 				</div>
 			</div>
+			<FormSectionHeader title="Permission" icon="lock" />
 		</form>
 	</div>
 </template>
