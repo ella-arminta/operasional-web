@@ -53,28 +53,45 @@
 		<div
 			v-if="props.filters && props.filters.length > 0"
 			class="transition-all duration-300"
-			:class="{ 'max-h-0 overflow-hidden': !isFiltersOpen, 'max-h-[500px]': isFiltersOpen }"
+			:class="{
+				'max-h-0 overflow-hidden': !isFiltersOpen,
+				'max-h-[500px]': isFiltersOpen,
+			}"
 		>
 			<div class="m-3 flex flex-wrap justify-center gap-3 md:gap-6">
-				<div v-for="filter in props.filters" :key="filter.name" class="w-[100%] md:w-[18.8%]">
+				<div
+					v-for="filter in props.filters"
+					:key="filter.name"
+					class="w-[100%] md:w-[18.8%]"
+				>
 					<!-- Filter type:"select" -->
 					<div v-if="filter.type === 'select'">
-						<label :for="filter.name" class="block mb-1">{{ filter.label }}</label>
+						<label :for="filter.name" class="block mb-1">{{
+							filter.label
+						}}</label>
 						<select
-						v-if="filter.type === 'select'"
-						:id="filter.name"
-						v-model="filterValues[filter.name]"
-						class="border px-3 py-2 rounded-lg w-full"
+							v-if="filter.type === 'select'"
+							:id="filter.name"
+							v-model="filterValues[filter.name]"
+							class="border px-3 py-2 rounded-lg w-full"
 						>
-						<option v-for="option in filter.options" :key="option.value" :value="option.value">
-							{{ option.label }}
-						</option>
+							<option
+								v-for="option in filter.options"
+								:key="option.value"
+								:value="option.value"
+							>
+								{{ option.label }}
+							</option>
 						</select>
 					</div>
 					<!-- Filter type:"SelectRangeFinance" -->
 					<div v-if="filter.type == 'selectRangeFinance'">
-						<label :for="filter.name" class="block mb-1">{{ filter.label }}</label>
-                        <DropdownFinance @range-selected="handleRangeSelected" />
+						<label :for="filter.name" class="block mb-1">{{
+							filter.label
+						}}</label>
+						<DropdownFinance
+							@range-selected="handleRangeSelected"
+						/>
 					</div>
 				</div>
 			</div>
@@ -221,6 +238,7 @@ import { ref, onMounted, computed, watch } from 'vue'
 import Select from 'datatables.net-select'
 import { defineProps } from 'vue'
 import Cookies from 'js-cookie'
+import { decryptData } from '../utils/crypto'
 import { useStore } from 'vuex'
 import axiosInstance from '../axios'
 import DropdownFinance from './DropdownFinance.vue'
@@ -259,14 +277,14 @@ const props = defineProps({
 		type: String,
 		default: '',
 	},
-  filters: {
-    type: [Array, null],
-    default: () => [],
-  },
-  options: {
-    type: Object,
-    default: () => ({}),
-  },
+	filters: {
+		type: [Array, null],
+		default: () => [],
+	},
+	options: {
+		type: Object,
+		default: () => ({}),
+	},
 })
 
 DataTable.use(DataTablesCore)
@@ -279,10 +297,10 @@ DataTable.use(RowGroup)
 const isFiltersOpen = ref(true)
 const table = ref()
 let dt
-const bearerToken = Cookies.get('token') || ''
+const bearerToken = decryptData(Cookies.get('token')) || ''
 const store = useStore()
-const filterValues = ref({});
-const baseUrl = import.meta.env.VITE_BASE_URL;
+const filterValues = ref({})
+const baseUrl = import.meta.env.VITE_BASE_URL
 
 onMounted(() => {
 	dt = table.value.dt
@@ -298,22 +316,32 @@ const onSearch = (event: Event) => {
 }
 // function to reload data in datatable
 const reloadData = () => {
-  if (dt) {
-    dt.ajax.reload(null, false);
-  }
-};
-watch(filterValues, () => {
-  if (dt) dt.ajax.reload(null, false); // Reload DataTable on filter change
-}, { deep: true });
-watch(() => props.filters, () => {
-  filterValues.value = props.filters.reduce((acc, filter) => {
-	if (filter.type == 'selectRangeFinance') {
-		return '';
+	if (dt) {
+		dt.ajax.reload(null, false)
 	}
-	acc[filter.name] = filter.options[0].value;
-	return acc;
-  }, {} as Record<string, string>);
-});
+}
+watch(
+	filterValues,
+	() => {
+		if (dt) dt.ajax.reload(null, false) // Reload DataTable on filter change
+	},
+	{ deep: true }
+)
+watch(
+	() => props.filters,
+	() => {
+		filterValues.value = props.filters.reduce(
+			(acc, filter) => {
+				if (filter.type == 'selectRangeFinance') {
+					return ''
+				}
+				acc[filter.name] = filter.options[0].value
+				return acc
+			},
+			{} as Record<string, string>
+		)
+	}
+)
 
 // function to delete data by id
 const deleteData = (id: string) => {
@@ -374,27 +402,27 @@ const deleteData = (id: string) => {
 
 // Define ajax options in a computed property
 const ajaxOptions = computed(() => ({
-  url: baseUrl + props.ajaxPath,
-  type: "GET",
-  cache: true,
-  headers: {
-    Authorization: `Bearer ${bearerToken}`,
-    "Content-Type": "application/json",
-  },
-  data: (d) => {
-    for (const key in filterValues.value) {
-      if (filterValues.value[key] !== "") {
-        d[key] = filterValues.value[key];
-      }
-    }
-  },
-  dataSrc: (json) => {
-    json.data = json.data.map((item, index) => {
-      if (props.columns.find((col) => col.data === "no")) {
-        item.no = index + 1;
-      }
-      if (props.columns.find((col) => col.data === "action")) {
-        let actionHtml = '<div class="flex gap-2">';
+	url: baseUrl + props.ajaxPath,
+	type: 'GET',
+	cache: true,
+	headers: {
+		Authorization: `Bearer ${bearerToken}`,
+		'Content-Type': 'application/json',
+	},
+	data: (d) => {
+		for (const key in filterValues.value) {
+			if (filterValues.value[key] !== '') {
+				d[key] = filterValues.value[key]
+			}
+		}
+	},
+	dataSrc: (json) => {
+		json.data = json.data.map((item, index) => {
+			if (props.columns.find((col) => col.data === 'no')) {
+				item.no = index + 1
+			}
+			if (props.columns.find((col) => col.data === 'action')) {
+				let actionHtml = '<div class="flex gap-2">'
 
 				// Info button
 				if (props.infoPath && props.infoPath !== '') {
@@ -466,27 +494,29 @@ const options = computed(() => ({
 		startRender: (rows, group) => {
 			const totalDebit = rows
 				.data()
-				.reduce((sum, row) => sum + parseFloat(row.debit || 0), 0);
+				.reduce((sum, row) => sum + parseFloat(row.debit || 0), 0)
 			const totalCredit = rows
 				.data()
-				.reduce((sum, row) => sum + parseFloat(row.credit || 0), 0);
-			
+				.reduce((sum, row) => sum + parseFloat(row.credit || 0), 0)
+
 			// get thead Datatable columns width
-			const thead = document.querySelector('thead');
-			const theadColumns = thead.querySelectorAll('th');
-			const theadColumnsWidth = Array.from(theadColumns).map((col) => col.offsetWidth);
-			console.log(JSON.stringify(theadColumnsWidth));
-			var newthead = "";
-			var outerIndex = 0;
+			const thead = document.querySelector('thead')
+			const theadColumns = thead.querySelectorAll('th')
+			const theadColumnsWidth = Array.from(theadColumns).map(
+				(col) => col.offsetWidth
+			)
+			console.log(JSON.stringify(theadColumnsWidth))
+			var newthead = ''
+			var outerIndex = 0
 			props.columns.forEach((col) => {
 				if (col.bVisible == undefined) {
-					col.bVisible = true;
+					col.bVisible = true
 				}
 				if (col.bVisible == false) {
-				}else {
-					newthead += `<th style="width:${theadColumnsWidth[outerIndex++]}px;">${col.title.replace('_', ' ').toUpperCase()}</th>`;
+				} else {
+					newthead += `<th style="width:${theadColumnsWidth[outerIndex++]}px;">${col.title.replace('_', ' ').toUpperCase()}</th>`
 				}
-			});
+			})
 
 			return `
 			<table class="w-full dt-scroll-head">
@@ -509,30 +539,30 @@ const options = computed(() => ({
 				</tr>
 				</tbody>
 			</table>
-			`;
+			`
 		},
 	},
 }))
 const handleRangeSelected = (range) => {
-	console.log('selected');
-    console.log(range);
-	filterValues.value.dateStart = range.start;
-	filterValues.value.dateEnd = range.end;
-};
+	console.log('selected')
+	console.log(range)
+	filterValues.value.dateStart = range.start
+	filterValues.value.dateEnd = range.end
+}
 </script>
 <style>
-@import "datatables.net-dt";
+@import 'datatables.net-dt';
 .dt-search {
-  display: none !important;
+	display: none !important;
 }
 tbody > tr:nth-child(odd) > td {
-  background-color: #ffffff !important;
-  border: none !important;
-  box-shadow: none !important;
+	background-color: #ffffff !important;
+	border: none !important;
+	box-shadow: none !important;
 }
 tbody > tr:nth-child(even) > td {
-  background-color: #fcf8f5 !important;
-  border: none !important;
-  box-shadow: none !important;
+	background-color: #fcf8f5 !important;
+	border: none !important;
+	box-shadow: none !important;
 }
 </style>

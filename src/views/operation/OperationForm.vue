@@ -93,6 +93,7 @@ import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import Cookies from 'js-cookie'
+import { decryptData } from '../../utils/crypto'
 import axiosInstance from '../../axios'
 import PageTitle from '../../components/PageTitle.vue'
 import InputForm from '../../components/InputForm.vue'
@@ -162,7 +163,7 @@ onMounted(async () => {
 			})
 		}
 	} else {
-		form.value.store_id = JSON.parse(Cookies.get('userdata')).store_id
+		form.value.store_id = decryptData(Cookies.get('userdata')).store_id
 	}
 })
 

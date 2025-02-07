@@ -125,7 +125,7 @@
 			<tfoot v-if="props.totalFooter" class="bg-white">
 				<tr>
 					<th v-for="(column, index) in columns" :key="index">
-						{{ index === 0 ? "Total" : (column.sum ? "Total" : "") }}
+						{{ index === 0 ? 'Total' : column.sum ? 'Total' : '' }}
 					</th>
 				</tr>
 			</tfoot>
@@ -307,6 +307,7 @@ import 'datatables.net-fixedcolumns-dt/css/fixedColumns.dataTables.css' // inclu
 import { ref, onMounted, computed, watch } from 'vue'
 import Select from 'datatables.net-select'
 import Cookies from 'js-cookie'
+import { decryptData } from '../utils/crypto'
 import { useStore } from 'vuex'
 import axiosInstance from '../axios'
 import DropdownFinance from './DropdownFinance.vue'
@@ -364,7 +365,7 @@ const props = defineProps({
 	totalFooter: {
 		type: Boolean,
 		default: false,
-	}
+	},
 })
 
 DataTable.use(DataTablesCore)
@@ -377,7 +378,7 @@ DataTable.use(FixedColumns)
 const isFiltersOpen = ref(true)
 const table = ref()
 let dt
-const bearerToken = Cookies.get('token') || ''
+const bearerToken = decryptData(Cookies.get('token')) || ''
 const store = useStore()
 const filterValues = ref({})
 const baseUrl = import.meta.env.VITE_BASE_URL
@@ -517,7 +518,7 @@ const ajaxOptions = computed(() => ({
 					d[key] = filterValues.value[key][0]
 				} else {
 					d[key] = JSON.stringify(filterValues.value[key])
-				} 
+				}
 			}
 		}
 	},
@@ -596,27 +597,27 @@ const options = computed(() => ({
 	scrollX: props.options.scrollX || false,
 	fixedColumns: props.fixedColumns,
 	footerCallback: function (row, data, start, end, display) {
-		if(dt && props.totalFooter) {
+		if (dt && props.totalFooter) {
 			// Iterate over each column
 			dt.columns().every(function () {
-				const column = this;
-				const columnIndex = column.index();
-	
+				const column = this
+				const columnIndex = column.index()
+
 				// Check if the column should be summed
 				if (props.columns[columnIndex]?.sum) {
 					let total = column
-					.data()
-					.reduce((sum, value) => sum + parseFloat(value) || 0, 0);
-	
+						.data()
+						.reduce((sum, value) => sum + parseFloat(value) || 0, 0)
+
 					// Update the footer content
-					const footer = column.footer();
+					const footer = column.footer()
 					if (footer) {
-						footer.innerHTML = total.toLocaleString(); // Format number
+						footer.innerHTML = total.toLocaleString() // Format number
 					}
 				}
-			});
+			})
 		}
-    }
+	},
 }))
 
 const handleRangeSelected = (range) => {

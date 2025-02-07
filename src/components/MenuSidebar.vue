@@ -130,9 +130,9 @@ const menuTree = ref([
 						path: '/finance/journal',
 					},
 					{
-						label:'General Ledger',
-						path:'/finance/general-ledger'
-					}
+						label: 'General Ledger',
+						path: '/finance/general-ledger',
+					},
 				],
 			},
 			{
@@ -167,6 +167,19 @@ const menuTree = ref([
 			{
 				label: 'Change Password',
 				path: '/settings/password/change',
+			},
+			{
+				label: 'Role Access',
+				children: [
+					{
+						label: 'Role',
+						path: '/settings/role',
+					},
+					{
+						label: 'User Role',
+						path: '/settings/user-role',
+					},
+				],
 			},
 		],
 	},

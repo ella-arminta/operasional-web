@@ -4,6 +4,7 @@ import Login from '../views/Login.vue'
 import InternalLayout from '../layouts/InternalLayout.vue'
 import Logout from '../components/Logout.vue'
 import Cookies from 'js-cookie'
+import { decryptData } from '../utils/crypto'
 
 const router = createRouter({
 	history: createWebHistory(),
@@ -253,13 +254,17 @@ const router = createRouter({
 						{
 							path: 'general-ledger',
 							component: () =>
-								import('../views/general-ledger/GeneralLedgerIndex.vue'),
+								import(
+									'../views/general-ledger/GeneralLedgerIndex.vue'
+								),
 						},
 						{
 							path: 'general-ledger/view/:id',
 							component: () =>
-								import('../views/general-ledger/LedgerDetail.vue'),
-						}
+								import(
+									'../views/general-ledger/LedgerDetail.vue'
+								),
+						},
 					],
 				},
 				{
@@ -306,6 +311,24 @@ const router = createRouter({
 							component: () =>
 								import('../views/settings/ChangePassword.vue'),
 						},
+						{
+							path: 'role',
+							component: () =>
+								import('../views/role/RoleIndex.vue'),
+						},
+						{
+							path: 'role/:mode/:id?',
+							component: () =>
+								import('../views/role/RoleForm.vue'),
+							props: (route) => ({
+								mode: route.params.mode,
+							}),
+						},
+						{
+							path: 'user-role',
+							component: () =>
+								import('../views/role/UserRole.vue'),
+						},
 					],
 				},
 			],
@@ -320,7 +343,7 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
 	if (to.matched.some((record) => record.meta.requiresAuth)) {
 		try {
-			const token = Cookies.get('token')
+			const token = decryptData(Cookies.get('token'))
 			if (token) {
 				next()
 			} else {
