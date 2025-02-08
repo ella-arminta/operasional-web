@@ -26,7 +26,6 @@ const toggleDropdown = () => {
 
 const selectRange = () => {
     if (activeType.value === "Custom") {
-        console.log('haicustom')
         // pastikan end dan start tidak kosong 
         if (selectedRange.value.value.start == '' || selectedRange.value.value.end == '') {
             store.dispatch('triggerAlert', {
@@ -60,7 +59,6 @@ const selectRange = () => {
     isDropdownOpen.value = false;
     labelFixSelected.value = selectedRange.value.label;
     // Emit the selected range (this will be emitted to the parent component)
-    console.log('emited selectRange', selectedRange.value.value.start);
     if (!(selectedRange.value.value.start instanceof Date)) {
       selectedRange.value.value.start = new Date(selectedRange.value.value.start);
     }
@@ -69,6 +67,7 @@ const selectRange = () => {
     }
     selectedRange.value.value.start = selectedRange.value.value.start.toISOString().split('T')[0];
     selectedRange.value.value.end = selectedRange.value.value.end.toISOString().split('T')[0];
+    selectedRange.value.value.label = labelFixSelected.value;
     emit("range-selected",  selectedRange.value.value );
 };
 
@@ -198,6 +197,7 @@ const setActiveType = (type) => {
 .dropdown-filter {
   position: relative;
   display: inline-block;
+  width: 100%;
 }
 
 .dropdown-button {
@@ -206,6 +206,7 @@ const setActiveType = (type) => {
   background-color: #fff;
   cursor: pointer;
   border-radius: 4px;
+  width: 100%;
 }
 
 .dropdown-menu {
