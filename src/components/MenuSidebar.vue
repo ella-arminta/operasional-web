@@ -102,6 +102,10 @@ const menuTree = ref([
 				label: 'Cashier Closing',
 				path: '/finance/cashier-closing',
 			},
+			{
+				label: 'Recurring Income/Expense',
+				path: '/finance/recurring',
+			}
 		],
 	},
 	{
@@ -129,6 +133,10 @@ const menuTree = ref([
 						label: 'General Ledger',
 						path: '/finance/general-ledger',
 					},
+					{
+						label: 'Profit & Loss',
+						path: '/finance/profit-loss',
+					}
 				],
 			},
 			{

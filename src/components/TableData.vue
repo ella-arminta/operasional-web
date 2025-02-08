@@ -512,7 +512,8 @@ const ajaxOptions = computed(() => ({
 	},
 	data: (d) => {
 		for (const key in filterValues.value) {
-			if (filterValues.value[key] !== '') {
+			if (filterValues.value[key] !== '' && filterValues.value[key] !== undefined) {
+				console.log('filterValues', filterValues.value[key])
 				if (filterValues.value[key].length <= 1) {
 					d[key] = filterValues.value[key][0]
 				} else {
@@ -628,48 +629,75 @@ const handleRangeSelected = (range) => {
 }
 
 const exportTable = async () => {
-	const data = dt.rows().data().toArray()
-	console.log(data)
+	const data = dt.rows().data().toArray();
+	const workbook = new ExcelJS.Workbook();
+	const worksheet = workbook.addWorksheet('Exported Data');
 
-	const workbook = new ExcelJS.Workbook()
-	const worksheet = workbook.addWorksheet('Exported Data')
+	// Get all column indexes
+	const columns = dt.settings()[0].aoColumns;
+
+	// Filter visible columns and prepare for date handling
+	const visibleColumns = dt.columns().header().toArray().map((header, index) => ({
+		header: header.innerText,
+		key: columns[index].data,
+		index: index,
+		hiddenExport: columns[index].hiddenExport || false,
+		type: columns[index].type || null, // Ensure type is stored
+	})).filter(col => !col.hiddenExport && col.header !== "Action");
+
+	// Identify which columns are dates
+	const dateColumns = new Set(visibleColumns.filter(col => col.type === 'date').map(col => col.header));
 
 	// Add headers
-	const headers = dt
-		.columns()
-		.header()
-		.toArray()
-		.map((header) => header.innerText)
-	worksheet.addRow(headers)
+	worksheet.addRow(visibleColumns.map(col => col.header));
 
-	// Add rows
-	data.forEach((row) => {
-		worksheet.addRow(Object.values(row))
-	})
+	// Define column widths
+	worksheet.columns = visibleColumns.map(col => ({
+		header: col.header,
+		key: col.header,
+		width: 20,
+	}));
 
-	// add total footer
+	// Add rows with formatted dates
+	data.forEach(row => {
+		let filteredRow = {};
+
+		visibleColumns.forEach(col => {
+			let value = row[col.key];
+
+			// Format date columns
+			if (dateColumns.has(col.header) && value) {
+				value = new Date(value);
+			}
+
+			filteredRow[col.header] = value;
+		});
+
+		const rowData = worksheet.addRow(filteredRow);
+
+		// Apply Excel date formatting
+		rowData.eachCell((cell, colNumber) => {
+			if (dateColumns.has(visibleColumns[colNumber - 1].header)) {
+				cell.numFmt = 'dd/mm/yyyy';
+			}
+		});
+	});
+
+	// Add footer row if needed
 	if (props.totalFooter) {
-		const footer = dt
-			.columns()
-			.footer()
-			.toArray()
-			.map((footer) => footer.innerText)
-		worksheet.addRow(footer)
+		const footer = dt.columns().footer().toArray().map((footer, index) =>
+			!columns[index].hiddenExport ? footer.innerText : null
+		).filter(value => value !== null);
+
+		worksheet.addRow(footer);
 	}
 
-	// Create and save file
-	const buffer = await workbook.xlsx.writeBuffer()
-	const blob = new Blob([buffer], {
-		type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-	})
+	// Generate and save file
+	const buffer = await workbook.xlsx.writeBuffer();
+	const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
 
-	var thispagepath = window.location.pathname
-	// get the last part of the path
-	var thispage = thispagepath.split('/').pop()
-	var timestamp = new Date().getTime()
-	var filename = timestamp + '_' + thispage + '.xlsx'
-	// filename replace '-' with _
-	filename = filename.replace(/-/g, '_')
-	FileSaver.saveAs(blob, filename)
-}
+	const filename = `${Date.now()}_${window.location.pathname.split('/').pop().replace(/-/g, '_')}.xlsx`;
+	FileSaver.saveAs(blob, filename);
+};
+
 </script>

@@ -28,7 +28,7 @@
 					class="bg-pinkDark hover:bg-pinkMed text-white cursor-pointer font-bold py-1 px-2 flex justify-evenly items-center rounded-lg gap-2"
 				>
 					<div><i class="material-icons text-xl">border_all</i></div>
-					<div class="text-sm">Export</div>
+					<div class="text-sm" @click="exportTable">Export</div>
 				</div>
 				<div
 					v-if="reload"
@@ -242,6 +242,8 @@ import { decryptData } from '../utils/crypto'
 import { useStore } from 'vuex'
 import axiosInstance from '../axios'
 import DropdownFinance from './DropdownFinance.vue'
+import FileSaver from 'file-saver'
+import ExcelJS from 'exceljs'
 
 // Define props
 const props = defineProps({
@@ -526,7 +528,7 @@ const options = computed(() => ({
 					</tr>
 				</thead>
 				<tbody>
-				<tr class="group-header" data-group="${group}" style="color:#b6848a">
+				<tr class="group-header" data-group="${group}" style="color:#b6848a;">
 					<td colspan="1" class="text-start" style="padding: 10px 30px 10px 10px;">
 						<div class="flex gap-2">
 							<strong>${group}</strong>
@@ -549,6 +551,77 @@ const handleRangeSelected = (range) => {
 	filterValues.value.dateStart = range.start
 	filterValues.value.dateEnd = range.end
 }
+const exportTable = async () => {
+	const data = dt.rows().data().toArray();
+	const workbook = new ExcelJS.Workbook();
+	const worksheet = workbook.addWorksheet('Exported Data');
+
+	// Get all column indexes
+	const columns = dt.settings()[0].aoColumns;
+
+	// Filter visible columns and prepare for date handling
+	const visibleColumns = dt.columns().header().toArray().map((header, index) => ({
+		header: header.innerText,
+		key: columns[index].data,
+		index: index,
+		hiddenExport: columns[index].hiddenExport || false,
+		type: columns[index].type || null, // Ensure type is stored
+	})).filter(col => !col.hiddenExport && col.header !== "Action");
+
+	// Identify which columns are dates
+	const dateColumns = new Set(visibleColumns.filter(col => col.type === 'date').map(col => col.header));
+
+	// Add headers
+	worksheet.addRow(visibleColumns.map(col => col.header));
+
+	// Define column widths
+	worksheet.columns = visibleColumns.map(col => ({
+		header: col.header,
+		key: col.header,
+		width: 20,
+	}));
+
+	// Add rows with formatted dates
+	data.forEach(row => {
+		let filteredRow = {};
+
+		visibleColumns.forEach(col => {
+			let value = row[col.key];
+
+			// Format date columns
+			if (dateColumns.has(col.header) && value) {
+				value = new Date(value);
+			}
+
+			filteredRow[col.header] = value;
+		});
+
+		const rowData = worksheet.addRow(filteredRow);
+
+		// Apply Excel date formatting
+		rowData.eachCell((cell, colNumber) => {
+			if (dateColumns.has(visibleColumns[colNumber - 1].header)) {
+				cell.numFmt = 'dd/mm/yyyy';
+			}
+		});
+	});
+
+	// Add footer row if needed
+	if (props.totalFooter) {
+		const footer = dt.columns().footer().toArray().map((footer, index) =>
+			!columns[index].hiddenExport ? footer.innerText : null
+		).filter(value => value !== null);
+
+		worksheet.addRow(footer);
+	}
+
+	// Generate and save file
+	const buffer = await workbook.xlsx.writeBuffer();
+	const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+
+	const filename = `${Date.now()}_${window.location.pathname.split('/').pop().replace(/-/g, '_')}.xlsx`;
+	FileSaver.saveAs(blob, filename);
+};
 </script>
 <style>
 @import 'datatables.net-dt';
@@ -565,4 +638,13 @@ tbody > tr:nth-child(even) > td {
 	border: none !important;
 	box-shadow: none !important;
 }
+
+table.dataTable tbody tr.group-header {
+    background-color: #f5e1e4 !important;
+    color: #b6848a !important;
+    font-weight: bold;
+    border-bottom: 2px solid #b6848a;
+}
+
+
 </style>

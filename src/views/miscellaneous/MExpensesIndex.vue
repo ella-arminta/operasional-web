@@ -7,7 +7,7 @@ import { useStore } from 'vuex';
 
 const columns = [
   { data: 'code', title: 'No' },
-  { data: 'trans_date', title: 'Date', render: (data) => new Date(data).toLocaleDateString() },
+  { data: 'trans_date', title: 'Date', render: (data) => new Date(data).toLocaleDateString(), type:'date' },
   { data: 'account_name', title: 'Account' },
   { data: 'total', title: 'Total' },
   { data: 'description', title: 'Description' },
@@ -18,6 +18,7 @@ const columns = [
 		width: '10%',
 		searchable: false,
 		orderable: false,
+    hiddenExport:true
 	},
 ];
 const store = useStore();
@@ -59,7 +60,7 @@ onMounted(async () => {
     {
       type: 'select',
       label: 'Account',
-      name: 'account_name',
+      name: 'account_id',
       options: [
         { label: 'All Account', id: '' },
         ...accountsFormated,

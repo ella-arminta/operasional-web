@@ -227,6 +227,21 @@ const router = createRouter({
 							}),
 						},
 						{
+							path: 'recurring',
+							component: () =>
+								import('../views/recurring/RecurringIndex.vue'),
+						},
+						{
+							path: 'recurring/:mode/:id?',
+							component: () =>
+								import(
+									'../views/recurring/RecurringForm.vue'
+								),
+							props: (route) => ({
+								mode: route.params.mode,
+							}),
+						},
+						{
 							path: 'stock-card',
 							component: () =>
 								import('../views/stock/StockCardIndex.vue'),
@@ -250,6 +265,11 @@ const router = createRouter({
 									'../views/general-ledger/LedgerDetail.vue'
 								),
 						},
+						{
+							path: 'profit-loss',
+							component: () =>
+								import('../views/profit-loss/ProfitLossIndex.vue'),
+						}
 					],
 				},
 				{
