@@ -7,7 +7,7 @@ import { useStore } from 'vuex';
 
 const columns = [
   { data: 'code', title: 'Code' },
-  { data: 'date', title: 'Date', render: (data) => new Date(data).toLocaleDateString() },
+  { data: 'date', title: 'Date', render: (data) => new Date(data).toLocaleDateString(), type: 'date' },
   { data: 'saldo_awal', title: 'Initial Balance' },
   { data: 'penjualan_cash', title: 'Cash Sales' },
   { data:'penjualan_transfer', title: 'Transfer Sales' },

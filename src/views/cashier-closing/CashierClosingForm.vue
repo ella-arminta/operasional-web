@@ -442,7 +442,10 @@ const submit = async () => {
 					? `${props.redirect}/edit/${id}`
 					: props.redirect
 			router.push(redirect)
-			mountUpdatedData()
+			if (props.mode === 'edit'){
+				mountUpdatedData()
+			}
+		
 		}
 	} catch (error) {
 		console.log('error', error)

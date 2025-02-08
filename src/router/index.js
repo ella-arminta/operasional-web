@@ -265,6 +265,11 @@ const router = createRouter({
 									'../views/general-ledger/LedgerDetail.vue'
 								),
 						},
+						{
+							path: 'profit-loss',
+							component: () =>
+								import('../views/profit-loss/ProfitLossIndex.vue'),
+						}
 					],
 				},
 				{

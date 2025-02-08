@@ -133,6 +133,10 @@ const menuTree = ref([
 						label: 'General Ledger',
 						path: '/finance/general-ledger',
 					},
+					{
+						label: 'Profit & Loss',
+						path: '/finance/profit-loss',
+					}
 				],
 			},
 			{
