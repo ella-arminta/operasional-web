@@ -379,15 +379,11 @@ router.beforeEach(async (to, from, next) => {
 
 		// Check if user has permission
 		const allowed = auth.some((item) => {
-			console.log('item action:', item.action)
 			return (
 				item.path === basePath &&
 				(item.action.includes(action) || item.action.includes('all'))
 			)
 		})
-		console.log('Allowed:', allowed)
-		console.log('Action:', action)
-		console.log('Base Path:', basePath)
 		if (allowed) {
 			next()
 			return

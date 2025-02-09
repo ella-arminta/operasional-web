@@ -9,7 +9,7 @@
 			:ajaxPath="'/auth/role'"
 			:editPath="actions.includes('edit') ? '/settings/role/edit' : ''"
 			:deletePath="actions.includes('delete') ? '/auth/role' : ''"
-			:infoPath="'/settings/role/view'"
+			:infoPath="actions.includes('detail') ? '/auth/role/view' : ''"
 		/>
 	</div>
 </template>
@@ -54,8 +54,8 @@ const columns = [
 ]
 onMounted(() => {
 	const path = authStore.allowedPaths.find(
-		(path) => path.name === '/settings/role'
+		(item) => item.path === '/settings/role'
 	)
-	actions.value = path ? path.actions : []
+	actions.value = path ? path.action : []
 })
 </script>

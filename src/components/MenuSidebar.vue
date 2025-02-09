@@ -206,16 +206,13 @@ const menuTree = ref([
 ])
 const explorePath = async () => {
 	const data = authStore.allowedPaths
-	console.log(data)
 	const paths = data.map((item) => {
 		return item.path
 	})
 	paths.push('/home')
 	paths.push('/logout')
-	console.log('Allowed Paths:', paths)
 	// reduce data
 	menuTree.value = await filterMenu(menuTree.value, new Set(paths))
-	console.log('Filtered Menu Tree:', menuTree.value)
 }
 
 const filterMenu = async (menu, allowedPaths, depth = 0) => {

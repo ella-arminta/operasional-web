@@ -34,10 +34,10 @@ export const useAuthStore = defineStore('auth', {
 
 			// Merge actions if there are duplicate paths
 			const mergedPermissions = res.data.data.reduce((acc, item) => {
-				const existing = acc.find((p) => p.path === item.path)
+				const existing = acc.find((p) => p.path === `/${item.path}`)
 				if (existing) {
 					existing.action = [
-						...new Set([...existing.action, ...item.action]),
+						...new Set([...existing.action, item.action]),
 					]
 				} else {
 					acc.push({ path: `/${item.path}`, action: [item.action] })
