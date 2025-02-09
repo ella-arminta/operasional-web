@@ -11,7 +11,13 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
 	(config) => {
-		const token = decryptData(Cookies.get('token'))
+		if (config.url.includes('login')) {
+			return config
+		}
+
+		const token = Cookies.get('token')
+			? decryptData(Cookies.get('token'))
+			: null
 
 		if (token) {
 			config.headers.Authorization = `Bearer ${token}`

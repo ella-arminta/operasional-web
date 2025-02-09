@@ -56,7 +56,7 @@
 									:checked="activeRoles.includes(role.id)"
 									type="checkbox"
 									class="accent-pinkDark w-4 h-4 border-1 rounded-sm"
-									@click.prevent="clickRole(role)"
+									@click.stop="clickRole(role)"
 								/>
 							</div>
 						</template>

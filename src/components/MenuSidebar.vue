@@ -105,7 +105,7 @@ const menuTree = ref([
 			{
 				label: 'Recurring Income/Expense',
 				path: '/finance/recurring',
-			}
+			},
 		],
 	},
 	{
@@ -136,7 +136,7 @@ const menuTree = ref([
 					{
 						label: 'Profit & Loss',
 						path: '/finance/profit-loss',
-					}
+					},
 				],
 			},
 			{
@@ -170,7 +170,7 @@ const menuTree = ref([
 		children: [
 			{
 				label: 'Change Password',
-				path: '/settings/password/change',
+				path: '/settings/password-change',
 			},
 			{
 				label: 'Role Access',

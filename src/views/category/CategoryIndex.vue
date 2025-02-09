@@ -10,9 +10,6 @@
 			:editPath="'/master/category/edit'"
 			:deletePath="'/inventory/category'"
 			:infoPath="'/master/category/view'"
-			:options="{
-				scrollX: true,
-			}"
 		/>
 	</div>
 </template>

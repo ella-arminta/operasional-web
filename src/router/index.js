@@ -234,9 +234,7 @@ const router = createRouter({
 						{
 							path: 'recurring/:mode/:id?',
 							component: () =>
-								import(
-									'../views/recurring/RecurringForm.vue'
-								),
+								import('../views/recurring/RecurringForm.vue'),
 							props: (route) => ({
 								mode: route.params.mode,
 							}),
@@ -268,8 +266,10 @@ const router = createRouter({
 						{
 							path: 'profit-loss',
 							component: () =>
-								import('../views/profit-loss/ProfitLossIndex.vue'),
-						}
+								import(
+									'../views/profit-loss/ProfitLossIndex.vue'
+								),
+						},
 					],
 				},
 				{
@@ -312,7 +312,7 @@ const router = createRouter({
 					path: 'settings',
 					children: [
 						{
-							path: 'password/change',
+							path: 'password-change',
 							component: () =>
 								import('../views/settings/ChangePassword.vue'),
 						},
@@ -352,9 +352,15 @@ router.beforeEach(async (to, from, next) => {
 			if (token) {
 				next()
 			} else {
+				// Delete Cookies
+				Cookies.remove('token')
+				Cookies.remove('userdata')
 				next('/')
 			}
 		} catch (error) {
+			// Delete Cookies
+			Cookies.remove('token')
+			Cookies.remove('userdata')
 			next('/')
 		}
 	} else {
