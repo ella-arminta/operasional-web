@@ -1,7 +1,8 @@
 <template>
 	<div class="menu" :class="{ 'small-menu': smallMenu }">
 		<div class="logo">
-			<img src="https://inspiraworld.com/favicon.png" alt="" />
+			<!-- <img src="https://inspiraworld.com/favicon.png" alt="" /> -->
+			<div class="text-md">{{}}</div>
 		</div>
 		<MenuItem
 			v-for="(item, index) in menuTree"
@@ -19,11 +20,16 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import MenuItem from './MenuItem.vue'
 import { useStore } from 'vuex'
+import { useAuthStore } from '../vuex/auth'
+import { decryptData } from '../utils/crypto'
+import axiosInstance from '../axios'
+import Cookies from 'js-cookie'
 
 const store = useStore()
+const authStore = useAuthStore()
 const smallMenu = computed(() => store.getters.smallMenu)
 
 const menuTree = ref([
@@ -198,6 +204,51 @@ const menuTree = ref([
 		path: '/logout',
 	},
 ])
+const explorePath = async () => {
+	const data = authStore.allowedPaths
+	console.log(data)
+	const paths = data.map((item) => {
+		return item.path
+	})
+	paths.push('/home')
+	paths.push('/logout')
+	console.log('Allowed Paths:', paths)
+	// reduce data
+	menuTree.value = await filterMenu(menuTree.value, new Set(paths))
+	console.log('Filtered Menu Tree:', menuTree.value)
+}
+
+const filterMenu = async (menu, allowedPaths, depth = 0) => {
+	// Process all items asynchronously
+	const filteredItems = await Promise.all(
+		menu.map(async (item) => {
+			if (item.path) {
+				const allowed = allowedPaths.has(item.path)
+				return allowed ? item : null
+			} else if (item.children) {
+				const filteredChildren = await filterMenu(
+					item.children,
+					allowedPaths,
+					depth + 1
+				)
+
+				if (filteredChildren.length > 0) {
+					return { ...item, children: filteredChildren }
+				} else {
+					return null
+				}
+			}
+			return null
+		})
+	)
+
+	// ✅ Now filter out null values AFTER awaiting all Promises
+	return filteredItems.filter(Boolean)
+}
+
+onMounted(() => {
+	explorePath()
+})
 </script>
 
 <style lang="scss" scoped>

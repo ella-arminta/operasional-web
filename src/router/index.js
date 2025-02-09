@@ -5,6 +5,8 @@ import InternalLayout from '../layouts/InternalLayout.vue'
 import Logout from '../components/Logout.vue'
 import Cookies from 'js-cookie'
 import { decryptData } from '../utils/crypto'
+import { useAuthStore } from '../vuex/auth'
+import store from '../vuex/alert'
 
 const router = createRouter({
 	history: createWebHistory(),
@@ -345,26 +347,65 @@ const router = createRouter({
 	],
 })
 
+const loa = ['add', 'edit', 'delete', 'view']
+
 router.beforeEach(async (to, from, next) => {
-	if (to.matched.some((record) => record.meta.requiresAuth)) {
-		try {
-			const token = decryptData(Cookies.get('token'))
-			if (token) {
-				next()
-			} else {
-				// Delete Cookies
-				Cookies.remove('token')
-				Cookies.remove('userdata')
-				next('/')
-			}
-		} catch (error) {
-			// Delete Cookies
-			Cookies.remove('token')
-			Cookies.remove('userdata')
-			next('/')
-		}
-	} else {
+	if (!to.matched.some((record) => record.meta.requiresAuth)) {
 		next()
+		return
+	}
+
+	try {
+		// Decrypt token
+		const token = await decryptData(Cookies.get('token'))
+		if (!token) throw new Error('Invalid token')
+
+		// If navigating to home or logout, allow directly
+		if (to.path === '/home' || to.path === '/logout') {
+			next()
+			return
+		}
+
+		// Fetch stored permissions
+		const authStore = useAuthStore()
+		const auth = authStore.allowedPaths || []
+
+		// Extract base path and action
+		const paths = to.path.split('/')
+		const actionIndex = paths.findIndex((item) => loa.includes(item))
+		const action = actionIndex >= 0 ? paths[actionIndex] : 'open'
+		const basePath =
+			actionIndex > 0 ? paths.slice(0, actionIndex).join('/') : to.path
+
+		// Check if user has permission
+		const allowed = auth.some((item) => {
+			console.log('item action:', item.action)
+			return (
+				item.path === basePath &&
+				(item.action.includes(action) || item.action.includes('all'))
+			)
+		})
+		console.log('Allowed:', allowed)
+		console.log('Action:', action)
+		console.log('Base Path:', basePath)
+		if (allowed) {
+			next()
+			return
+		} else {
+			store.dispatch('triggerAlert', {
+				message: 'You are not allowed to access this page',
+				type: 'error',
+				title: 'Access Denied',
+			})
+			next('/home')
+			return
+		}
+	} catch (error) {
+		// Cleanup expired/invalid session
+		Cookies.remove('token')
+		Cookies.remove('userdata')
+		next('/')
+		return
 	}
 })
 
