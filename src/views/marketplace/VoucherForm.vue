@@ -194,36 +194,47 @@ const formError = ref({
 })
 
 const submit = async () => {
-	try {
-		const url =
-			mode.value === 'edit'
-				? `/transaction/voucher/${id.value}`
-				: '/transaction/voucher'
-		const method = mode.value === 'edit' ? 'put' : 'post'
+    try {
+        const url =
+            mode.value === 'edit'
+                ? `/transaction/voucher/${id.value}`
+                : '/transaction/voucher'
+        const method = mode.value === 'edit' ? 'put' : 'post'
+        const headers = {
+            Authorization: `Bearer ${Cookies.get('token')}`,
+        }
 
-		// Convert data before submission
-		const formData = { ...form.value }
-		formData.is_active =
-			formData.is_active === 'true' || formData.is_active === true
+        // Convert data before submission
+        const formData = { ...form.value }
 
-		const response = await axiosInstance[method](url, formData)
+        // Convert numeric values from string to number
+        formData.discount_amount = Number(formData.discount_amount)
+        formData.max_discount = Number(formData.max_discount)
+        formData.minimum_purchase = Number(formData.minimum_purchase)
+        formData.poin_price = Number(formData.poin_price)
 
-		if (response.data.success) {
-			store.dispatch('triggerAlert', {
-				type: 'success',
-				title: 'Success!',
-				message: `Voucher ${mode.value === 'edit' ? 'Updated' : 'Created'} successfully.`,
-			})
-			router.push('/marketplace/voucher')
-		}
-	} catch (error) {
-		store.dispatch('triggerAlert', {
-			type: 'error',
-			title: 'Error!',
-			message: 'Failed to process voucher data.',
-		})
-	}
+        formData.is_active = formData.is_active === "true" || formData.is_active === true
+
+        const response = await axiosInstance[method](url, formData, { headers })
+
+        if (response.data.success) {
+            store.dispatch('triggerAlert', {
+                type: 'success',
+                title: 'Success!',
+                message: `Voucher ${mode.value === 'edit' ? 'Updated' : 'Created'} successfully.`,
+            })
+            router.push('/marketplace/voucher')
+        }
+    } catch (error) {
+        store.dispatch('triggerAlert', {
+            type: 'error',
+            title: 'Error!',
+            message: 'Failed to process voucher data.',
+        })
+    }
 }
+
+
 
 onMounted(async () => {
 	if (mode.value !== 'add' && id.value) {
