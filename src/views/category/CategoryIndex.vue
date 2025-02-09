@@ -9,10 +9,7 @@
 			:ajaxPath="'/inventory/category'"
 			:editPath="'/master/category/edit'"
 			:deletePath="'/inventory/category'"
-			:infoPath="'/master/category/view'"
-			:options="{
-				scrollX: true,
-			}"
+			:infoPath="'/master/category/detail'"
 		/>
 	</div>
 </template>

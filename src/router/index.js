@@ -4,6 +4,9 @@ import Login from '../views/Login.vue'
 import InternalLayout from '../layouts/InternalLayout.vue'
 import Logout from '../components/Logout.vue'
 import Cookies from 'js-cookie'
+import { decryptData } from '../utils/crypto'
+import { useAuthStore } from '../vuex/auth'
+import store from '../vuex/alert'
 
 const router = createRouter({
 	history: createWebHistory(),
@@ -226,6 +229,19 @@ const router = createRouter({
 							}),
 						},
 						{
+							path: 'recurring',
+							component: () =>
+								import('../views/recurring/RecurringIndex.vue'),
+						},
+						{
+							path: 'recurring/:mode/:id?',
+							component: () =>
+								import('../views/recurring/RecurringForm.vue'),
+							props: (route) => ({
+								mode: route.params.mode,
+							}),
+						},
+						{
 							path: 'stock-card',
 							component: () =>
 								import('../views/stock/StockCardIndex.vue'),
@@ -247,6 +263,13 @@ const router = createRouter({
 							component: () =>
 								import(
 									'../views/general-ledger/LedgerDetail.vue'
+								),
+						},
+						{
+							path: 'profit-loss',
+							component: () =>
+								import(
+									'../views/profit-loss/ProfitLossIndex.vue'
 								),
 						},
 					],
@@ -291,7 +314,7 @@ const router = createRouter({
 					path: 'settings',
 					children: [
 						{
-							path: 'password/change',
+							path: 'password-change',
 							component: () =>
 								import('../views/settings/ChangePassword.vue'),
 						},
@@ -308,6 +331,11 @@ const router = createRouter({
 								mode: route.params.mode,
 							}),
 						},
+						{
+							path: 'user-role',
+							component: () =>
+								import('../views/role/UserRole.vue'),
+						},
 					],
 				},
 			],
@@ -319,20 +347,62 @@ const router = createRouter({
 	],
 })
 
+const loa = ['add', 'edit', 'delete', 'detail']
+
 router.beforeEach(async (to, from, next) => {
-	if (to.matched.some((record) => record.meta.requiresAuth)) {
-		try {
-			const token = Cookies.get('token')
-			if (token) {
-				next()
-			} else {
-				next('/')
-			}
-		} catch (error) {
-			next('/')
-		}
-	} else {
+	if (!to.matched.some((record) => record.meta.requiresAuth)) {
 		next()
+		return
+	}
+
+	try {
+		// Decrypt token
+		const token = await decryptData(Cookies.get('token'))
+		if (!token) throw new Error('Invalid token')
+
+		// If navigating to home or logout, allow directly
+		if (to.path === '/home' || to.path === '/logout') {
+			next()
+			return
+		}
+
+		// Fetch stored permissions
+		const authStore = useAuthStore()
+		const auth = authStore.allowedPaths || []
+
+		// Extract base path and action
+		const paths = to.path.split('/')
+		const actionIndex = paths.findIndex((item) => loa.includes(item))
+		const action = actionIndex >= 0 ? paths[actionIndex] : 'open'
+		const basePath =
+			actionIndex > 0 ? paths.slice(0, actionIndex).join('/') : to.path
+		console.log(basePath, action)
+
+		// Check if user has permission
+		const allowed = auth.some((item) => {
+			return (
+				item.path === basePath &&
+				(item.action.includes(action) || item.action.includes('all'))
+			)
+		})
+		if (allowed) {
+			next()
+			return
+		} else {
+			store.dispatch('triggerAlert', {
+				message: 'You are not allowed to access this page',
+				type: 'error',
+				title: 'Access Denied',
+			})
+			next('/home')
+			return
+		}
+	} catch (error) {
+		// Cleanup expired/invalid session
+		Cookies.remove('token')
+		Cookies.remove('userdata')
+		next('/')
+		return
 	}
 })
 

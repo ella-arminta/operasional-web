@@ -1,5 +1,6 @@
 import axios from 'axios'
 import Cookies from 'js-cookie'
+import { decryptData } from './utils/crypto'
 
 const axiosInstance = axios.create({
 	baseURL: import.meta.env.VITE_BASE_URL, // Base URL for your API
@@ -8,11 +9,19 @@ const axiosInstance = axios.create({
 	},
 })
 
-axiosInstance.interceptors.request.use((config) => {
-  const token = Cookies.get('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
+axiosInstance.interceptors.request.use(
+	(config) => {
+		if (config.url.includes('login')) {
+			return config
+		}
+
+		const token = Cookies.get('token')
+			? decryptData(Cookies.get('token'))
+			: null
+
+		if (token) {
+			config.headers.Authorization = `Bearer ${token}`
+		}
 
 		return config
 	},

@@ -27,7 +27,7 @@
 						Reset
 					</button>
 					<button
-						v-if="mode !== 'view'"
+						v-if="mode !== 'detail'"
 						class="flex items-center bg-pinkMed text-white px-4 py-2 rounded-lg gap-1 align-center hover:bg-pinkDark transition duration-300"
 						type="submit"
 					>
@@ -97,7 +97,7 @@
 						label="Nomor"
 						:required="true"
 						placeholder="Nomor"
-						:readonly="mode === 'view'"
+						:readonly="mode === 'detail'"
 						:error="formError.code"
 					/>
 					<!-- Name -->
@@ -108,7 +108,7 @@
 						label="Nama"
 						placeholder="Nama"
 						:required="true"
-						:readonly="mode === 'view'"
+						:readonly="mode === 'detail'"
 						:error="formError.name"
 					/>
 				</div>
@@ -141,7 +141,7 @@
 						id="description"
 						label="Description"
 						placeholder="Description"
-						:readonly="mode === 'view'"
+						:readonly="mode === 'detail'"
 						:error="formError.description"
 					/>
 				</div>
@@ -200,13 +200,15 @@ const smallMenu = computed(() => store.getters.smallMenu)
 
 onMounted(async () => {
 	const companyData = await axiosInstance.get('/master/company')
-	companyItems.value = companyData.data.data.map((company) => (
-		console.log('company',company),
-		{
-			label: company.name,
-			id: company.id,
-		}
-	))
+	companyItems.value = companyData.data.data.map(
+		(company) => (
+			console.log('company', company),
+			{
+				label: company.name,
+				id: company.id,
+			}
+		)
+	)
 	const storeData = await axiosInstance.get('/master/store')
 	storeItems.value = storeData.data.data.map((store) => ({
 		label: store.name,

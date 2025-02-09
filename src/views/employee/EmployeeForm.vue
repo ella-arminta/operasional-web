@@ -15,7 +15,7 @@
 							: 'Employee Detail'
 				"
 				:showResetButton="mode === 'edit' && hasUnsavedChanges"
-				:showSaveButton="mode !== 'view'"
+				:showSaveButton="mode !== 'detail'"
 				@reset="resetForm"
 			/>
 			<FormSectionHeader title="Basic Employee Information" icon="info" />
@@ -45,7 +45,7 @@
 						placeholder="Name"
 						required
 						:error="formError.name"
-						:readonly="mode === 'view'"
+						:readonly="mode === 'detail'"
 					/>
 				</div>
 				<div>

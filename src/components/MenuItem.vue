@@ -84,7 +84,7 @@ const showLabel = computed(() => {
 })
 
 const isActive = computed(() => {
-	return props.path === route.path
+	return route.path.startsWith(props.path) && props.path !== ''
 })
 
 // Methods

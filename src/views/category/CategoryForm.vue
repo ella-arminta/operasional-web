@@ -15,7 +15,7 @@
 							: 'Category Detail'
 				"
 				:showResetButton="mode === 'edit' && hasUnsavedChanges"
-				:showSaveButton="mode !== 'view'"
+				:showSaveButton="mode !== 'detail'"
 				@reset="resetForm"
 			/>
 			<FormSectionHeader title="Basic Category Information" icon="info" />
@@ -40,7 +40,7 @@
 						placeholder="Name"
 						required
 						:error="formError.name"
-						:readonly="mode === 'view'"
+						:readonly="mode === 'detail'"
 					/>
 					<div>
 						<label
@@ -55,7 +55,7 @@
 							placeholder="Select a company"
 							:multiple="false"
 							:searchable="true"
-							:disabled="mode === 'view'"
+							:disabled="mode === 'detail'"
 							:addRoute="'/master/company/add'"
 						/>
 						<p
@@ -72,7 +72,7 @@
 						label="Purity"
 						placeholder="Purity"
 						:error="formError.purity"
-						:readonly="mode === 'view'"
+						:readonly="mode === 'detail'"
 						required
 					/>
 				</div>
@@ -89,7 +89,7 @@
 							v-model="form.metal_type"
 							id="metal_type"
 							:items="metals"
-							:disabled="mode === 'view'"
+							:disabled="mode === 'detail'"
 							:searchable="false"
 							:placeholder="'Select Metal Type'"
 							:multiple="false"
@@ -108,7 +108,7 @@
 						label="Weight Tray"
 						placeholder="Weight Tray"
 						:error="formError.weight_tray"
-						:readonly="mode === 'view'"
+						:readonly="mode === 'detail'"
 						type="number"
 						required
 					/>
@@ -119,7 +119,7 @@
 						label="Weight Paper"
 						placeholder="Weight Paper"
 						:error="formError.weight_paper"
-						:readonly="mode === 'view'"
+						:readonly="mode === 'detail'"
 						type="number"
 						required
 					/>
@@ -132,7 +132,7 @@
 						label="Description"
 						placeholder="Description"
 						:error="formError.description"
-						:readonly="mode === 'view'"
+						:readonly="mode === 'detail'"
 					/>
 				</div>
 			</div>
@@ -142,7 +142,7 @@
 					:initialRows="form.types"
 					:columns="typeColumns"
 					:required="mode === 'add'"
-					:readonly="mode === 'view'"
+					:readonly="mode === 'detail'"
 					:allActive="false"
 					:independent="mode !== 'add'"
 					title="Sub Category List"
@@ -161,6 +161,7 @@ import { ref, onMounted, computed, toRaw } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import Cookies from 'js-cookie'
+import { decryptData } from '../../utils/crypto'
 import axiosInstance from '../../axios'
 
 // Components
@@ -213,7 +214,7 @@ const fetchCompany = async () => {
 	try {
 		const response = await axiosInstance.get('/master/company', {
 			params: {
-				owner_id: JSON.parse(Cookies.get('userdata')).id,
+				owner_id: decryptData(Cookies.get('userdata')).id,
 			},
 		})
 		if (response.data) {

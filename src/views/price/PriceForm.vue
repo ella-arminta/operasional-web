@@ -15,7 +15,7 @@
 							: 'Price Detail'
 				"
 				:showResetButton="mode === 'edit' && hasUnsavedChanges"
-				:showSaveButton="mode !== 'view'"
+				:showSaveButton="mode !== 'detail'"
 				@reset="resetForm"
 			/>
 			<FormSectionHeader title="Basic Price Information" icon="info" />
@@ -48,8 +48,8 @@
 							placeholder="Select a category to modify"
 							:multiple="false"
 							:searchable="true"
-							:disabled="mode === 'view'"
-							:addRoute="'/master/company/add'"
+							:disabled="mode === 'detail'"
+							:addRoute="'/master/category/add'"
 						/>
 						<p
 							v-if="formError.company_id"
@@ -87,11 +87,11 @@ import { useStore } from 'vuex'
 import axiosInstance from '../../axios'
 import PageTitle from '../../components/PageTitle.vue'
 import InputForm from '../../components/InputForm.vue'
-import TextareaForm from '../../components/TextareaForm.vue'
 import FormSectionHeader from '../../components/FormSectionHeader.vue'
 import FormHeader from '../../components/FormHeader.vue'
 import Dropdown from '../../components/Dropdown.vue'
 import Cookies from 'js-cookie'
+import { decryptData } from '../../utils/crypto'
 import EditableCat from '../../components/EditableCat.vue'
 
 const props = defineProps({
@@ -143,7 +143,7 @@ const fetchCategory = async () => {
 		const response = await axiosInstance.get('/inventory/category', {
 			params: {
 				company_id: {
-					in: [JSON.parse(Cookies.get('userdata')).company_id],
+					in: [decryptData(Cookies.get('userdata')).company_id],
 				},
 			},
 		})

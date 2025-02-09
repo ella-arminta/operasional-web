@@ -7,7 +7,7 @@
 				: mode === 'add'
 					? 'Sales Transaction Form'
 					: 'Sales Transaction Detail'
-				" :showResetButton="mode === 'edit' && hasUnsavedChanges" :showSaveButton="mode !== 'view'" @reset="resetForm" />
+				" :showResetButton="mode === 'edit' && hasUnsavedChanges" :showSaveButton="mode !== 'detail'" @reset="resetForm" />
 			<FormSectionHeader title="Transaction Information" icon="info" />
 			<div class="grid grid-cols-3 gap-6 mt-4">
 				<div class="space-y-3">
@@ -24,7 +24,7 @@
 						</label>
 						<Dropdown :items="customerSelection" v-model="selectedWay"
 							placeholder="Select a way to select customer" :multiple="false" :searchable="false"
-							:disabled="mode === 'view'" :addRoute="''" />
+							:disabled="mode === 'detail'" :addRoute="''" />
 						<a href="/customer" class="text-pinkDark text-sm underline">+ Add Customer</a>
 					</div>
 					<!-- Use Dropdown Search email -->
@@ -33,7 +33,7 @@
 							Customer ID<span class="text-pinkDark">*</span>
 						</label>
 						<Dropdown :items="customers" v-model="form.customer_id" placeholder="Select a customer"
-							:multiple="false" :searchable="true" :disabled="mode === 'view'" :addRoute="'/customer'" />
+							:multiple="false" :searchable="true" :disabled="mode === 'detail'" :addRoute="'/customer'" />
 						<p v-if="formError.customer_id" class="text-pinkDark text-xs italic transition duration-300">
 							{{ formError.customer_id }}
 						</p>
@@ -66,37 +66,37 @@
 								Method<span class="text-pinkDark">*</span></label>
 							<Dropdown :items="paymentMethod" v-model="form.payment_method"
 								placeholder="Select a payment method" :multiple="false" :searchable="false"
-								:disabled="mode === 'view'" :addRoute="''" />
+								:disabled="mode === 'detail'" :addRoute="''" />
 						</div>
 						<div>
 							<label for="dropdown" class="block text-sm text-grey-900 font-medium mb-1">Status<span
 									class="text-pinkDark">*</span></label>
 							<Dropdown :items="status" v-model="form.status" placeholder="Select a status"
-								:multiple="false" :searchable="false" :disabled="mode === 'view'" :addRoute="''" />
+								:multiple="false" :searchable="false" :disabled="mode === 'detail'" :addRoute="''" />
 						</div>
 					</div>
 				</div>
 			</div>
 			<FormSectionHeader title="Transaction Details" icon="shopping_cart" />
 			<div class="mt-4">
-				<div v-if="mode !== 'view'" class="grid grid-cols-3 gap-6 mb-4">
+				<div v-if="mode !== 'detail'" class="grid grid-cols-3 gap-6 mb-4">
 					<div>
 						<label for="dropdown" class="block text-sm text-grey-900 font-medium mb-1">
 							Type of Sales<span class="text-pinkDark">*</span>
 						</label>
 						<Dropdown :items="type" v-model="selectedType" placeholder="Select a type of sales"
-							:multiple="false" :searchable="false" :disabled="mode === 'view'" :addRoute="''" />
+							:multiple="false" :searchable="false" :disabled="mode === 'detail'" :addRoute="''" />
 					</div>
 					<div v-if="selectedType == 1">
 						<InputForm v-model="itemSelected" id="item" label="Product Code" placeholder="Product Code"
-							required :readonly="mode === 'view'" />
+							required :readonly="mode === 'detail'" />
 					</div>
 					<div v-if="selectedType == 2">
 						<label for="dropdown" class="block text-sm text-grey-900 font-medium mb-1">
 							Operation<span class="text-pinkDark">*</span>
 						</label>
 						<Dropdown :items="operations" v-model="operationSelected" placeholder="Select an Operation"
-							:multiple="false" :searchable="true" :disabled="mode === 'view'"
+							:multiple="false" :searchable="true" :disabled="mode === 'detail'"
 							:addRoute="'/inventory/operation'" />
 					</div>
 					<div v-if="selectedType.length > 0" class="flex items-end">
@@ -108,7 +108,7 @@
 					</div>
 				</div>
 				<EditableCat :initialRows="form.transaction_details" :columns="transactionDetailsColumns"
-					:required="false" :readonly="mode === 'view'" :allActive="false" :independent="mode !== 'add'"
+					:required="false" :readonly="mode === 'detail'" :allActive="false" :independent="mode !== 'add'"
 					:addable="false" title="Items Detail" @update:rows="handleRowsUpdate"
 					:addPath="'/transaction/detail'" :editPath="'/transaction/detail'"
 					:deletePath="'/transaction/detail'" :noDataState="noDataState" />
@@ -183,6 +183,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
 import Cookies from 'js-cookie'
+import { decryptData } from '../../utils/crypto'
 import FormSectionHeader from '../../components/FormSectionHeader.vue'
 import PageTitle from '../../components/PageTitle.vue'
 import FormHeader from '../../components/FormHeader.vue'
@@ -264,7 +265,7 @@ const handleInsert = async () => {
 			`/inventory/product-barcode/${itemSelected.value}`,
 			{
 				params: {
-					store: JSON.parse(Cookies.get('userdata')).store_id,
+					store: decryptData(Cookies.get('userdata')).store_id,
 				},
 			}
 		)
@@ -508,7 +509,7 @@ watch(
 	() => form.value.transaction_details,
 	(newValue) => {
 		// CHANGE OF SUB TOTAL WITH ADJUSTMENT_PRICE
-		if (props.mode === 'view') return
+		if (props.mode === 'detail') return
 		const tax_price = parseFloat(form.value.tax_price)
 		newValue.forEach((item) => {
 			item.total_price =
@@ -689,8 +690,8 @@ onMounted(async () => {
 	await fetchOperation()
 	await fetchCustomer()
 	if (props.mode === 'add') {
-		form.value.store_id = JSON.parse(Cookies.get('userdata')).store_id
-		form.value.employee_id = JSON.parse(Cookies.get('userdata')).id
+		form.value.store_id = decryptData(Cookies.get('userdata')).store_id
+		form.value.employee_id = decryptData(Cookies.get('userdata')).id
 		form.value.date = new Date().toISOString().split('T')[0]
 	} else {
 		// Fetch Data

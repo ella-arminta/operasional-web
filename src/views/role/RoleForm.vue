@@ -15,7 +15,7 @@
 							: 'Role Detail'
 				"
 				:showResetButton="mode === 'edit' && hasUnsavedChanges"
-				:showSaveButton="mode !== 'view'"
+				:showSaveButton="mode !== 'detail'"
 				@reset="resetForm"
 			/>
 			<FormSectionHeader title="Basic Role Information" icon="info" />
@@ -31,7 +31,7 @@
 						placeholder="Name"
 						required
 						:error="formError.name"
-						:readonly="mode === 'view'"
+						:readonly="mode === 'detail'"
 					/>
 				</div>
 				<div>
@@ -48,7 +48,7 @@
 							placeholder="Select a company"
 							:multiple="false"
 							:searchable="true"
-							:disabled="mode === 'view'"
+							:disabled="mode === 'detail'"
 							:addRoute="'/master/company/add'"
 						/>
 						<p
@@ -73,7 +73,7 @@
 							placeholder="Select stores"
 							:multiple="mode === 'add'"
 							:searchable="true"
-							:disabled="mode === 'view'"
+							:disabled="mode === 'detail'"
 							:addRoute="'/master/store/add'"
 						/>
 						<p
@@ -85,6 +85,122 @@
 					</div>
 				</div>
 			</div>
+			<FormSectionHeader title="Permission" icon="lock" />
+			<div class="w-full !rounded-md shadow-sm overflow-hidden">
+				<table class="w-full table-fixed">
+					<thead class="bg-pinkDark text-white">
+						<tr>
+							<th class="px-4 py-2 text-start" width="35%">
+								Pages
+							</th>
+							<th
+								v-for="head in header"
+								class="px-4 py-2 text-center"
+								width="15%"
+							>
+								{{ head.label }}
+							</th>
+						</tr>
+					</thead>
+					<tbody class="text-sm">
+						<tr
+							v-for="(feature, index) in features"
+							:key="index"
+							:class="
+								index % 2 === 0 ? 'bg-white' : 'bg-pinkGray'
+							"
+						>
+							<td class="px-4 py-2 border-r border-opacity-50">
+								{{ feature.path }}
+							</td>
+
+							<template
+								v-if="
+									feature.actions.some(
+										(action) => action.action === 'all'
+									)
+								"
+							>
+								<td
+									class="px-4 py-2 text-center border-r border-opacity-50"
+									colspan="5"
+								>
+									<input
+										type="checkbox"
+										class="accent-pinkDark w-4 h-4 border-1 rounded-sm"
+										v-model="
+											feature.actions.find(
+												(action) =>
+													action.action === 'all'
+											).checked
+										"
+										:id="
+											feature.actions.find(
+												(action) =>
+													action.action === 'all'
+											).id
+										"
+										@click="
+											clickHandler(
+												feature.actions.find(
+													(action) =>
+														action.action === 'all'
+												).id,
+												!feature.actions.find(
+													(action) =>
+														action.action === 'all'
+												).checked
+											)
+										"
+									/>
+								</td>
+							</template>
+							<template v-else v-for="head in header">
+								<td
+									v-if="
+										feature.actions.some(
+											(action) =>
+												action.action === head.key
+										)
+									"
+									class="px-4 py-2 text-center border-r border-opacity-50"
+								>
+									<input
+										type="checkbox"
+										class="accent-pinkDark w-4 h-4 border-1 rounded-sm"
+										v-model="
+											feature.actions.find(
+												(action) =>
+													action.action === head.key
+											).checked
+										"
+										:id="
+											feature.actions.find(
+												(action) =>
+													action.action === head.key
+											).id
+										"
+										@click="
+											clickHandler(
+												feature.actions.find(
+													(action) =>
+														action.action ===
+														head.key
+												).id,
+												!feature.actions.find(
+													(action) =>
+														action.action ===
+														head.key
+												).checked
+											)
+										"
+									/>
+								</td>
+							</template>
+						</tr>
+					</tbody>
+				</table>
+			</div>
 		</form>
 	</div>
 </template>
@@ -95,6 +211,7 @@ import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import axiosInstance from '../../axios'
 import Cookies from 'js-cookie'
+import { decryptData } from '../../utils/crypto'
 import PageTitle from '../../components/PageTitle.vue'
 import InputForm from '../../components/InputForm.vue'
 import FormSectionHeader from '../../components/FormSectionHeader.vue'
@@ -105,9 +222,9 @@ const props = defineProps({
 	mode: { type: String, required: true },
 })
 
-const form = ref({ name: '', company_id: [''], store_id: [''] })
+const form = ref({ name: '', company_id: [''], store_id: [''], features: [] })
 const formCopy = ref({ ...form.value })
-const formError = ref({ name: '', company_id: '', store_id: '' })
+const formError = ref({ name: '', company_id: '', store_id: '', features: '' })
 
 const router = useRouter()
 const store = useStore()
@@ -121,7 +238,7 @@ const fetchCompany = async () => {
 	try {
 		const response = await axiosInstance.get('/master/company', {
 			params: {
-				owner_id: JSON.parse(Cookies.get('userdata')).id,
+				owner_id: decryptData(Cookies.get('userdata')).id,
 			},
 		})
 		if (response.data) {
@@ -195,6 +312,71 @@ const fetchStores = async (company_id: string) => {
 	}
 }
 
+const features = ref([])
+const header = [
+	{ label: 'Open', key: 'open' },
+	{ label: 'Detail', key: 'detail' },
+	{ label: 'Add', key: 'add' },
+	{ label: 'Edit', key: 'edit' },
+	{ label: 'Delete', key: 'delete' },
+]
+const fetchFeatures = async () => {
+	try {
+		const response = await axiosInstance.get(
+			`/auth/feature-role${id ? '/' + id : ''}`
+		)
+		if (response.data) {
+			const data = response.data.data
+			features.value = Object.values(
+				data.reduce((acc, { path, action, id, roles }) => {
+					if (!acc[path]) {
+						acc[path] = { path, actions: [] }
+					}
+					acc[path].actions.push({
+						...{ action, id, checked: roles.length > 0 },
+					})
+					if (roles.length > 0 && !form.value.features.includes(id)) {
+						form.value.features.push(id)
+					}
+					return acc
+				}, {})
+			)
+			formCopy.value.features = [...form.value.features]
+		}
+	} catch (error) {
+		console.error(error)
+		store.dispatch('triggerAlert', {
+			type: 'error',
+			title: 'Error!',
+			message: 'Failed to fetch feature data.',
+			actions: [
+				{
+					label: 'close',
+					type: 'secondary',
+					handler: () => store.dispatch('hideAlert'),
+				},
+			],
+		})
+		features.value = []
+	}
+}
+
+const clickHandler = (id, value) => {
+	if (value) {
+		// Only add if it doesn't already exist
+		if (!form.value.features.includes(id)) {
+			form.value.features.push(id)
+		}
+	} else {
+		// Remove the item by finding its index
+		const index = form.value.features.indexOf(id)
+		if (index !== -1) {
+			form.value.features.splice(index, 1)
+		}
+	}
+	console.log(form.value.features)
+}
+
 onMounted(async () => {
 	isMounted.value = true
 	await fetchCompany()
@@ -205,6 +387,7 @@ onMounted(async () => {
 				...response.data.data,
 				company_id: [response.data.data.company_id],
 			}
+			form.value.features = []
 			await fetchStores(response.data.data.company_id)
 			form.value.store_id = response.data.data.store_id
 				? [response.data.data.store_id]
@@ -225,6 +408,7 @@ onMounted(async () => {
 			})
 		}
 	}
+	await fetchFeatures()
 	isMounted.value = false
 })
 
@@ -236,6 +420,15 @@ const resetError = () => {
 
 const resetForm = () => {
 	form.value = { ...formCopy.value }
+	features.value = [
+		...features.value.map((feature) => ({
+			...feature,
+			actions: feature.actions.map((action) => ({
+				...action,
+				checked: formCopy.value.features.includes(action.id),
+			})),
+		})),
+	]
 }
 
 const hasUnsavedChanges = computed(() => {
@@ -275,7 +468,8 @@ const submit = async () => {
 		name: form.value.name,
 		company_id: form.value.company_id[0],
 		store_id:
-			form.value.store_id.length === stores.value.length
+			form.value.store_id.length === stores.value.length ||
+			form.value.store_id[0] === ''
 				? ''
 				: form.value.store_id,
 	}
@@ -286,23 +480,50 @@ const submit = async () => {
 		const response = await axiosInstance[method](endpoint, data)
 
 		if (response.data) {
-			const action = props.mode === 'edit' ? 'Updated' : 'Created'
-			store.dispatch('triggerAlert', {
-				type: 'success',
-				title: 'Success!',
-				message: `Role ${response.data.data.name} ${action}.`,
-				actions: [
-					{
-						label: 'close',
-						type: 'secondary',
-						handler: () => store.dispatch('hideAlert'),
-					},
-				],
-			})
-			router.push('/settings/role')
+			try {
+				// Assign permission
+				const permissionData = {
+					role_id: response.data.data.id,
+					page_ids: form.value.features,
+				}
+				console.log('perm', permissionData)
+				const permissionResponse = await axiosInstance.post(
+					'/auth/mass-assign-feature',
+					permissionData
+				)
+
+				if (permissionResponse.data) {
+					await store.dispatch('triggerAlert', {
+						type: 'success',
+						title: 'Success!',
+						message: permissionResponse.data.message,
+						actions: [
+							{
+								label: 'close',
+								type: 'secondary',
+								handler: async () => {
+									await store.dispatch('hideAlert')
+									if (props.mode === 'add') {
+										router.push('/auth/role')
+									} else {
+										router.go(0)
+									}
+								},
+							},
+						],
+					})
+				}
+			} catch (error) {
+				console.error(error.response.data)
+				store.dispatch('triggerAlert', {
+					type: 'error',
+					title: 'Error!',
+					message: 'Failed to assign permission.',
+				})
+			}
 		}
 	} catch (error) {
-		console.error(error.response.data)
+		console.error(error)
 		const errors = error.response.data.errors || []
 		errors.forEach((err) => {
 			formError.value[err.field] = err.message

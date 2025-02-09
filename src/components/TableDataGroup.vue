@@ -28,7 +28,7 @@
 					class="bg-pinkDark hover:bg-pinkMed text-white cursor-pointer font-bold py-1 px-2 flex justify-evenly items-center rounded-lg gap-2"
 				>
 					<div><i class="material-icons text-xl">border_all</i></div>
-					<div class="text-sm">Export</div>
+					<div class="text-sm" @click="exportTable">Export</div>
 				</div>
 				<div
 					v-if="reload"
@@ -53,28 +53,45 @@
 		<div
 			v-if="props.filters && props.filters.length > 0"
 			class="transition-all duration-300"
-			:class="{ 'max-h-0 overflow-hidden': !isFiltersOpen, 'max-h-[500px]': isFiltersOpen }"
+			:class="{
+				'max-h-0 overflow-hidden': !isFiltersOpen,
+				'max-h-[500px]': isFiltersOpen,
+			}"
 		>
 			<div class="m-3 flex flex-wrap justify-center gap-3 md:gap-6">
-				<div v-for="filter in props.filters" :key="filter.name" class="w-[100%] md:w-[18.8%]">
+				<div
+					v-for="filter in props.filters"
+					:key="filter.name"
+					class="w-[100%] md:w-[18.8%]"
+				>
 					<!-- Filter type:"select" -->
 					<div v-if="filter.type === 'select'">
-						<label :for="filter.name" class="block mb-1">{{ filter.label }}</label>
+						<label :for="filter.name" class="block mb-1">{{
+							filter.label
+						}}</label>
 						<select
-						v-if="filter.type === 'select'"
-						:id="filter.name"
-						v-model="filterValues[filter.name]"
-						class="border px-3 py-2 rounded-lg w-full"
+							v-if="filter.type === 'select'"
+							:id="filter.name"
+							v-model="filterValues[filter.name]"
+							class="border px-3 py-2 rounded-lg w-full"
 						>
-						<option v-for="option in filter.options" :key="option.value" :value="option.value">
-							{{ option.label }}
-						</option>
+							<option
+								v-for="option in filter.options"
+								:key="option.value"
+								:value="option.value"
+							>
+								{{ option.label }}
+							</option>
 						</select>
 					</div>
 					<!-- Filter type:"SelectRangeFinance" -->
 					<div v-if="filter.type == 'selectRangeFinance'">
-						<label :for="filter.name" class="block mb-1">{{ filter.label }}</label>
-                        <DropdownFinance @range-selected="handleRangeSelected" />
+						<label :for="filter.name" class="block mb-1">{{
+							filter.label
+						}}</label>
+						<DropdownFinance
+							@range-selected="handleRangeSelected"
+						/>
 					</div>
 				</div>
 			</div>
@@ -221,9 +238,12 @@ import { ref, onMounted, computed, watch } from 'vue'
 import Select from 'datatables.net-select'
 import { defineProps } from 'vue'
 import Cookies from 'js-cookie'
+import { decryptData } from '../utils/crypto'
 import { useStore } from 'vuex'
 import axiosInstance from '../axios'
 import DropdownFinance from './DropdownFinance.vue'
+import FileSaver from 'file-saver'
+import ExcelJS from 'exceljs'
 
 // Define props
 const props = defineProps({
@@ -259,14 +279,14 @@ const props = defineProps({
 		type: String,
 		default: '',
 	},
-  filters: {
-    type: [Array, null],
-    default: () => [],
-  },
-  options: {
-    type: Object,
-    default: () => ({}),
-  },
+	filters: {
+		type: [Array, null],
+		default: () => [],
+	},
+	options: {
+		type: Object,
+		default: () => ({}),
+	},
 })
 
 DataTable.use(DataTablesCore)
@@ -279,10 +299,10 @@ DataTable.use(RowGroup)
 const isFiltersOpen = ref(true)
 const table = ref()
 let dt
-const bearerToken = Cookies.get('token') || ''
+const bearerToken = decryptData(Cookies.get('token')) || ''
 const store = useStore()
-const filterValues = ref({});
-const baseUrl = import.meta.env.VITE_BASE_URL;
+const filterValues = ref({})
+const baseUrl = import.meta.env.VITE_BASE_URL
 
 onMounted(() => {
 	dt = table.value.dt
@@ -298,22 +318,32 @@ const onSearch = (event: Event) => {
 }
 // function to reload data in datatable
 const reloadData = () => {
-  if (dt) {
-    dt.ajax.reload(null, false);
-  }
-};
-watch(filterValues, () => {
-  if (dt) dt.ajax.reload(null, false); // Reload DataTable on filter change
-}, { deep: true });
-watch(() => props.filters, () => {
-  filterValues.value = props.filters.reduce((acc, filter) => {
-	if (filter.type == 'selectRangeFinance') {
-		return '';
+	if (dt) {
+		dt.ajax.reload(null, false)
 	}
-	acc[filter.name] = filter.options[0].value;
-	return acc;
-  }, {} as Record<string, string>);
-});
+}
+watch(
+	filterValues,
+	() => {
+		if (dt) dt.ajax.reload(null, false) // Reload DataTable on filter change
+	},
+	{ deep: true }
+)
+watch(
+	() => props.filters,
+	() => {
+		filterValues.value = props.filters.reduce(
+			(acc, filter) => {
+				if (filter.type == 'selectRangeFinance') {
+					return ''
+				}
+				acc[filter.name] = filter.options[0].value
+				return acc
+			},
+			{} as Record<string, string>
+		)
+	}
+)
 
 // function to delete data by id
 const deleteData = (id: string) => {
@@ -374,27 +404,27 @@ const deleteData = (id: string) => {
 
 // Define ajax options in a computed property
 const ajaxOptions = computed(() => ({
-  url: baseUrl + props.ajaxPath,
-  type: "GET",
-  cache: true,
-  headers: {
-    Authorization: `Bearer ${bearerToken}`,
-    "Content-Type": "application/json",
-  },
-  data: (d) => {
-    for (const key in filterValues.value) {
-      if (filterValues.value[key] !== "") {
-        d[key] = filterValues.value[key];
-      }
-    }
-  },
-  dataSrc: (json) => {
-    json.data = json.data.map((item, index) => {
-      if (props.columns.find((col) => col.data === "no")) {
-        item.no = index + 1;
-      }
-      if (props.columns.find((col) => col.data === "action")) {
-        let actionHtml = '<div class="flex gap-2">';
+	url: baseUrl + props.ajaxPath,
+	type: 'GET',
+	cache: true,
+	headers: {
+		Authorization: `Bearer ${bearerToken}`,
+		'Content-Type': 'application/json',
+	},
+	data: (d) => {
+		for (const key in filterValues.value) {
+			if (filterValues.value[key] !== '') {
+				d[key] = filterValues.value[key]
+			}
+		}
+	},
+	dataSrc: (json) => {
+		json.data = json.data.map((item, index) => {
+			if (props.columns.find((col) => col.data === 'no')) {
+				item.no = index + 1
+			}
+			if (props.columns.find((col) => col.data === 'action')) {
+				let actionHtml = '<div class="flex gap-2">'
 
 				// Info button
 				if (props.infoPath && props.infoPath !== '') {
@@ -466,27 +496,29 @@ const options = computed(() => ({
 		startRender: (rows, group) => {
 			const totalDebit = rows
 				.data()
-				.reduce((sum, row) => sum + parseFloat(row.debit || 0), 0);
+				.reduce((sum, row) => sum + parseFloat(row.debit || 0), 0)
 			const totalCredit = rows
 				.data()
-				.reduce((sum, row) => sum + parseFloat(row.credit || 0), 0);
-			
+				.reduce((sum, row) => sum + parseFloat(row.credit || 0), 0)
+
 			// get thead Datatable columns width
-			const thead = document.querySelector('thead');
-			const theadColumns = thead.querySelectorAll('th');
-			const theadColumnsWidth = Array.from(theadColumns).map((col) => col.offsetWidth);
-			console.log(JSON.stringify(theadColumnsWidth));
-			var newthead = "";
-			var outerIndex = 0;
+			const thead = document.querySelector('thead')
+			const theadColumns = thead.querySelectorAll('th')
+			const theadColumnsWidth = Array.from(theadColumns).map(
+				(col) => col.offsetWidth
+			)
+			console.log(JSON.stringify(theadColumnsWidth))
+			var newthead = ''
+			var outerIndex = 0
 			props.columns.forEach((col) => {
 				if (col.bVisible == undefined) {
-					col.bVisible = true;
+					col.bVisible = true
 				}
 				if (col.bVisible == false) {
-				}else {
-					newthead += `<th style="width:${theadColumnsWidth[outerIndex++]}px;">${col.title.replace('_', ' ').toUpperCase()}</th>`;
+				} else {
+					newthead += `<th style="width:${theadColumnsWidth[outerIndex++]}px;">${col.title.replace('_', ' ').toUpperCase()}</th>`
 				}
-			});
+			})
 
 			return `
 			<table class="w-full dt-scroll-head">
@@ -496,7 +528,7 @@ const options = computed(() => ({
 					</tr>
 				</thead>
 				<tbody>
-				<tr class="group-header" data-group="${group}" style="color:#b6848a">
+				<tr class="group-header" data-group="${group}" style="color:#b6848a;">
 					<td colspan="1" class="text-start" style="padding: 10px 30px 10px 10px;">
 						<div class="flex gap-2">
 							<strong>${group}</strong>
@@ -509,30 +541,110 @@ const options = computed(() => ({
 				</tr>
 				</tbody>
 			</table>
-			`;
+			`
 		},
 	},
 }))
 const handleRangeSelected = (range) => {
-	console.log('selected');
-    console.log(range);
-	filterValues.value.dateStart = range.start;
-	filterValues.value.dateEnd = range.end;
+	console.log('selected')
+	console.log(range)
+	filterValues.value.dateStart = range.start
+	filterValues.value.dateEnd = range.end
+}
+const exportTable = async () => {
+	const data = dt.rows().data().toArray();
+	const workbook = new ExcelJS.Workbook();
+	const worksheet = workbook.addWorksheet('Exported Data');
+
+	// Get all column indexes
+	const columns = dt.settings()[0].aoColumns;
+
+	// Filter visible columns and prepare for date handling
+	const visibleColumns = dt.columns().header().toArray().map((header, index) => ({
+		header: header.innerText,
+		key: columns[index].data,
+		index: index,
+		hiddenExport: columns[index].hiddenExport || false,
+		type: columns[index].type || null, // Ensure type is stored
+	})).filter(col => !col.hiddenExport && col.header !== "Action");
+
+	// Identify which columns are dates
+	const dateColumns = new Set(visibleColumns.filter(col => col.type === 'date').map(col => col.header));
+
+	// Add headers
+	worksheet.addRow(visibleColumns.map(col => col.header));
+
+	// Define column widths
+	worksheet.columns = visibleColumns.map(col => ({
+		header: col.header,
+		key: col.header,
+		width: 20,
+	}));
+
+	// Add rows with formatted dates
+	data.forEach(row => {
+		let filteredRow = {};
+
+		visibleColumns.forEach(col => {
+			let value = row[col.key];
+
+			// Format date columns
+			if (dateColumns.has(col.header) && value) {
+				value = new Date(value);
+			}
+
+			filteredRow[col.header] = value;
+		});
+
+		const rowData = worksheet.addRow(filteredRow);
+
+		// Apply Excel date formatting
+		rowData.eachCell((cell, colNumber) => {
+			if (dateColumns.has(visibleColumns[colNumber - 1].header)) {
+				cell.numFmt = 'dd/mm/yyyy';
+			}
+		});
+	});
+
+	// Add footer row if needed
+	if (props.totalFooter) {
+		const footer = dt.columns().footer().toArray().map((footer, index) =>
+			!columns[index].hiddenExport ? footer.innerText : null
+		).filter(value => value !== null);
+
+		worksheet.addRow(footer);
+	}
+
+	// Generate and save file
+	const buffer = await workbook.xlsx.writeBuffer();
+	const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+
+	const filename = `${Date.now()}_${window.location.pathname.split('/').pop().replace(/-/g, '_')}.xlsx`;
+	FileSaver.saveAs(blob, filename);
 };
 </script>
 <style>
-@import "datatables.net-dt";
+@import 'datatables.net-dt';
 .dt-search {
-  display: none !important;
+	display: none !important;
 }
 tbody > tr:nth-child(odd) > td {
-  background-color: #ffffff !important;
-  border: none !important;
-  box-shadow: none !important;
+	background-color: #ffffff !important;
+	border: none !important;
+	box-shadow: none !important;
 }
 tbody > tr:nth-child(even) > td {
-  background-color: #fcf8f5 !important;
-  border: none !important;
-  box-shadow: none !important;
+	background-color: #fcf8f5 !important;
+	border: none !important;
+	box-shadow: none !important;
 }
+
+table.dataTable tbody tr.group-header {
+    background-color: #f5e1e4 !important;
+    color: #b6848a !important;
+    font-weight: bold;
+    border-bottom: 2px solid #b6848a;
+}
+
+
 </style>

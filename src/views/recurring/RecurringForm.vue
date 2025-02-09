@@ -10,10 +10,10 @@
 				<h1 class="text-xl text-pinkDark">
 					{{
 						mode === 'edit'
-							? 'Edit Miscellaneous Expenses'
+							? 'Edit Recurring Transaction'
 							: mode === 'add'
-								? 'Add Miscellaneous Expenses'
-								: 'Miscellaneous Expenses Detail'
+								? 'Add Recurring Transaction'
+								: 'Recurring Transaction Detail'
 					}}
 				</h1>
 				<div class="flex gap-4">
@@ -42,22 +42,28 @@
 			</div>
 			<!-- Form Basic Information -->
 			<FormSectionHeader
-				title="Basic Miscellaneous Expenses Information"
+				title="Basic Recurring Information"
 				icon="info"
 			/>
 			<div class="grid grid-cols-2 gap-3 mt-4">
 				<!-- First Grid -->
 				<div class="space-y-2">
-					<!-- Code -->
-					<InputForm
-						v-model="form.code"
-						id="code"
-						type="text"
-						label="Code"
-						placeholder="Code"
-						:readonly="true"
-						:error="formError.code"
-					/>
+					<!-- Type expense / income -->
+					<div>
+						<label
+							for="dropdown"
+							class="block text-sm text-grey-900 font-medium mb-1"
+						>
+							Type<span class="text-pinkDark">*</span>
+						</label>
+						<Dropdown :items="types" v-model="form.trans_type_id" />
+						<p
+							v-if="formError.trans_type_id"
+							class="text-pinkDark text-xs italic transition duration-300"
+						>
+							{{ formError.trans_type_id }}
+						</p>
+					</div>
 					<!-- Dropdown Accounts -->
 					<div>
 						<label
@@ -83,17 +89,63 @@
 							{{ formError.account_cash_id }}
 						</p>
 					</div>
+					<!-- Recurring Period -->
+					<div>
+						<label
+							for="dropdown"
+							class="block text-sm text-grey-900 font-medium mb-1"
+						>
+							Recurring Period<span class="text-pinkDark">*</span>
+						</label>
+						<Dropdown
+							v-if="form.recurring"
+							:items="recurringPeriod"
+							v-model="form.recurring_period_code"
+							placeholder="Select Recurring Period"
+							:multiple="false"
+							:searchable="false"
+							:disabled="mode === 'detail'"
+						/>
+						<p
+							v-if="formError.recurring_period_code"
+							class="text-pinkDark text-xs italic transition duration-300"
+						>
+							{{ formError.recurring_period_code }}
+						</p>
+					</div>
 				</div>
 				<!-- Second Grid -->
 				<div class="space-y-2">
+					<!-- Dropdown STORE -->
+					<div>
+						<label
+							for="dropdown"
+							class="block text-sm text-grey-900 font-medium mb-1"
+						>
+							Store<span class="text-pinkDark">*</span>
+						</label>
+						<Dropdown
+							:items="stores"
+							v-model="form.store_id"
+							placeholder="Select a store"
+							:multiple="false"
+							:searchable="true"
+							:disabled="mode === 'detail'"
+						/>
+						<p
+							v-if="formError.store_id"
+							class="text-pinkDark text-xs italic transition duration-300"
+						>
+							{{ formError.store_id }}
+						</p>
+					</div>
 					<!-- Open Date (DatePicker) -->
 					<InputForm
 						v-model="formattedDate"
 						id="trans_date"
 						type="date"
-						label="Transaction Date"
-						placeholder="Transaction Date Date"
-						:readonly="true"
+						label="Start Date"
+						placeholder="Date"
 						:error="formError.trans_date"
 					/>
 				</div>
@@ -132,64 +184,14 @@
 					/>
 				</div>
 			</div>
-			<FormSectionHeader
-				title="Recurring Setting"
-				icon="settings"
-				v-if="mode == 'add'"
-			/>
-			<div class="grid grid-cols-2 gap-3 mt-4" v-if="mode == 'add'">
-				<div class="space-y-2">
-					<!-- Recurring -->
-					<div>
-						<label
-							for="defect"
-							class="block text-sm text-grey-900 font-medium mb-1"
-						>
-							Recurring
-						</label>
-						<div
-							class="space-y-3 px-3 py-3 rounded-lg border border-pinkOrange border-opacity-25"
-						>
-							<!-- True or False -->
-							<div class="w-full">
-								<CheckboxForm
-									v-model="form.recurring"
-									label="Recurring ?"
-								/>
-							</div>
-
-							<!-- recurring_period -->
-							<label
-								for="defect"
-								class="block text-sm text-grey-900 font-medium mb-1"
-								v-if="form.recurring"
-							>
-								Recurring Period
-								<span class="text-pinkDark">*</span>
-							</label>
-							<Dropdown
-								v-if="form.recurring"
-								:items="recurringPeriod"
-								v-model="form.recurring_period_code"
-								placeholder="Select Recurring Period"
-								:multiple="false"
-								:searchable="false"
-								:disabled="mode === 'detail'"
-							/>
-						</div>
-					</div>
-				</div>
-				<div class="space-y-2"></div>
-			</div>
 		</form>
 	</div>
 </template>
 <script setup lang="ts">
-import { ref, onMounted, computed, readonly, watch } from 'vue'
+import { ref, onMounted, computed, readonly, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import Cookies from 'js-cookie'
-import { decryptData } from '../../utils/crypto'
 import axiosInstance from '../../axios'
 import PageTitle from '../../components/PageTitle.vue'
 import Dropdown from '../../components/Dropdown.vue'
@@ -199,15 +201,24 @@ import EdiTable from '../../components/EdiTable.vue'
 import TextareaForm from '../../components/TextareaForm.vue'
 import CheckboxForm from '../../components/form/CheckboxForm.vue'
 const smallMenu = computed(() => store.getters.smallMenu)
-
 const props = defineProps({
 	mode: { type: String, required: true },
-	trans_type_id: { type: Number, default: 1 },
-	pageTitle: { type: String, default: 'Miscellaneous Expenses Form' },
-	redirect: { type: String, default: '/finance/mexpenses' },
+	pageTitle: { type: String, default: 'Recurring Form' },
+	redirect: { type: String, default: '/finance/recurring' },
 })
 // Dropdown Items
 const accounts = ref([])
+const stores = ref([])
+const types = ref([
+	{
+		label: 'Expense',
+		id: 1,
+	},
+	{
+		label: 'Income',
+		id: 2,
+	},
+])
 const columns = ref([
 	{ label: 'Amount', key: 'amount', type: 'number', required: true },
 	{ label: 'Description', key: 'description', type: 'text' },
@@ -233,9 +244,10 @@ const form = ref({
 	description: '',
 	trans_date: '',
 	accounts: [],
-	trans_type_id: props.trans_type_id,
-	recurring: false,
+	trans_type_id: '',
+	recurring: true,
 	recurring_period_code: '',
+	store_id: '',
 })
 const formCopy = ref({ ...form.value })
 const formError = ref({
@@ -247,6 +259,8 @@ const formError = ref({
 	accounts: '',
 	recurring: '',
 	recurring_period_code: '',
+	trans_type_id: '',
+	store_id: '',
 })
 const recurringPeriod = ref({})
 
@@ -256,7 +270,7 @@ const store = useStore()
 const id = router.currentRoute.value.params.id
 
 onMounted(async () => {
-	// get accounts
+	// GET ACCOUNTS
 	var response = await axiosInstance.get('/finance/account')
 	var allAccounts = response.data.data
 	var ownedAccountsKas = response.data.data.filter(
@@ -280,6 +294,13 @@ onMounted(async () => {
 		items: accAll,
 		required: true,
 	})
+	// GET ALL STORES
+	var storeData = await axiosInstance.get('/master/store')
+	var storesFormated = storeData.data.data.map((store) => ({
+		label: store.name,
+		id: store.id,
+	}))
+	stores.value = storesFormated
 
 	// MOUNT UPDATED DATA
 	if (props.mode != 'add' && id) {
@@ -304,25 +325,6 @@ onMounted(async () => {
 		form.value.account_cash_id = [form.value.account_cash_id]
 	}
 
-	// SET FORM CODE
-	if (props.mode == 'add') {
-		// Set form code
-		var userdata = decryptData(Cookies.get('userdata'))
-		var store_id = ''
-		if (userdata.store > 0) {
-			store_id = userdata.store[0].id
-		}
-		var ajax = `/finance/trans-code?trans_type_id=${props.trans_type_id}`
-		if (store_id != '') {
-			ajax += `&store_id=${store_id}`
-		}
-		const response = await axiosInstance.get(ajax)
-		const transCode = response.data.data
-		form.value.code = transCode
-		// set form date to today
-		formattedDate.value = formatDate(new Date().toISOString().split('T')[0])
-	}
-
 	// GET ALL RECURRING PERIOD
 	var recper = await axiosInstance.get('/finance/recurring-period')
 	recurringPeriod.value = recper.data.data.map((rec) => ({
@@ -332,14 +334,14 @@ onMounted(async () => {
 })
 
 const mountUpdatedData = async () => {
-	const response = await axiosInstance.get(`/finance/transaction/${id}`)
+	const response = await axiosInstance.get(`/finance/recurring/${id}`)
 	const data = response.data.data
-	form.value.code = data.code
+	console.log('mount data', JSON.stringify(data))
 	form.value.total = Math.abs(data.total)
 	form.value.description = data.description
 	form.value.trans_date = formatDate(data.trans_date)
 	var tempaccounts = []
-	data.trans_details.forEach((details) => {
+	data.trans_details_recurring.forEach((details) => {
 		if (details.kas && details.kas == true) {
 			form.value.account_cash_id = [details.account_id]
 		} else {
@@ -350,7 +352,10 @@ const mountUpdatedData = async () => {
 			})
 		}
 	})
+	form.value.recurring_period_code = [data.recurring_period_code]
+	form.value.trans_type_id = [data.trans_type_id]
 	form.value.accounts = tempaccounts
+	form.value.store_id = [data.store_id]
 	formCopy.value.accounts = tempaccounts
 	formCopy.value = { ...form.value }
 }
@@ -376,7 +381,6 @@ const resetError = () => {
 const resetForm = async () => {
 	const response = await axiosInstance.get(`/finance/transaction/${id}`)
 	const data = response.data.data
-	form.value.code = data.code
 	form.value.total = Math.abs(data.total)
 	form.value.description = data.description
 	form.value.trans_date = formatDate(data.trans_date)
@@ -411,8 +415,8 @@ const submit = async () => {
 	try {
 		const endpoint =
 			props.mode === 'edit'
-				? `/finance/uang-keluar-masuk/${id}`
-				: '/finance/uang-keluar-masuk'
+				? `/finance/recurring/${id}`
+				: '/finance/recurring'
 		const method = props.mode === 'edit' ? 'put' : 'post'
 
 		form.value.accounts = form.value.accounts.map((account) => {
@@ -424,6 +428,12 @@ const submit = async () => {
 		if (form.value.recurring_period_code != '') {
 			form.value.recurring_period_code =
 				form.value.recurring_period_code[0]
+		}
+		if (form.value.store_id != '') {
+			form.value.store_id = form.value.store_id[0]
+		}
+		if (form.value.trans_type_id != '') {
+			form.value.trans_type_id = form.value.trans_type_id[0]
 		}
 		const response = await axiosInstance[method](endpoint, form.value)
 		console.log('submit response', response)
@@ -445,8 +455,12 @@ const submit = async () => {
 				props.mode === 'edit'
 					? `${props.redirect}/edit/${id}`
 					: props.redirect
+			console.log('the redirect', redirect)
+			await nextTick()
 			router.push(redirect)
-			mountUpdatedData()
+			if (props.mode === 'edit') {
+				mountUpdatedData()
+			}
 		}
 	} catch (error) {
 		console.log('error', error)
@@ -454,7 +468,9 @@ const submit = async () => {
 			account.account_id = [account.account_id]
 			return account
 		})
+		form.value.store_id = [form.value.store_id]
 		form.value.recurring_period_code = [form.value.recurring_period_code]
+		form.value.trans_type_id = [form.value.trans_type_id]
 		if (
 			error.response &&
 			error.response.data.statusCode.toString().startsWith('4')

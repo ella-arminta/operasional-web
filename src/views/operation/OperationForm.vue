@@ -15,7 +15,7 @@
 							: 'Store Detail'
 				"
 				:showResetButton="mode === 'edit' && hasUnsavedChanges"
-				:showSaveButton="mode !== 'view'"
+				:showSaveButton="mode !== 'detail'"
 				@reset="resetForm"
 			/>
 			<!-- Form Basic Information -->
@@ -42,7 +42,7 @@
 						type="text"
 						label="Name"
 						placeholder="Name"
-						:readonly="mode === 'view'"
+						:readonly="mode === 'detail'"
 						:error="formError.name"
 						required
 					/>
@@ -56,7 +56,7 @@
 						type="number"
 						label="Price"
 						placeholder="Price"
-						:readonly="mode === 'view'"
+						:readonly="mode === 'detail'"
 						:error="formError.price"
 						required
 					/>
@@ -67,7 +67,7 @@
 						type="text"
 						label="Unit of Measurement"
 						placeholder="Unit of Measurement"
-						:readonly="mode === 'view'"
+						:readonly="mode === 'detail'"
 						:error="formError.uom"
 						required
 					/>
@@ -80,7 +80,7 @@
 						id="description"
 						label="Description"
 						placeholder="Type your description..."
-						:readonly="mode === 'view'"
+						:readonly="mode === 'detail'"
 						:error="formError.description"
 					/>
 				</div>
@@ -93,6 +93,7 @@ import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import Cookies from 'js-cookie'
+import { decryptData } from '../../utils/crypto'
 import axiosInstance from '../../axios'
 import PageTitle from '../../components/PageTitle.vue'
 import InputForm from '../../components/InputForm.vue'
@@ -162,7 +163,7 @@ onMounted(async () => {
 			})
 		}
 	} else {
-		form.value.store_id = JSON.parse(Cookies.get('userdata')).store_id
+		form.value.store_id = decryptData(Cookies.get('userdata')).store_id
 	}
 })
 
@@ -197,7 +198,7 @@ const hasFullyFilled = computed(() => {
 })
 
 const submit = async () => {
-	if (props.mode === 'view') return
+	if (props.mode === 'detail') return
 	if (!hasFullyFilled.value && props.mode === 'add') {
 		store.dispatch('triggerAlert', {
 			type: 'warning',
