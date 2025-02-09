@@ -15,6 +15,7 @@
 				<h3 class="text-lg font-semibold ml-4">{{ alert.title }}</h3>
 				<button
 					@click="closeAlert"
+					v-if="alert.type != 'loading'"
 					class="absolute top-3 right-3 text-gray-400 hover:text-gray-600"
 				>
 					✖
@@ -60,6 +61,8 @@ export default {
 					return 'bg-green-100 text-green-600'
 				case 'info':
 					return 'bg-blue-100 text-blue-600'
+				case 'loading':
+					return 'bg-pinkDark text-white'
 				default:
 					return 'bg-gray-100 text-gray-600'
 			}
@@ -74,6 +77,8 @@ export default {
 					return 'fas fa-check-circle'
 				case 'info':
 					return 'fas fa-info-circle'
+				case 'loading':
+					return 'fas fa-spinner fa-spin animate-spin'
 				default:
 					return 'fas fa-bell'
 			}
