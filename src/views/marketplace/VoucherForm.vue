@@ -131,6 +131,13 @@ const submit = async () => {
 
         // Convert data before submission
         const formData = { ...form.value }
+
+        // Convert numeric values from string to number
+        formData.discount_amount = Number(formData.discount_amount)
+        formData.max_discount = Number(formData.max_discount)
+        formData.minimum_purchase = Number(formData.minimum_purchase)
+        formData.poin_price = Number(formData.poin_price)
+
         formData.is_active = formData.is_active === "true" || formData.is_active === true
 
         const response = await axiosInstance[method](url, formData, { headers })
@@ -151,6 +158,7 @@ const submit = async () => {
         })
     }
 }
+
 
 onMounted(async () => {
     if (mode.value !== 'add' && id.value) {
