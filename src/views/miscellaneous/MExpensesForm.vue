@@ -27,7 +27,7 @@
 						Reset
 					</button>
 					<button
-						v-if="mode !== 'view'"
+						v-if="mode !== 'detail'"
 						class="flex items-center bg-pinkMed text-white px-4 py-2 rounded-lg gap-1 align-center hover:bg-pinkDark transition duration-300"
 						:class="{
 							'cursor-not-allowed disabled hover:bg-pinkMed ':
@@ -74,7 +74,7 @@
 							placeholder="Select an account"
 							:multiple="false"
 							:searchable="true"
-							:disabled="mode === 'view'"
+							:disabled="mode === 'detail'"
 						/>
 						<p
 							v-if="formError.account_cash_id"
@@ -116,7 +116,7 @@
 						id="description"
 						label="description"
 						placeholder="description"
-						:readonly="mode === 'view'"
+						:readonly="mode === 'detail'"
 					/>
 				</div>
 				<!-- Second Grid -->
@@ -132,7 +132,11 @@
 					/>
 				</div>
 			</div>
-			<FormSectionHeader title="Recurring Setting" icon="settings" v-if="mode == 'add'" />
+			<FormSectionHeader
+				title="Recurring Setting"
+				icon="settings"
+				v-if="mode == 'add'"
+			/>
 			<div class="grid grid-cols-2 gap-3 mt-4" v-if="mode == 'add'">
 				<div class="space-y-2">
 					<!-- Recurring -->
@@ -148,7 +152,10 @@
 						>
 							<!-- True or False -->
 							<div class="w-full">
-								<CheckboxForm v-model="form.recurring" label="Recurring ?" />
+								<CheckboxForm
+									v-model="form.recurring"
+									label="Recurring ?"
+								/>
 							</div>
 
 							<!-- recurring_period -->
@@ -157,7 +164,8 @@
 								class="block text-sm text-grey-900 font-medium mb-1"
 								v-if="form.recurring"
 							>
-								Recurring Period <span class="text-pinkDark">*</span>
+								Recurring Period
+								<span class="text-pinkDark">*</span>
 							</label>
 							<Dropdown
 								v-if="form.recurring"
@@ -166,13 +174,12 @@
 								placeholder="Select Recurring Period"
 								:multiple="false"
 								:searchable="false"
-								:disabled="mode === 'view'"
+								:disabled="mode === 'detail'"
 							/>
 						</div>
 					</div>
 				</div>
-				<div class="space-y-2">
-				</div>
+				<div class="space-y-2"></div>
 			</div>
 		</form>
 	</div>
@@ -202,7 +209,7 @@ const props = defineProps({
 // Dropdown Items
 const accounts = ref([])
 const columns = ref([
-	{ label: 'Amount', key: 'amount', type: 'number', required:true },
+	{ label: 'Amount', key: 'amount', type: 'number', required: true },
 	{ label: 'Description', key: 'description', type: 'text' },
 ])
 
@@ -249,7 +256,7 @@ const store = useStore()
 const id = router.currentRoute.value.params.id
 
 onMounted(async () => {
-	// get accounts 
+	// get accounts
 	var response = await axiosInstance.get('/finance/account')
 	var allAccounts = response.data.data
 	var ownedAccountsKas = response.data.data.filter(
@@ -265,10 +272,14 @@ onMounted(async () => {
 		label: account.name,
 		id: account.id,
 	}))
-	accounts.value = acc;
-	columns.value.unshift(
-		{ label: 'Account', key: 'account_id', type: 'dropdown', items: accAll, required:true },
-	)
+	accounts.value = acc
+	columns.value.unshift({
+		label: 'Account',
+		key: 'account_id',
+		type: 'dropdown',
+		items: accAll,
+		required: true,
+	})
 
 	// MOUNT UPDATED DATA
 	if (props.mode != 'add' && id) {
@@ -395,7 +406,7 @@ const hasUnsavedChanges = computed(() => {
 
 const submit = async () => {
 	resetError()
-	if (props.mode === 'view') return
+	if (props.mode === 'detail') return
 	if (!hasUnsavedChanges.value && props.mode === 'edit') return
 	try {
 		const endpoint =
@@ -405,11 +416,14 @@ const submit = async () => {
 		const method = props.mode === 'edit' ? 'put' : 'post'
 
 		form.value.accounts = form.value.accounts.map((account) => {
-			account.account_id = account.account_id ? account.account_id[0] : null;
+			account.account_id = account.account_id
+				? account.account_id[0]
+				: null
 			return account
 		})
 		if (form.value.recurring_period_code != '') {
-			form.value.recurring_period_code = form.value.recurring_period_code[0]
+			form.value.recurring_period_code =
+				form.value.recurring_period_code[0]
 		}
 		const response = await axiosInstance[method](endpoint, form.value)
 		console.log('submit response', response)
@@ -441,24 +455,27 @@ const submit = async () => {
 			return account
 		})
 		form.value.recurring_period_code = [form.value.recurring_period_code]
-		if (error.response && error.response.data.statusCode.toString().startsWith('4')) {
-			const errors = error.response.data.errors || [];
-			console.log('the errors hehe', errors);
+		if (
+			error.response &&
+			error.response.data.statusCode.toString().startsWith('4')
+		) {
+			const errors = error.response.data.errors || []
+			console.log('the errors hehe', errors)
 
-			let errormessagelist = errors.map(err => `- ${err.message}`).join('<br>');
+			let errormessagelist = errors
+				.map((err) => `- ${err.message}`)
+				.join('<br>')
 
 			errors.forEach((err) => {
-				formError.value[err.field] = err.message;
-			});
+				formError.value[err.field] = err.message
+			})
 
 			store.dispatch('triggerAlert', {
 				type: 'error',
 				title: `Transaction ${props.mode === 'edit' ? 'update' : 'creation'} failed!`,
 				message: errormessagelist,
-			});
-
-
-		} else  {
+			})
+		} else {
 			store.dispatch('triggerAlert', {
 				type: 'error',
 				title: 'Error!',

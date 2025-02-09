@@ -15,7 +15,7 @@
 							: 'Company Detail'
 				"
 				:showResetButton="mode === 'edit' && hasUnsavedChanges"
-				:showSaveButton="mode !== 'view'"
+				:showSaveButton="mode !== 'detail'"
 				@reset="resetForm"
 			/>
 			<FormSectionHeader title="Basic Company Information" icon="info" />
@@ -29,7 +29,7 @@
 						placeholder="Code"
 						required
 						:error="formError.code"
-						:readonly="mode === 'view'"
+						:readonly="mode === 'detail'"
 					/>
 					<!-- Name -->
 					<InputForm
@@ -39,7 +39,7 @@
 						placeholder="Name"
 						required
 						:error="formError.name"
-						:readonly="mode === 'view'"
+						:readonly="mode === 'detail'"
 					/>
 				</div>
 
@@ -51,7 +51,7 @@
 						label="Description"
 						placeholder="Description"
 						:error="formError.description"
-						:readonly="mode === 'view'"
+						:readonly="mode === 'detail'"
 					/>
 				</div>
 			</div>

@@ -15,7 +15,7 @@
 							: 'Store Detail'
 				"
 				:showResetButton="mode === 'edit' && hasUnsavedChanges"
-				:showSaveButton="mode !== 'view'"
+				:showSaveButton="mode !== 'detail'"
 				@reset="resetForm"
 			/>
 			<!-- Form Basic Information -->
@@ -30,7 +30,7 @@
 						type="text"
 						label="Code"
 						placeholder="Code"
-						:readonly="mode === 'view'"
+						:readonly="mode === 'detail'"
 						:error="formError.code"
 						required
 					/>
@@ -41,7 +41,7 @@
 						type="text"
 						label="Name"
 						placeholder="Name"
-						:readonly="mode === 'view'"
+						:readonly="mode === 'detail'"
 						:error="formError.name"
 						required
 					/>
@@ -59,7 +59,7 @@
 							placeholder="Select a company"
 							:multiple="false"
 							:searchable="true"
-							:disabled="mode === 'view'"
+							:disabled="mode === 'detail'"
 							:addRoute="'/master/company/add'"
 						/>
 						<p
@@ -76,7 +76,7 @@
 						type="date"
 						label="Open Date"
 						placeholder="Open Date"
-						:readonly="mode === 'view'"
+						:readonly="mode === 'detail'"
 						:error="formError.open_date"
 						required
 					/>
@@ -90,7 +90,7 @@
 						type="text"
 						label="NPWP"
 						placeholder="NPWP"
-						:readonly="mode === 'view'"
+						:readonly="mode === 'detail'"
 						:error="formError.npwp"
 						required
 					/>
@@ -100,7 +100,7 @@
 						id="address"
 						label="Address"
 						placeholder="Address"
-						:readonly="mode === 'view'"
+						:readonly="mode === 'detail'"
 						:error="formError.address"
 						required
 					/>
@@ -118,12 +118,12 @@
 							type="button"
 							@click="openModal"
 							:class="{
-								'bg-opacity-25': mode === 'view',
+								'bg-opacity-25': mode === 'detail',
 							}"
 						>
 							{{
 								form.latitude && form.longitude
-									? mode === 'view'
+									? mode === 'detail'
 										? 'View Location'
 										: 'Change Location'
 									: 'Select a Location'
@@ -150,7 +150,7 @@
 
 						<ImageUpload
 							v-model="form.logo"
-							:readonly="mode === 'view'"
+							:readonly="mode === 'detail'"
 							:uploadFile="'/upload-logo'"
 						/>
 						<p
@@ -166,7 +166,7 @@
 						id="description"
 						label="Description"
 						placeholder="Type your description..."
-						:readonly="mode === 'view'"
+						:readonly="mode === 'detail'"
 						:error="formError.description"
 					/>
 				</div>
@@ -182,7 +182,7 @@
 					<ToggleForm
 						v-model="form.is_active"
 						label="Active Status"
-						:disabled="mode === 'view'"
+						:disabled="mode === 'detail'"
 					/>
 					<!-- Tax Percentage -->
 					<InputForm
@@ -191,20 +191,20 @@
 						type="number"
 						label="Tax Percentage (%)"
 						placeholder="Tax Percentage (%)"
-						:readonly="mode === 'view'"
+						:readonly="mode === 'detail'"
 						:error="formError.tax_percentage"
 					/>
 					<!-- Flexible Price -->
 					<ToggleForm
 						v-model="form.is_flex_price"
 						label="Flexible Sold Product Price"
-						:disabled="mode === 'view'"
+						:disabled="mode === 'detail'"
 					/>
 					<!-- Floating Price -->
 					<ToggleForm
 						v-model="form.is_float_price"
 						label="Floating Product Price"
-						:disabled="mode === 'view'"
+						:disabled="mode === 'detail'"
 					/>
 					<!-- Marketplace poin -->
 					<InputForm
@@ -213,7 +213,7 @@
 						type="number"
 						label="Marketplace Poin"
 						placeholder="Marketplace Poin"
-						:readonly="mode === 'view'"
+						:readonly="mode === 'detail'"
 						:error="formError.poin_config"
 					/>
 				</div>
@@ -236,7 +236,7 @@
 								type="number"
 								label="Defect Nominal (Rp)"
 								placeholder="Defect Nominal (Rp)"
-								:readonly="mode === 'view'"
+								:readonly="mode === 'detail'"
 								:error="formError.defect_nominal"
 							/>
 							<!-- Defect Percentage -->
@@ -246,7 +246,7 @@
 								type="number"
 								label="Defect Percentage (%)"
 								placeholder="Defect Percentage (%)"
-								:readonly="mode === 'view'"
+								:readonly="mode === 'detail'"
 								:error="formError.defect_percentage"
 							/>
 						</div>
@@ -269,7 +269,7 @@
 								type="number"
 								label="Discount (%) in minimum Trade in"
 								placeholder="Discount (%) in minimum Trade in"
-								:readonly="mode === 'view'"
+								:readonly="mode === 'detail'"
 								:error="formError.discount_trade"
 							/>
 							<!-- Defect Percentage -->
@@ -279,7 +279,7 @@
 								type="number"
 								label="Discount (%) in minimum KBL"
 								placeholder="Discount (%) in minimum KBL"
-								:readonly="mode === 'view'"
+								:readonly="mode === 'detail'"
 								:error="formError.discount_kbl"
 							/>
 						</div>
@@ -302,7 +302,7 @@
 								type="number"
 								label="Discount (%) in minimum Trade in"
 								placeholder="Discount (%) in minimum Trade in"
-								:readonly="mode === 'view'"
+								:readonly="mode === 'detail'"
 								:error="formError.adjustment_price_trade"
 							/>
 							<!-- Defect Percentage -->
@@ -312,7 +312,7 @@
 								type="number"
 								label="Discount (%) in minimum KBL"
 								placeholder="Discount (%) in minimum KBL"
-								:readonly="mode === 'view'"
+								:readonly="mode === 'detail'"
 								:error="formError.adjustment_price_kbl"
 							/>
 						</div>
@@ -573,7 +573,7 @@ const hasFullyFilled = computed(() => {
 })
 
 const submit = async () => {
-	if (props.mode === 'view') return
+	if (props.mode === 'detail') return
 	if (!hasFullyFilled.value && props.mode === 'add') {
 		store.dispatch('triggerAlert', {
 			type: 'warning',

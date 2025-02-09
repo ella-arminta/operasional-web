@@ -15,7 +15,7 @@
 							: 'Price Detail'
 				"
 				:showResetButton="mode === 'edit' && hasUnsavedChanges"
-				:showSaveButton="mode !== 'view'"
+				:showSaveButton="mode !== 'detail'"
 				@reset="resetForm"
 			/>
 			<FormSectionHeader title="Basic Price Information" icon="info" />
@@ -48,8 +48,8 @@
 							placeholder="Select a category to modify"
 							:multiple="false"
 							:searchable="true"
-							:disabled="mode === 'view'"
-							:addRoute="'/master/company/add'"
+							:disabled="mode === 'detail'"
+							:addRoute="'/master/category/add'"
 						/>
 						<p
 							v-if="formError.company_id"

@@ -347,7 +347,7 @@ const router = createRouter({
 	],
 })
 
-const loa = ['add', 'edit', 'delete', 'view']
+const loa = ['add', 'edit', 'delete', 'detail']
 
 router.beforeEach(async (to, from, next) => {
 	if (!to.matched.some((record) => record.meta.requiresAuth)) {
@@ -376,6 +376,7 @@ router.beforeEach(async (to, from, next) => {
 		const action = actionIndex >= 0 ? paths[actionIndex] : 'open'
 		const basePath =
 			actionIndex > 0 ? paths.slice(0, actionIndex).join('/') : to.path
+		console.log(basePath, action)
 
 		// Check if user has permission
 		const allowed = auth.some((item) => {

@@ -8,7 +8,7 @@
 			:reload="true"
 			:ajaxPath="'/inventory/price-category'"
 			:deletePath="'/inventory/bulk-price'"
-			:infoPath="'/master/price/view'"
+			:infoPath="'/master/price/detail'"
 		/>
 	</div>
 </template>

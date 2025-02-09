@@ -27,7 +27,7 @@
 						Reset
 					</button>
 					<button
-						v-if="mode !== 'view'"
+						v-if="mode !== 'detail'"
 						class="flex items-center bg-pinkMed text-white px-4 py-2 rounded-lg gap-1 align-center hover:bg-pinkDark transition duration-300"
 						:class="{
 							'cursor-not-allowed disabled hover:bg-pinkMed ':
@@ -84,7 +84,7 @@
 							placeholder="Select an account"
 							:multiple="false"
 							:searchable="true"
-							:disabled="mode === 'view'"
+							:disabled="mode === 'detail'"
 						/>
 						<p
 							v-if="formError.account_id"
@@ -199,7 +199,7 @@
 							placeholder="Select an account"
 							:multiple="false"
 							:searchable="true"
-							:disabled="mode === 'view'"
+							:disabled="mode === 'detail'"
 						/>
 						<p
 							v-if="formError.account_pusat_id"
@@ -409,7 +409,7 @@ const hasUnsavedChanges = computed(() => {
 
 const submit = async () => {
 	resetError()
-	if (props.mode === 'view') return
+	if (props.mode === 'detail') return
 	if (!hasUnsavedChanges.value && props.mode === 'edit') return
 	try {
 		const endpoint =
@@ -442,10 +442,9 @@ const submit = async () => {
 					? `${props.redirect}/edit/${id}`
 					: props.redirect
 			router.push(redirect)
-			if (props.mode === 'edit'){
+			if (props.mode === 'edit') {
 				mountUpdatedData()
 			}
-		
 		}
 	} catch (error) {
 		console.log('error', error)

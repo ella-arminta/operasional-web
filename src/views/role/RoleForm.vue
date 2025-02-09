@@ -15,7 +15,7 @@
 							: 'Role Detail'
 				"
 				:showResetButton="mode === 'edit' && hasUnsavedChanges"
-				:showSaveButton="mode !== 'view'"
+				:showSaveButton="mode !== 'detail'"
 				@reset="resetForm"
 			/>
 			<FormSectionHeader title="Basic Role Information" icon="info" />
@@ -31,7 +31,7 @@
 						placeholder="Name"
 						required
 						:error="formError.name"
-						:readonly="mode === 'view'"
+						:readonly="mode === 'detail'"
 					/>
 				</div>
 				<div>
@@ -48,7 +48,7 @@
 							placeholder="Select a company"
 							:multiple="false"
 							:searchable="true"
-							:disabled="mode === 'view'"
+							:disabled="mode === 'detail'"
 							:addRoute="'/master/company/add'"
 						/>
 						<p
@@ -73,7 +73,7 @@
 							placeholder="Select stores"
 							:multiple="mode === 'add'"
 							:searchable="true"
-							:disabled="mode === 'view'"
+							:disabled="mode === 'detail'"
 							:addRoute="'/master/store/add'"
 						/>
 						<p

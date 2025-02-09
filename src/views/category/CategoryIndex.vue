@@ -9,7 +9,7 @@
 			:ajaxPath="'/inventory/category'"
 			:editPath="'/master/category/edit'"
 			:deletePath="'/inventory/category'"
-			:infoPath="'/master/category/view'"
+			:infoPath="'/master/category/detail'"
 		/>
 	</div>
 </template>

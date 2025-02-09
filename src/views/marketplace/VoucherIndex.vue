@@ -9,7 +9,7 @@
 			:ajaxPath="`/transaction/voucher/${storeId}/store`"
 			:editPath="'/marketplace/voucher/edit'"
 			:deletePath="'/transaction/voucher'"
-			:infoPath="'/marketplace/voucher/view'"
+			:infoPath="'/marketplace/voucher/detail'"
 		/>
 	</div>
 </template>

@@ -15,7 +15,7 @@
 					:showResetButton="
 						mode === 'edit' && hasUnsavedChanges.value
 					"
-					:showSaveButton="mode !== 'view'"
+					:showSaveButton="mode !== 'detail'"
 					@reset="resetForm"
 				/>
 				<FormSectionHeader
@@ -43,7 +43,7 @@
 							placeholder="Name"
 							required
 							:error="formError.name"
-							:readonly="mode === 'view'"
+							:readonly="mode === 'detail'"
 						/>
 						<!-- Category -->
 						<div>
@@ -59,7 +59,7 @@
 								placeholder="Select a category"
 								:multiple="false"
 								:searchable="true"
-								:disabled="mode === 'view'"
+								:disabled="mode === 'detail'"
 								:addRoute="'/master/category/add'"
 							/>
 							<p
@@ -83,7 +83,7 @@
 								placeholder="Select a type"
 								:multiple="false"
 								:searchable="true"
-								:disabled="mode === 'view'"
+								:disabled="mode === 'detail'"
 								:addRoute="`/master/category/view/${form.category_id}`"
 							/>
 							<p
@@ -141,7 +141,7 @@
 										v-model="
 											form.images[startIndex + index]
 										"
-										:readonly="mode === 'view'"
+										:readonly="mode === 'detail'"
 										:uploadFile="'/upload-product'"
 									/>
 								</div>
@@ -163,7 +163,7 @@
 
 							<!-- Add Image Button (only on last page) -->
 							<button
-								v-if="mode !== 'view' && isLastPage"
+								v-if="mode !== 'detail' && isLastPage"
 								@click="addImage"
 								type="button"
 								class="w-full px-4 py-2 bg-pinkDark text-white rounded-lg hover:bg-pinkDarker transition duration-300 mt-2"
@@ -186,7 +186,7 @@
 							label="Description"
 							placeholder="Description"
 							:error="formError.description"
-							:readonly="mode === 'view'"
+							:readonly="mode === 'detail'"
 						/>
 					</div>
 				</div>

@@ -7,11 +7,11 @@
 					:title="
 						mode === 'edit'
 							? 'Edit Voucher'
-							: mode === 'view'
+							: mode === 'detail'
 								? 'Voucher Detail'
 								: 'Add Voucher'
 					"
-					:showSaveButton="mode !== 'view'"
+					:showSaveButton="mode !== 'detail'"
 				/>
 				<FormSectionHeader title="Voucher Information" icon="info" />
 
@@ -24,7 +24,7 @@
 						placeholder="Enter voucher name"
 						required
 						:error="formError.voucher_name"
-						:readonly="mode === 'view'"
+						:readonly="mode === 'detail'"
 					/>
 
 					<!-- Discount Amount -->
@@ -37,7 +37,7 @@
 							placeholder="Enter discount amount"
 							required
 							:error="formError.discount_amount"
-							:readonly="mode === 'view'"
+							:readonly="mode === 'detail'"
 						/>
 						<p class="text-sm text-gray-500 mt-1">
 							* Amount entered is in percentage (%)
@@ -53,7 +53,7 @@
 						placeholder="Enter max discount"
 						required
 						:error="formError.max_discount"
-						:readonly="mode === 'view'"
+						:readonly="mode === 'detail'"
 					/>
 
 					<!-- Minimum Purchase -->
@@ -65,7 +65,7 @@
 						placeholder="Enter minimum purchase"
 						required
 						:error="formError.minimum_purchase"
-						:readonly="mode === 'view'"
+						:readonly="mode === 'detail'"
 					/>
 
 					<!-- Poin Price -->
@@ -77,7 +77,7 @@
 						placeholder="Enter poin price"
 						required
 						:error="formError.poin_price"
-						:readonly="mode === 'view'"
+						:readonly="mode === 'detail'"
 					/>
 
 					<!-- Start Date -->
@@ -88,7 +88,7 @@
 						type="date"
 						required
 						:error="formError.start_date"
-						:readonly="mode === 'view'"
+						:readonly="mode === 'detail'"
 					/>
 
 					<!-- End Date -->
@@ -99,14 +99,14 @@
 						type="date"
 						required
 						:error="formError.end_date"
-						:readonly="mode === 'view'"
+						:readonly="mode === 'detail'"
 					/>
 
 					<!-- Active Status -->
 					<ToggleForm
 						v-model="form.is_active"
 						label="Active Status"
-						:disabled="mode === 'view'"
+						:disabled="mode === 'detail'"
 					/>
 
 					<!-- Description -->
@@ -116,13 +116,13 @@
 						label="Description"
 						placeholder="Enter voucher description"
 						:error="formError.description"
-						:readonly="mode === 'view'"
+						:readonly="mode === 'detail'"
 					/>
 				</div>
 
 				<!-- Show totalSold when in view mode -->
 				<div
-					v-if="mode === 'view'"
+					v-if="mode === 'detail'"
 					class="mt-6 p-4 bg-gray-100 rounded-lg shadow-sm"
 				>
 					<h3 class="text-lg font-semibold text-gray-700">
@@ -134,7 +134,7 @@
 				</div>
 
 				<button
-					v-if="mode !== 'view'"
+					v-if="mode !== 'detail'"
 					type="submit"
 					class="w-full mt-4 px-4 py-2 bg-pinkDark text-white rounded-lg hover:bg-pinkDarker transition duration-300"
 				>

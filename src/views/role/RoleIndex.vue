@@ -9,7 +9,9 @@
 			:ajaxPath="'/auth/role'"
 			:editPath="actions.includes('edit') ? '/settings/role/edit' : ''"
 			:deletePath="actions.includes('delete') ? '/auth/role' : ''"
-			:infoPath="actions.includes('detail') ? '/auth/role/view' : ''"
+			:infoPath="
+				actions.includes('detail') ? '/settings/role/detail' : ''
+			"
 		/>
 	</div>
 </template>
