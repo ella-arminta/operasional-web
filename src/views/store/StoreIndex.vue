@@ -3,22 +3,24 @@
 		<PageTitle />
 		<TableData
 			:columns="columns"
-			:addPath="'/master/store/add'"
+			:addPath="actions.includes('add') ? '/master/store/add' : ''"
 			:export="false"
 			:reload="true"
 			:ajaxPath="'/master/store'"
-			:editPath="'/master/store/edit'"
-			:deletePath="'/master/store'"
-			:infoPath="'/master/store/detail'"
+			:editPath="actions.includes('edit') ? '/master/store/edit' : ''"
+			:deletePath="actions.includes('delete') ? '/master/store' : ''"
+			:infoPath="actions.includes('detail') ? '/master/store/detail' : ''"
 		/>
 	</div>
 </template>
 
 <script setup lang="ts">
 import { useStore } from 'vuex'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '../../vuex/auth'
 import PageTitle from '../../components/PageTitle.vue'
 import TableData from '../../components/TableData.vue'
-import { computed } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 const store = useStore()
 const smallMenu = computed(() => store.getters.smallMenu)
 const columns = [
@@ -42,4 +44,16 @@ const columns = [
 		orderable: false,
 	},
 ]
+
+// META-ACTIONS RBAC
+const router = useRouter()
+const authStore = useAuthStore()
+const actions = ref([])
+onMounted(() => {
+	const currentPath = router.currentRoute.value.path
+	const path = authStore.allowedPaths.find(
+		(item) => item.path === currentPath
+	)
+	actions.value = path ? path.action : []
+})
 </script>

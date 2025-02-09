@@ -85,122 +85,136 @@
 					</div>
 				</div>
 			</div>
-			<FormSectionHeader title="Permission" icon="lock" />
-			<div class="w-full !rounded-md shadow-sm overflow-hidden">
-				<table class="w-full table-fixed">
-					<thead class="bg-pinkDark text-white">
-						<tr>
-							<th class="px-4 py-2 text-start" width="35%">
-								Pages
-							</th>
-							<th
-								v-for="head in header"
-								class="px-4 py-2 text-center"
-								width="15%"
-							>
-								{{ head.label }}
-							</th>
-						</tr>
-					</thead>
-					<tbody class="text-sm">
-						<tr
-							v-for="(feature, index) in features"
-							:key="index"
-							:class="
-								index % 2 === 0 ? 'bg-white' : 'bg-pinkGray'
-							"
-						>
-							<td class="px-4 py-2 border-r border-opacity-50">
-								{{ feature.path }}
-							</td>
-
-							<template
-								v-if="
-									feature.actions.some(
-										(action) => action.action === 'all'
-									)
+			<template v-if="mode !== 'add'">
+				<FormSectionHeader title="Permission" icon="lock" />
+				<div class="w-full !rounded-md shadow-sm overflow-hidden">
+					<table class="w-full table-fixed">
+						<thead class="bg-pinkDark text-white">
+							<tr>
+								<th class="px-4 py-2 text-start" width="35%">
+									Pages
+								</th>
+								<th
+									v-for="head in header"
+									class="px-4 py-2 text-center"
+									width="15%"
+								>
+									{{ head.label }}
+								</th>
+							</tr>
+						</thead>
+						<tbody class="text-sm">
+							<tr
+								v-for="(feature, index) in features"
+								:key="index"
+								:class="
+									index % 2 === 0 ? 'bg-white' : 'bg-pinkGray'
 								"
 							>
 								<td
-									class="px-4 py-2 text-center border-r border-opacity-50"
-									colspan="5"
+									class="px-4 py-2 border-r border-opacity-50"
 								>
-									<input
-										type="checkbox"
-										class="accent-pinkDark w-4 h-4 border-1 rounded-sm"
-										v-model="
-											feature.actions.find(
-												(action) =>
-													action.action === 'all'
-											).checked
-										"
-										:id="
-											feature.actions.find(
-												(action) =>
-													action.action === 'all'
-											).id
-										"
-										@click="
-											clickHandler(
-												feature.actions.find(
-													(action) =>
-														action.action === 'all'
-												).id,
-												!feature.actions.find(
-													(action) =>
-														action.action === 'all'
-												).checked
-											)
-										"
-									/>
+									{{ feature.path }}
 								</td>
-							</template>
-							<template v-else v-for="head in header">
-								<td
+
+								<template
 									v-if="
 										feature.actions.some(
-											(action) =>
-												action.action === head.key
+											(action) => action.action === 'all'
 										)
 									"
-									class="px-4 py-2 text-center border-r border-opacity-50"
 								>
-									<input
-										type="checkbox"
-										class="accent-pinkDark w-4 h-4 border-1 rounded-sm"
-										v-model="
-											feature.actions.find(
+									<td
+										class="px-4 py-2 text-center border-r border-opacity-50"
+										colspan="5"
+									>
+										<input
+											type="checkbox"
+											class="accent-pinkDark w-4 h-4 border-1 rounded-sm"
+											v-model="
+												feature.actions.find(
+													(action) =>
+														action.action === 'all'
+												).checked
+											"
+											:disabled="mode === 'detail'"
+											:id="
+												feature.actions.find(
+													(action) =>
+														action.action === 'all'
+												).id
+											"
+											@click="
+												clickHandler(
+													feature.actions.find(
+														(action) =>
+															action.action ===
+															'all'
+													).id,
+													!feature.actions.find(
+														(action) =>
+															action.action ===
+															'all'
+													).checked
+												)
+											"
+										/>
+									</td>
+								</template>
+								<template v-else v-for="head in header">
+									<td
+										v-if="
+											feature.actions.some(
 												(action) =>
 													action.action === head.key
-											).checked
+											)
 										"
-										:id="
-											feature.actions.find(
-												(action) =>
-													action.action === head.key
-											).id
-										"
-										@click="
-											clickHandler(
+										class="px-4 py-2 text-center border-r border-opacity-50"
+									>
+										<input
+											type="checkbox"
+											class="accent-pinkDark w-4 h-4 border-1 rounded-sm"
+											v-model="
 												feature.actions.find(
 													(action) =>
 														action.action ===
 														head.key
-												).id,
-												!feature.actions.find(
+												).checked
+											"
+											:disabled="mode === 'detail'"
+											:id="
+												feature.actions.find(
 													(action) =>
 														action.action ===
 														head.key
-												).checked
-											)
-										"
-									/>
-								</td>
-							</template>
-						</tr>
-					</tbody>
-				</table>
-			</div>
+												).id
+											"
+											@click="
+												clickHandler(
+													feature.actions.find(
+														(action) =>
+															action.action ===
+															head.key
+													).id,
+													!feature.actions.find(
+														(action) =>
+															action.action ===
+															head.key
+													).checked
+												)
+											"
+										/>
+									</td>
+									<td
+										v-else
+										class="px-4 py-2 text-center border-r border-opacity-50"
+									></td>
+								</template>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</template>
 		</form>
 	</div>
 </template>
@@ -325,6 +339,7 @@ const fetchFeatures = async () => {
 		const response = await axiosInstance.get(
 			`/auth/feature-role${id ? '/' + id : ''}`
 		)
+
 		if (response.data) {
 			const data = response.data.data
 			features.value = Object.values(
@@ -333,9 +348,17 @@ const fetchFeatures = async () => {
 						acc[path] = { path, actions: [] }
 					}
 					acc[path].actions.push({
-						...{ action, id, checked: roles.length > 0 },
+						...{
+							action,
+							id,
+							checked: roles.length > 0 && props.mode !== 'add',
+						},
 					})
-					if (roles.length > 0 && !form.value.features.includes(id)) {
+					if (
+						roles.length > 0 &&
+						!form.value.features.includes(id) &&
+						props.mode !== 'add'
+					) {
 						form.value.features.push(id)
 					}
 					return acc

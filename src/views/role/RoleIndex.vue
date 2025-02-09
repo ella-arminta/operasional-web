@@ -18,16 +18,13 @@
 
 <script setup lang="ts">
 import { useStore } from 'vuex'
+import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../vuex/auth'
 import PageTitle from '../../components/PageTitle.vue'
 import TableData from '../../components/TableData.vue'
 import { computed, ref, onMounted } from 'vue'
 const store = useStore()
-const authStore = useAuthStore()
 const smallMenu = computed(() => store.getters.smallMenu)
-
-// META-ACTIONS RBAC
-const actions = ref([])
 
 const columns = [
 	{ data: 'no', title: 'No', width: '5%' },
@@ -54,9 +51,15 @@ const columns = [
 		orderable: false,
 	},
 ]
+
+// META-ACTIONS RBAC
+const router = useRouter()
+const authStore = useAuthStore()
+const actions = ref([])
 onMounted(() => {
+	const currentPath = router.currentRoute.value.path
 	const path = authStore.allowedPaths.find(
-		(item) => item.path === '/settings/role'
+		(item) => item.path === currentPath
 	)
 	actions.value = path ? path.action : []
 })
