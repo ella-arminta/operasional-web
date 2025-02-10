@@ -218,11 +218,15 @@
 				</div>
 			</form>
 		</div>
-		<div class="w-full bg-white h-auto rounded-lg shadow-sm mt-4">
+		<div
+			class="w-full bg-white h-auto rounded-lg shadow-sm mt-4"
+			v-if="mode !== 'add'"
+		>
 			<h1 class="text-xl text-pinkDark font-bold pt-3 px-4">
 				Product Codes
 			</h1>
 			<TableData
+				ref="refTable"
 				:columns="columns"
 				:addPath="''"
 				:export="false"
@@ -260,7 +264,7 @@
 </style>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, toRaw, watch, nextTick } from 'vue'
+import { ref, onMounted, computed, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import Cookies from 'js-cookie'
@@ -274,8 +278,6 @@ import TextareaForm from '../../components/TextareaForm.vue'
 import FormSectionHeader from '../../components/FormSectionHeader.vue'
 import FormHeader from '../../components/FormHeader.vue'
 import Dropdown from '../../components/Dropdown.vue'
-import EditableCat from '../../components/EditableCat.vue'
-import { act } from 'react'
 import ImageUpload from '../../components/ImageUpload.vue'
 import TableData from '../../components/TableData.vue'
 
@@ -565,6 +567,7 @@ const formCode = ref({
 
 // submit generate code
 const generateCode = async () => {
+	console.log('refTable', refTable.value)
 	try {
 		const response = await axiosInstance.post(
 			`/inventory/generate-product-code/${id}`,
@@ -572,6 +575,7 @@ const generateCode = async () => {
 		)
 		if (response.data) {
 			showAlert('success', 'Success!', response.data.message)
+			refTable.value?.reloadData()
 			formCode.value.weight = 0
 		}
 	} catch (error) {
@@ -599,6 +603,9 @@ const showAlert = (
 	})
 }
 
+// Reload Child REF
+const refTable = ref(null)
+
 onMounted(async () => {
 	await fetchCategory()
 	if (props.mode !== 'add' && id) {
@@ -610,9 +617,7 @@ onMounted(async () => {
 			form.value.type_id = [form.value.type_id]
 			form.value.price = 0
 			formCopy.value = await JSON.parse(JSON.stringify(form.value))
-			console.log(form.value, formCopy.value)
 		} catch (error) {
-			console.error('Error fetching Product:', error)
 			showAlert('error', 'Error!', 'Failed to fetch Product data.')
 		}
 	}

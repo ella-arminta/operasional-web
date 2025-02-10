@@ -22,14 +22,9 @@ axiosInstance.interceptors.request.use(
 		if (token) {
 			config.headers.Authorization = `Bearer ${token}`
 			const user = decryptData(Cookies.get('userdata'))
-			if (!config.params?.company_id) {
-				config.params = {
-					...config.params,
-					company_id: user.company_id,
-				}
-			}
-			if (!config.params?.store_id) {
-				config.params = { ...config.params, store_id: user.store_id }
+			config.params = {
+				...config.params,
+				auth: { company_id: user.company_id, store_id: user.store_id },
 			}
 		}
 

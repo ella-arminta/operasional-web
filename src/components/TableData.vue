@@ -397,6 +397,7 @@ const onSearch = (event: Event) => {
 }
 // function to reload data in datatable
 const reloadData = () => {
+	if (!props.reload) return
 	if (dt) {
 		dt.ajax.reload(null, false)
 	}
@@ -501,9 +502,14 @@ const deleteData = (id: string) => {
 	})
 }
 
+const userdata = decryptData(Cookies.get('userdata'))
+
 // Define ajax options in a computed property
 const ajaxOptions = computed(() => ({
-	url: baseUrl + props.ajaxPath,
+	url:
+		baseUrl +
+		props.ajaxPath +
+		`?auth[company_id]=${userdata.company_id}&auth[store_id]=${userdata.store_id}`,
 	type: 'GET',
 	cache: true,
 	headers: {
@@ -512,7 +518,10 @@ const ajaxOptions = computed(() => ({
 	},
 	data: (d) => {
 		for (const key in filterValues.value) {
-			if (filterValues.value[key] !== '' && filterValues.value[key] !== undefined) {
+			if (
+				filterValues.value[key] !== '' &&
+				filterValues.value[key] !== undefined
+			) {
 				console.log('filterValues', filterValues.value[key])
 				if (filterValues.value[key].length <= 1) {
 					d[key] = filterValues.value[key][0]
@@ -521,6 +530,9 @@ const ajaxOptions = computed(() => ({
 				}
 			}
 		}
+		// // implicitly attach company and store at every query request for authorization
+		// d.company_id = userdata.companyId
+		// d.store_id = userdata.storeId
 	},
 	dataSrc: (json) => {
 		json.data = json.data.map((item, index) => {
@@ -628,76 +640,95 @@ const handleRangeSelected = (range) => {
 	filterValues.value.dateEnd = range.end
 }
 
+defineExpose({
+	reloadData,
+})
+
 const exportTable = async () => {
-	const data = dt.rows().data().toArray();
-	const workbook = new ExcelJS.Workbook();
-	const worksheet = workbook.addWorksheet('Exported Data');
+	const data = dt.rows().data().toArray()
+	const workbook = new ExcelJS.Workbook()
+	const worksheet = workbook.addWorksheet('Exported Data')
 
 	// Get all column indexes
-	const columns = dt.settings()[0].aoColumns;
+	const columns = dt.settings()[0].aoColumns
 
 	// Filter visible columns and prepare for date handling
-	const visibleColumns = dt.columns().header().toArray().map((header, index) => ({
-		header: header.innerText,
-		key: columns[index].data,
-		index: index,
-		hiddenExport: columns[index].hiddenExport || false,
-		type: columns[index].type || null, // Ensure type is stored
-	})).filter(col => !col.hiddenExport && col.header !== "Action");
+	const visibleColumns = dt
+		.columns()
+		.header()
+		.toArray()
+		.map((header, index) => ({
+			header: header.innerText,
+			key: columns[index].data,
+			index: index,
+			hiddenExport: columns[index].hiddenExport || false,
+			type: columns[index].type || null, // Ensure type is stored
+		}))
+		.filter((col) => !col.hiddenExport && col.header !== 'Action')
 
 	// Identify which columns are dates
-	const dateColumns = new Set(visibleColumns.filter(col => col.type === 'date').map(col => col.header));
+	const dateColumns = new Set(
+		visibleColumns
+			.filter((col) => col.type === 'date')
+			.map((col) => col.header)
+	)
 
 	// Add headers
-	worksheet.addRow(visibleColumns.map(col => col.header));
+	worksheet.addRow(visibleColumns.map((col) => col.header))
 
 	// Define column widths
-	worksheet.columns = visibleColumns.map(col => ({
+	worksheet.columns = visibleColumns.map((col) => ({
 		header: col.header,
 		key: col.header,
 		width: 20,
-	}));
+	}))
 
 	// Add rows with formatted dates
-	data.forEach(row => {
-		let filteredRow = {};
+	data.forEach((row) => {
+		let filteredRow = {}
 
-		visibleColumns.forEach(col => {
-			let value = row[col.key];
+		visibleColumns.forEach((col) => {
+			let value = row[col.key]
 
 			// Format date columns
 			if (dateColumns.has(col.header) && value) {
-				value = new Date(value);
+				value = new Date(value)
 			}
 
-			filteredRow[col.header] = value;
-		});
+			filteredRow[col.header] = value
+		})
 
-		const rowData = worksheet.addRow(filteredRow);
+		const rowData = worksheet.addRow(filteredRow)
 
 		// Apply Excel date formatting
 		rowData.eachCell((cell, colNumber) => {
 			if (dateColumns.has(visibleColumns[colNumber - 1].header)) {
-				cell.numFmt = 'dd/mm/yyyy';
+				cell.numFmt = 'dd/mm/yyyy'
 			}
-		});
-	});
+		})
+	})
 
 	// Add footer row if needed
 	if (props.totalFooter) {
-		const footer = dt.columns().footer().toArray().map((footer, index) =>
-			!columns[index].hiddenExport ? footer.innerText : null
-		).filter(value => value !== null);
+		const footer = dt
+			.columns()
+			.footer()
+			.toArray()
+			.map((footer, index) =>
+				!columns[index].hiddenExport ? footer.innerText : null
+			)
+			.filter((value) => value !== null)
 
-		worksheet.addRow(footer);
+		worksheet.addRow(footer)
 	}
 
 	// Generate and save file
-	const buffer = await workbook.xlsx.writeBuffer();
-	const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+	const buffer = await workbook.xlsx.writeBuffer()
+	const blob = new Blob([buffer], {
+		type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+	})
 
-	const filename = `${Date.now()}_${window.location.pathname.split('/').pop().replace(/-/g, '_')}.xlsx`;
-	FileSaver.saveAs(blob, filename);
-};
-
+	const filename = `${Date.now()}_${window.location.pathname.split('/').pop().replace(/-/g, '_')}.xlsx`
+	FileSaver.saveAs(blob, filename)
+}
 </script>
