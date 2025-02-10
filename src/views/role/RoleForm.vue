@@ -491,10 +491,13 @@ const submit = async () => {
 		name: form.value.name,
 		company_id: form.value.company_id[0],
 		store_id:
-			form.value.store_id.length === stores.value.length ||
-			form.value.store_id[0] === ''
+			(form.value.store_id.length === stores.value.length ||
+				form.value.store_id[0] === '') &&
+			props.mode === 'add'
 				? ''
-				: form.value.store_id,
+				: props.mode === 'edit'
+					? form.value.store_id[0]
+					: form.value.store_id,
 	}
 	try {
 		const endpoint =

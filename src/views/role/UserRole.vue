@@ -169,9 +169,7 @@ const fetchEmployees = async () => {
 	if (response.data.success) {
 		employees.value = response.data.data
 		copyEmployees.value = response.data.data
-	} else {
 	}
-	console.log(employees.value)
 }
 const sortEmployee = () => {
 	// if active on top
@@ -261,9 +259,7 @@ const fetchRoles = async () => {
 	if (response.data.success) {
 		roles.value = response.data.data
 		rolesCopy.value = response.data.data
-	} else {
 	}
-	console.log(roles.value)
 }
 const activeRoles = ref([])
 const clickRole = async (role: any) => {

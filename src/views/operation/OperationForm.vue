@@ -9,17 +9,20 @@
 			<FormHeader
 				:title="
 					mode === 'edit'
-						? 'Edit Store'
+						? 'Edit Operation'
 						: mode === 'add'
-							? 'Add Store'
-							: 'Store Detail'
+							? 'Add Operation'
+							: 'Operation Detail'
 				"
 				:showResetButton="mode === 'edit' && hasUnsavedChanges"
 				:showSaveButton="mode !== 'detail'"
 				@reset="resetForm"
 			/>
 			<!-- Form Basic Information -->
-			<FormSectionHeader title="Basic Store Information" icon="info" />
+			<FormSectionHeader
+				title="Basic Operation Information"
+				icon="info"
+			/>
 			<div class="grid grid-cols-3 gap-6 mt-4">
 				<!-- First Grid -->
 				<div class="space-y-3">
