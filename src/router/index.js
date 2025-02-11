@@ -319,6 +319,11 @@ const router = createRouter({
 								import('../views/settings/ChangePassword.vue'),
 						},
 						{
+							path: 'change-store',
+							component: () =>
+								import('../views/settings/ChangeStore.vue'),
+						},
+						{
 							path: 'role',
 							component: () =>
 								import('../views/role/RoleIndex.vue'),

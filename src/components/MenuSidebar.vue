@@ -20,7 +20,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import MenuItem from './MenuItem.vue'
 import { useStore } from 'vuex'
 import { useAuthStore } from '../vuex/auth'
@@ -179,6 +179,10 @@ const menuTree = ref([
 				path: '/settings/password-change',
 			},
 			{
+				label: 'Change Active Store',
+				path: '/settings/change-store',
+			},
+			{
 				label: 'Role Access',
 				children: [
 					{
@@ -242,6 +246,13 @@ const filterMenu = async (menu, allowedPaths, depth = 0) => {
 	// ✅ Now filter out null values AFTER awaiting all Promises
 	return filteredItems.filter(Boolean)
 }
+
+watch(
+	() => authStore.allowedPaths,
+	() => {
+		explorePath()
+	}
+)
 
 onMounted(() => {
 	explorePath()
