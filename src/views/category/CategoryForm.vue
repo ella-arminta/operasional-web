@@ -189,25 +189,7 @@ const metals = Object.freeze([
 	{ id: 4, label: 'White Gold' },
 	{ id: 5, label: 'Platinum' },
 ])
-const typeColumns = Object.freeze([
-	{ label: 'id', key: 'id', type: 'text', hidden: true },
-	{
-		label: 'Code',
-		key: 'code',
-		type: 'text',
-		// readonly: true,
-		required: true,
-	},
-	{ label: 'Name', key: 'name', type: 'text', required: true },
-	{ label: 'Description', key: 'description', type: 'text' },
-	{
-		label: 'Category ID',
-		key: 'category_id',
-		type: 'text',
-		hidden: true,
-		default: id,
-	},
-])
+const typeColumns = ref([])
 
 const companies = ref([])
 const fetchCompany = async () => {
@@ -353,10 +335,9 @@ const submitType = async (category_id) => {
 
 	try {
 		// Send bulk insert request
-		const response = await axiosInstance.post(
-			'/inventory/bulk-type',
-			form.value.types
-		)
+		const response = await axiosInstance.post('/inventory/bulk-type', {
+			types: form.value.types,
+		})
 
 		if (response.data) {
 			showAlert(
@@ -426,6 +407,24 @@ const showAlert = (
 onMounted(async () => {
 	await fetchCompany()
 	if (props.mode !== 'add' && id) {
+		typeColumns.value = [
+			{ label: 'id', key: 'id', type: 'text', hidden: true },
+			{
+				label: 'Code',
+				key: 'code',
+				type: 'text',
+				readonly: true,
+			},
+			{ label: 'Name', key: 'name', type: 'text', required: true },
+			{ label: 'Description', key: 'description', type: 'text' },
+			{
+				label: 'Category ID',
+				key: 'category_id',
+				type: 'text',
+				hidden: true,
+				default: id,
+			},
+		]
 		try {
 			const response = await axiosInstance.get(
 				`/inventory/category/${id}`
@@ -443,6 +442,19 @@ onMounted(async () => {
 			console.error('Error fetching category:', error)
 			showAlert('error', 'Error!', 'Failed to fetch category data.')
 		}
+	} else {
+		typeColumns.value = [
+			{ label: 'id', key: 'id', type: 'text', hidden: true },
+			{ label: 'Name', key: 'name', type: 'text', required: true },
+			{ label: 'Description', key: 'description', type: 'text' },
+			{
+				label: 'Category ID',
+				key: 'category_id',
+				type: 'text',
+				hidden: true,
+				default: id,
+			},
+		]
 	}
 })
 </script>

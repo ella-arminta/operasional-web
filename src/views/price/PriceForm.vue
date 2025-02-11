@@ -140,13 +140,7 @@ const store = useStore()
 const categories = ref([])
 const fetchCategory = async () => {
 	try {
-		const response = await axiosInstance.get('/inventory/category', {
-			params: {
-				company_id: {
-					in: [decryptData(Cookies.get('userdata')).company_id],
-				},
-			},
-		})
+		const response = await axiosInstance.get('/inventory/category')
 		if (response.data) {
 			const ownedCategories = response.data.data
 			categories.value = ownedCategories.map((category) => ({

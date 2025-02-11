@@ -158,6 +158,9 @@
 												: $event.target.value
 									"
 									:readonly="col.readonly"
+									:placeholder="
+										col.readonly ? 'To be generated' : ''
+									"
 								/>
 								<Dropdown
 									v-else-if="col.type === 'dropdown'"
