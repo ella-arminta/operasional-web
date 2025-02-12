@@ -85,136 +85,150 @@
 					</div>
 				</div>
 			</div>
-			<template v-if="mode !== 'add'">
-				<FormSectionHeader title="Permission" icon="lock" />
-				<div class="w-full !rounded-md shadow-sm overflow-hidden">
-					<table class="w-full table-fixed">
-						<thead class="bg-pinkDark text-white">
-							<tr>
-								<th class="px-4 py-2 text-start" width="35%">
-									Pages
-								</th>
-								<th
-									v-for="head in header"
-									class="px-4 py-2 text-center"
-									width="15%"
-								>
-									{{ head.label }}
-								</th>
-							</tr>
-						</thead>
-						<tbody class="text-sm">
-							<tr
-								v-for="(feature, index) in features"
-								:key="index"
-								:class="
-									index % 2 === 0 ? 'bg-white' : 'bg-pinkGray'
+			<FormSectionHeader title="Permission" icon="lock" />
+			<div class="w-full !rounded-md shadow-sm overflow-hidden">
+				<table class="w-full table-fixed">
+					<thead class="bg-pinkDark text-white">
+						<tr>
+							<th class="px-4 py-2 text-start" width="35%">
+								Pages
+							</th>
+							<th
+								v-for="head in header"
+								class="px-4 py-2 text-center"
+								width="15%"
+							>
+								{{ head.label }}
+							</th>
+						</tr>
+					</thead>
+					<tbody class="text-sm">
+						<tr
+							v-for="(feature, index) in features"
+							:key="index"
+							:class="
+								index % 2 === 0 ? 'bg-white' : 'bg-pinkGray'
+							"
+						>
+							<td
+								class="px-4 py-2 border-r border-opacity-50 flex justify-between"
+							>
+								<div>
+									{{ feature.path }}
+								</div>
+								<input
+									type="checkbox"
+									class="accent-pinkDark w-4 h-4 border-1 rounded-sm"
+									:checked="row[index]"
+									:disabled="mode === 'detail'"
+									:id="index"
+									@click="rowHandler(index, !row[index])"
+								/>
+							</td>
+
+							<template
+								v-if="
+									feature.actions.some(
+										(action) => action.action === 'all'
+									)
 								"
 							>
 								<td
-									class="px-4 py-2 border-r border-opacity-50"
+									class="px-4 py-2 text-center border-r border-opacity-50"
+									colspan="5"
 								>
-									{{ feature.path }}
-								</td>
-
-								<template
-									v-if="
-										feature.actions.some(
-											(action) => action.action === 'all'
-										)
-									"
-								>
-									<td
-										class="px-4 py-2 text-center border-r border-opacity-50"
-										colspan="5"
-									>
-										<input
-											type="checkbox"
-											class="accent-pinkDark w-4 h-4 border-1 rounded-sm"
-											v-model="
-												feature.actions.find(
-													(action) =>
-														action.action === 'all'
-												).checked
-											"
-											:disabled="mode === 'detail'"
-											:id="
+									<input
+										type="checkbox"
+										class="accent-pinkDark w-4 h-4 border-1 rounded-sm"
+										:checked="
+											form.features.includes(
 												feature.actions.find(
 													(action) =>
 														action.action === 'all'
 												).id
-											"
-											@click="
-												clickHandler(
-													feature.actions.find(
-														(action) =>
-															action.action ===
-															'all'
-													).id,
-													!feature.actions.find(
-														(action) =>
-															action.action ===
-															'all'
-													).checked
-												)
-											"
-										/>
-									</td>
-								</template>
-								<template v-else v-for="head in header">
-									<td
-										v-if="
-											feature.actions.some(
-												(action) =>
-													action.action === head.key
 											)
 										"
-										class="px-4 py-2 text-center border-r border-opacity-50"
-									>
-										<input
-											type="checkbox"
-											class="accent-pinkDark w-4 h-4 border-1 rounded-sm"
-											v-model="
+										:disabled="mode === 'detail'"
+										:id="
+											feature.actions.find(
+												(action) =>
+													action.action === 'all'
+											).id
+										"
+										@click="
+											clickHandler(
 												feature.actions.find(
 													(action) =>
-														action.action ===
-														head.key
-												).checked
-											"
-											:disabled="mode === 'detail'"
-											:id="
+														action.action === 'all'
+												).id,
+												!form.features.includes(
+													feature.actions.find(
+														(action) =>
+															action.action ===
+															'all'
+													).id
+												)
+											)
+										"
+									/>
+								</td>
+							</template>
+							<template v-else v-for="head in header">
+								<td
+									v-if="
+										feature.actions.some(
+											(action) =>
+												action.action === head.key
+										)
+									"
+									class="px-4 py-2 text-center border-r border-opacity-50"
+								>
+									<input
+										type="checkbox"
+										class="accent-pinkDark w-4 h-4 border-1 rounded-sm"
+										:checked="
+											form.features.includes(
 												feature.actions.find(
 													(action) =>
 														action.action ===
 														head.key
 												).id
-											"
-											@click="
-												clickHandler(
+											)
+										"
+										:disabled="mode === 'detail'"
+										:id="
+											feature.actions.find(
+												(action) =>
+													action.action === head.key
+											).id
+										"
+										@click="
+											clickHandler(
+												feature.actions.find(
+													(action) =>
+														action.action ===
+														head.key
+												).id,
+												!form.features.includes(
 													feature.actions.find(
 														(action) =>
 															action.action ===
 															head.key
-													).id,
-													!feature.actions.find(
-														(action) =>
-															action.action ===
-															head.key
-													).checked
+													).id
 												)
-											"
-										/>
-									</td>
-									<td
-										v-else
-										class="px-4 py-2 text-center border-r border-opacity-50"
-									></td>
-								</template>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-			</template>
+											)
+										"
+									/>
+								</td>
+								<td
+									v-else
+									class="px-4 py-2 text-center border-r border-opacity-50"
+								></td>
+							</template>
+						</tr>
+					</tbody>
+				</table>
+			</div>
 		</form>
 	</div>
 </template>
@@ -231,6 +245,7 @@ import InputForm from '../../components/InputForm.vue'
 import FormSectionHeader from '../../components/FormSectionHeader.vue'
 import FormHeader from '../../components/FormHeader.vue'
 import Dropdown from '../../components/Dropdown.vue'
+import { useAuthStore } from '../../vuex/auth'
 
 const props = defineProps({
 	mode: { type: String, required: true },
@@ -243,6 +258,7 @@ const formError = ref({ name: '', company_id: '', store_id: '', features: '' })
 const router = useRouter()
 const store = useStore()
 const isMounted = ref(false)
+const authStore = useAuthStore()
 
 const smallMenu = computed(() => store.getters.smallMenu)
 const id = router.currentRoute.value.params.id
@@ -364,6 +380,14 @@ const fetchFeatures = async () => {
 					return acc
 				}, {})
 			)
+			features.value.forEach((feature, index) => {
+				console.log(feature)
+				const allChecked = feature.actions.every(
+					(action) => action.checked
+				)
+				row.value.push(allChecked)
+			})
+
 			formCopy.value.features = [...form.value.features]
 		}
 	} catch (error) {
@@ -397,8 +421,30 @@ const clickHandler = (id, value) => {
 			form.value.features.splice(index, 1)
 		}
 	}
-	console.log(form.value.features)
 }
+
+const rowHandler = (index, value) => {
+	const actions = features.value[index].actions.map((action) => action.id)
+	if (value) {
+		// Only add if it doesn't already exist
+		actions.map((act) => {
+			if (!form.value.features.includes(act)) {
+				form.value.features.push(act)
+			}
+		})
+	} else {
+		// Remove the item by finding its index
+		actions.map((act) => {
+			const index = form.value.features.indexOf(act)
+			if (index !== -1) {
+				form.value.features.splice(index, 1)
+			}
+		})
+	}
+	row.value[index] = value
+}
+
+const row = ref([])
 
 onMounted(async () => {
 	isMounted.value = true
@@ -530,8 +576,9 @@ const submit = async () => {
 								handler: async () => {
 									await store.dispatch('hideAlert')
 									if (props.mode === 'add') {
-										router.push('/auth/role')
+										router.push('/settings/role')
 									} else {
+										await authStore.fetchPermissions()
 										router.go(0)
 									}
 								},
