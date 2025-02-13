@@ -558,6 +558,10 @@ const excludedKeys = [
 	'is_active',
 	'is_flex_price',
 	'is_float_price',
+	'defect_nominal',
+	'defect_percentage',
+	'adjustment_price_trade',
+	'adjustment_price_kbl',
 ]
 
 const hasFullyFilled = computed(() => {
