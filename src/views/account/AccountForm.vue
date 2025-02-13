@@ -270,7 +270,11 @@ const resetForm = () => {
 const hasUnsavedChanges = computed(() => {
 	return (
 		form.value.code !== formCopy.value.code ||
-		form.value.name !== formCopy.value.name
+		form.value.name !== formCopy.value.name || 
+		form.value.description !== formCopy.value.description ||
+		form.value.company_id !== formCopy.value.company_id ||
+		form.value.account_type_id !== formCopy.value.account_type_id ||
+		form.value.store_id !== formCopy.value.store_id
 	)
 })
 
@@ -328,7 +332,7 @@ const submit = async () => {
 					},
 				],
 			})
-			router.push('/master/Account')
+			router.push('/master/account')
 		}
 	} catch (error) {
 		const errors = error.response.data.errors || []

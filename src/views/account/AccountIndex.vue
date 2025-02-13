@@ -77,7 +77,7 @@ onMounted(async () => {
 			:filters="filters"
 			ajaxPath="/finance/account"
 			:editPath="'/master/account/edit'"
-			:deletePath="'/master/account'"
+			:deletePath="'/finance/account'"
 			:infoPath="'/master/account/detail'"
 			:infoLabel="'Buku besar'"
 		/>

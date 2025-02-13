@@ -49,6 +49,15 @@
 						:error="formError.name"
 						required
 					/>
+					<!-- Account -->
+					<Dropdown
+						:items="accountItems"
+						v-model="form.account_id"
+						placeholder="Select an account"
+						:multiple="false"
+						:searchable="true"
+					/>
+					<a href="/master/account" class="text-pinkDark text-sm underline">+ Add Account</a>
 				</div>
 				<!-- Second Grid -->
 				<div class="space-y-3">
@@ -103,6 +112,7 @@ import InputForm from '../../components/InputForm.vue'
 import TextareaForm from '../../components/TextareaForm.vue'
 import FormSectionHeader from '../../components/FormSectionHeader.vue'
 import FormHeader from '../../components/FormHeader.vue'
+import Dropdown from '../../components/Dropdown.vue'
 const smallMenu = computed(() => store.getters.smallMenu)
 
 const props = defineProps({
@@ -115,6 +125,7 @@ const form = ref({
 	price: 0,
 	uom: '',
 	description: '',
+	account_id: '',
 })
 const formCopy = ref({ ...form.value })
 const formError = ref({
@@ -123,6 +134,7 @@ const formError = ref({
 	price: '',
 	uom: '',
 	description: '',
+	account_id: '',
 })
 
 watch(
@@ -141,6 +153,35 @@ const router = useRouter()
 const store = useStore()
 
 const id = router.currentRoute.value.params.id
+
+// Handle for Accounts
+const accountItems = ref([])
+const fetchAccounts = async () => {
+	try {
+		const response = await axiosInstance.get('/finance/account')
+		if (response.data) {
+			const ownedAccounts = response.data.data
+			accountItems.value = ownedAccounts.map((account) => ({
+				id: account.id,
+				label: `${account.code} - ${account.name}`,
+			}))
+		}
+	} catch (error) {
+		store.dispatch('triggerAlert', {
+			type: 'error',
+			title: 'Error!',
+			message: 'Failed to fetch accounts data.',
+			actions: [
+				{
+					label: 'close',
+					type: 'secondary',
+					handler: () => store.dispatch('hideAlert'),
+				},
+			],
+		})
+		categories.value = []
+	}
+}
 
 onMounted(async () => {
 	if (props.mode !== 'add' && id) {
@@ -168,6 +209,8 @@ onMounted(async () => {
 	} else {
 		form.value.store_id = decryptData(Cookies.get('userdata')).store_id
 	}
+
+	await fetchAccounts();
 })
 
 const resetError = () => {
@@ -226,6 +269,13 @@ const submit = async () => {
 				: '/inventory/operation'
 		const method = props.mode === 'edit' ? 'put' : 'post'
 
+		// AccountID 
+		if (form.value.account_id.length > 0){
+			form.value.account_id = form.value.account_id[0]
+		} else {
+			form.value.account_id = null
+		}
+
 		const response = await axiosInstance[method](endpoint, form.value)
 
 		if (response.data) {
@@ -247,7 +297,7 @@ const submit = async () => {
 	} catch (error) {
 		console.error(error.response.data)
 		const errors = error.response.data.errors || []
-		form.value.company_id = [form.value.company_id] // resetting the state to array
+		form.value.account_id = [form.value.account_id] // resetting the state to array
 		errors.forEach((err) => {
 			formError.value[err.field] = err.message
 		})
