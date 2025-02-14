@@ -235,6 +235,9 @@
 				:editPath="''"
 				:deletePath="'/inventory/product-code'"
 				:infoPath="''"
+				:defData="{
+					transaction_id: id,
+				}"
 			/>
 		</div>
 	</div>
@@ -549,7 +552,7 @@ const submit = async () => {
 	}
 	resetError()
 	const data = await submitProduct()
-	router.push(`/inventory/product/view/${data.id}`)
+	router.push(`/inventory/product/detail/${data.id}`)
 	if (!Array.isArray(form.value.type_id)) {
 		form.value.type_id = [form.value.type_id]
 	}

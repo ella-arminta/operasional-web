@@ -259,6 +259,10 @@ const props = defineProps({
 		type: Boolean,
 		default: false,
 	},
+	defData: {
+		type: Object,
+		default: () => ({}),
+	},
 
 	// Optional For Add and Edit Data Not by emit(value) [Only for independent]
 	addPath: {
@@ -414,6 +418,7 @@ const addLogic = async (index: number) => {
 	const path = props.addPath
 
 	try {
+		data = { ...data, ...this.defData }
 		const response = await handleAxios(path, 'post', data)
 
 		if (response.data) {
