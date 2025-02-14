@@ -112,11 +112,16 @@
 			id="table-id"
 			ref="table"
 			:ajax="ajaxOptions"
-			class="display rounded-lg border border-gray-400 overflow-hidden shadow-sm"
+			:class="{
+				'display rounded-lg overflow-hidden shadow-sm':
+					!props.options.scrollX,
+				'display rounded-t-lg overflow-hidden shadow-sm':
+					props.options.scrollX,
+			}"
 			width="100%"
 		>
 			<thead>
-				<tr class="bg-pinkDark text-white">
+				<tr class="!bg-pinkDark text-white">
 					<th v-for="column in columns" :key="column.data">
 						{{ column.data.replace('_', ' ').toUpperCase() }}
 					</th>
@@ -134,6 +139,10 @@
 </template>
 <style>
 @import 'datatables.net-dt';
+
+.dtfc-fixed-start {
+	background: none !important;
+}
 
 .dt-search {
 	display: none !important;

@@ -455,7 +455,6 @@ const handleInsert = async () => {
 	if (selectedType.value[0] == 1) {
 		// Handle for Product
 		try {
-			console.log('hello')
 			const response = await axiosInstance.get(
 				`/inventory/product-barcode/${itemSelected.value}`,
 				{
@@ -465,6 +464,15 @@ const handleInsert = async () => {
 				}
 			)
 			if (response.data.success) {
+				if (response.data.data.status != 0) {
+					store.dispatch('triggerAlert', {
+						type: 'error',
+						title: 'Error!',
+						message: 'Product is not available.',
+					})
+					return
+				}
+
 				const data = {
 					detail_type: 'product',
 					id: null,
@@ -859,6 +867,8 @@ const fetchTax = async () => {
 		form.value.total_price =
 			parseFloat(form.value.sub_total_price) +
 			parseFloat(form.value.tax_price)
+		console.log(tax.value)
+		console.log(form.value)
 	} else {
 		store.dispatch('triggerAlert', {
 			type: 'error',

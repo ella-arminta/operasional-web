@@ -319,7 +319,7 @@ const columns = Object.freeze([
 	{
 		data: 'status',
 		title: 'Status',
-		visible: false,
+		render: (data) => (data === 0 ? 'In Stock' : 'Sold'),
 	},
 	{
 		data: 'action',
