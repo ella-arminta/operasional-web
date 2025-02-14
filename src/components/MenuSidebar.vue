@@ -1,8 +1,18 @@
 <template>
 	<div class="menu" :class="{ 'small-menu': smallMenu }">
-		<div class="logo">
-			<!-- <img src="https://inspiraworld.com/favicon.png" alt="" /> -->
-			<div class="text-md">{{}}</div>
+		<div class="flex flex-col items-start mt-8 mb-10 px-4">
+			<div
+				class="text-xl uppercase text-pinkDark font-bold text-start"
+				:class="{ hidden: smallMenu }"
+			>
+				{{ dataStore?.code }}
+			</div>
+			<div
+				class="text-sm text-gray-800 text-start italic"
+				:class="{ hidden: smallMenu }"
+			>
+				{{ dataStore?.name }}
+			</div>
 		</div>
 		<MenuItem
 			v-for="(item, index) in menuTree"
@@ -24,8 +34,8 @@ import { computed, onMounted, ref, watch } from 'vue'
 import MenuItem from './MenuItem.vue'
 import { useStore } from 'vuex'
 import { useAuthStore } from '../vuex/auth'
-import { decryptData } from '../utils/crypto'
 import axiosInstance from '../axios'
+import { decryptData } from '../utils/crypto'
 import Cookies from 'js-cookie'
 
 const store = useStore()
@@ -218,6 +228,20 @@ const explorePath = async () => {
 	// reduce data
 	menuTree.value = await filterMenu(menuTree.value, new Set(paths))
 }
+const dataStore = ref(null)
+const getStore = async () => {
+	const data = decryptData(Cookies.get('userdata'))
+	try {
+		await axiosInstance.get('master/store/' + data.store_id).then((res) => {
+			dataStore.value = {
+				code: res.data.data.code,
+				name: res.data.data.name,
+			}
+		})
+	} catch (error) {
+		return null
+	}
+}
 
 const filterMenu = async (menu, allowedPaths, depth = 0) => {
 	// Process all items asynchronously
@@ -256,6 +280,7 @@ watch(
 
 onMounted(() => {
 	explorePath()
+	getStore()
 })
 </script>
 
