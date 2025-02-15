@@ -1,18 +1,25 @@
 <template>
 	<div class="menu" :class="{ 'small-menu': smallMenu }">
-		<div class="flex flex-col items-start mt-8 mb-10 px-4">
-			<div
-				class="text-xl uppercase text-pinkDark font-bold text-start"
-				:class="{ hidden: smallMenu }"
-			>
-				{{ dataStore?.code }}
+		<div class="flex items-center gap-3 px-4">
+			<div class="flex flex-col items-start mt-8 mb-10">
+				<div
+					class="text-xl uppercase text-pinkDark font-bold text-start flex items-center"
+					:class="{ hidden: smallMenu }"
+				>
+					{{ dataStore?.code }}
+				</div>
+				<div
+					class="text-sm text-gray-800 text-start italic"
+					:class="{ hidden: smallMenu }"
+				>
+					{{ dataStore?.name }}
+				</div>
 			</div>
-			<div
-				class="text-sm text-gray-800 text-start italic"
-				:class="{ hidden: smallMenu }"
+			<router-link
+				:to="'/settings/change-store'"
+				class="material-icons text-md"
+				>change_circle</router-link
 			>
-				{{ dataStore?.name }}
-			</div>
 		</div>
 		<MenuItem
 			v-for="(item, index) in menuTree"
