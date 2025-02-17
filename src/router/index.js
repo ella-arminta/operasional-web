@@ -352,7 +352,7 @@ const router = createRouter({
 	],
 })
 
-const loa = ['add', 'edit', 'delete', 'detail']
+const loa = ['add', 'edit', 'delete', 'detail', 'approve', 'disapprove']
 
 router.beforeEach(async (to, from, next) => {
 	if (!to.matched.some((record) => record.meta.requiresAuth)) {

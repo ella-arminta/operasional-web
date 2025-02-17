@@ -93,6 +93,8 @@ onMounted(async () => {
 			:filters="filters"
 			:ajaxPath="ajaxPath"
 			:editPath="editPath"
+			:approvePath="'/finance/uang-keluar-masuk-approve'"
+			:disapprovePath="'/finance/uang-keluar-masuk-disapprove'"
 			:deletePath="'/finance/transaction'"
 			:infoPath="infoPath"
 		/>
