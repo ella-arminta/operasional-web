@@ -173,7 +173,7 @@ const router = createRouter({
 								import('../views/journal/JournalIndex.vue'),
 						},
 						{
-							path: 'journal/view/:id?',
+							path: 'journal/detail/:id?',
 							component: () =>
 								import('../views/journal/JournalDetail.vue'),
 						},
@@ -259,7 +259,7 @@ const router = createRouter({
 								),
 						},
 						{
-							path: 'general-ledger/view/:id',
+							path: 'general-ledger/detail/:id',
 							component: () =>
 								import(
 									'../views/general-ledger/LedgerDetail.vue'

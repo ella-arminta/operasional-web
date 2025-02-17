@@ -502,14 +502,18 @@ const deleteData = (id: string) => {
 	})
 }
 
+const checkAjaxHasQuery = () => {
+	return props.ajaxPath.includes('?')
+}
 const userdata = decryptData(Cookies.get('userdata'))
 
 // Define ajax options in a computed property
 const ajaxOptions = computed(() => ({
-	url:
+	url: !checkAjaxHasQuery() ?
 		baseUrl +
 		props.ajaxPath +
-		`?auth[company_id]=${userdata.company_id}&auth[store_id]=${userdata.store_id}`,
+		`?auth[company_id]=${userdata.company_id}&auth[store_id]=${userdata.store_id}` : 
+		baseUrl + props.ajaxPath + `&auth[company_id]=${userdata.company_id}&auth[store_id]=${userdata.store_id}`,
 	type: 'GET',
 	cache: true,
 	headers: {
@@ -522,7 +526,6 @@ const ajaxOptions = computed(() => ({
 				filterValues.value[key] !== '' &&
 				filterValues.value[key] !== undefined
 			) {
-				console.log('filterValues', filterValues.value[key])
 				if (filterValues.value[key].length <= 1) {
 					d[key] = filterValues.value[key][0]
 				} else {
@@ -633,9 +636,6 @@ const options = computed(() => ({
 }))
 
 const handleRangeSelected = (range) => {
-	console.log('selected')
-	console.log(range)
-	console.log(filterValues)
 	filterValues.value.dateStart = range.start
 	filterValues.value.dateEnd = range.end
 }
