@@ -414,19 +414,22 @@ const saveRow = async (index: number) => {
 }
 
 const addLogic = async (index: number) => {
-	const data = rows.value[index]
+	var data = rows.value[index]
 	const path = props.addPath
 
 	try {
-		data = { ...data, ...this.defData }
+		data = { ...data, ...props.defData }
+		console.log(data)
 		const response = await handleAxios(path, 'post', data)
 
 		if (response.data) {
 			showAlert('success', 'Success!', 'Data added successfully.')
 			rows.value[index].id = response.data.data.id // Assign the new ID
+			rows.value[index].code = response.data.data.code // Assign the new ID
 			return true
 		}
 	} catch (error) {
+		console.error('Error:', error)
 		error.response.data.errors.forEach((err) => {
 			if (!errorRows.value[index]) {
 				errorRows.value[index] = {}
