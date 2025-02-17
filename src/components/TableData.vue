@@ -324,6 +324,7 @@ import Dropdown from './Dropdown.vue'
 import InputForm from './InputForm.vue'
 import ExcelJS from 'exceljs'
 import FileSaver from 'file-saver'
+import { useRouter } from 'vue-router'
 
 // Define props
 const props = defineProps({
@@ -398,7 +399,8 @@ let dt
 const bearerToken = decryptData(Cookies.get('token')) || ''
 const store = useStore()
 const filterValues = ref({})
-const baseUrl = import.meta.env.VITE_BASE_URL
+const baseUrl = import.meta.env.VITE_BASE_URL;
+let router = useRouter();
 
 onMounted(() => {
 	dt = table.value.dt
@@ -629,9 +631,9 @@ const ajaxOptions = computed(() => ({
 					if (props.infoPath && props.infoPath !== '') {
 						actionHtml += `
 							<div
-								class="w-8 h-8 bg-pinkLight text-white flex justify-center items-center rounded-full cursor-pointer hover:bg-pinkDark transition duration-300 ease-in-out"
+								class="w-8 h-8 bg-pinkLight text-white flex justify-center items-center rounded-full cursor-pointer hover:bg-pinkDark transition duration-300 ease-in-out redirect"
 								title="Info"
-								onclick="location.href='${props.infoPath}/${item.id}'"
+								data-redirect="${props.infoPath}/${item.id}"
 							>
 								i
 							</div>`
@@ -641,9 +643,9 @@ const ajaxOptions = computed(() => ({
 					if (props.editPath && props.editPath !== '') {
 						actionHtml += `
 							<div
-								class="w-8 h-8 bg-pinkLight text-white flex justify-center items-center rounded-full cursor-pointer hover:bg-pinkDark transition duration-300 ease-in-out"
+								class="w-8 h-8 bg-pinkLight text-white flex justify-center items-center rounded-full cursor-pointer hover:bg-pinkDark transition duration-300 ease-in-out redirect"
 								title="Edit"
-								onclick="location.href='${props.editPath}/${item.id}'"
+								data-redirect="${props.editPath}/${item.id}"
 							>
 								<i class="material-icons text-sm">edit</i>
 							</div>`
@@ -667,9 +669,9 @@ const ajaxOptions = computed(() => ({
 					if (props.infoPath && props.infoPath !== '') {
 						actionHtml += `
 							<div
-								class="w-8 h-8 bg-pinkLight text-white flex justify-center items-center rounded-full cursor-pointer hover:bg-pinkDark transition duration-300 ease-in-out"
+								class="w-8 h-8 bg-pinkLight text-white flex justify-center items-center rounded-full cursor-pointer hover:bg-pinkDark transition duration-300 ease-in-out redirect"
 								title="Info"
-								onclick="location.href='${props.infoPath}/${item.id}'"
+								data-redirect="${props.infoPath}/${item.id}"
 							>
 								i
 							</div>`
@@ -679,9 +681,9 @@ const ajaxOptions = computed(() => ({
 					if (props.editPath && props.editPath !== '' && item.approve != 1) {
 						actionHtml += `
 							<div
-								class="w-8 h-8 bg-pinkLight text-white flex justify-center items-center rounded-full cursor-pointer hover:bg-pinkDark transition duration-300 ease-in-out"
+								class="w-8 h-8 bg-pinkLight text-white flex justify-center items-center rounded-full cursor-pointer hover:bg-pinkDark transition duration-300 ease-in-out redirect"
 								title="Edit"
-								onclick="location.href='${props.editPath}/${item.id}'"
+								data-redirect="${props.editPath}/${item.id}"
 							>
 								<i class="material-icons text-sm">edit</i>
 							</div>`
@@ -748,6 +750,13 @@ const ajaxOptions = computed(() => ({
 					toggleApprove(id, status)
 				})
 			})
+
+			document.querySelectorAll('.redirect').forEach((btn) => {
+				btn.addEventListener('click', (e) => {
+					const redirect = e.target.closest('.redirect').dataset.redirect
+					router.push(redirect)
+				})
+			});
 		})
 		return json.data
 	},
