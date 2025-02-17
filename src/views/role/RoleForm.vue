@@ -421,6 +421,17 @@ const clickHandler = (id, value) => {
 			form.value.features.splice(index, 1)
 		}
 	}
+	for (let i = 0; i < features.value.length; i++) {
+		if (
+			features.value[i].actions.every((action) =>
+				form.value.features.includes(action.id)
+			)
+		) {
+			row.value[i] = true
+		} else {
+			row.value[i] = false
+		}
+	}
 }
 
 const rowHandler = (index, value) => {

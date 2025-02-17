@@ -10,6 +10,10 @@
 			:editPath="'/inventory/product/edit'"
 			:deletePath="'/inventory/product'"
 			:infoPath="'/inventory/product/detail'"
+			:options="{
+				scrollX: true,
+				fixedColumns: { start: 0, end: 0 },
+			}"
 		/>
 	</div>
 </template>
@@ -23,7 +27,6 @@ const store = useStore()
 const smallMenu = computed(() => store.getters.smallMenu)
 const columns = [
 	{ data: 'no', title: 'No', width: '5%' },
-	{ data: 'id', title: 'Id', visible: false },
 	{ data: 'code', title: 'Code' },
 	{ data: 'name', title: 'Name' },
 	{
@@ -43,9 +46,16 @@ const columns = [
 	},
 	{
 		data: 'product_codes',
-		title: 'Stock',
+		title: 'In Stock',
 		render: (data) => {
-			return data.length
+			return data.filter((data) => data.status === 0).length
+		},
+	},
+	{
+		data: 'product_codes',
+		title: 'Sold',
+		render: (data) => {
+			return data.filter((data) => data.status > 0).length
 		},
 	},
 	{
@@ -57,6 +67,27 @@ const columns = [
 				0
 			)
 			return formatPrice(total / (data.length > 0 ? data.length : 1))
+		},
+		visible: false,
+	},
+	{
+		data: 'product_codes',
+		title: 'In Stock Weight',
+		render: (data) => {
+			const total = data
+				.filter((data) => data.status === 0)
+				.reduce((acc, curr) => acc + (parseFloat(curr.weight) ?? 0), 0)
+			return `${total} gr`
+		},
+	},
+	{
+		data: 'product_codes',
+		title: 'Sold Weight',
+		render: (data) => {
+			const total = data
+				.filter((data) => data.status > 0)
+				.reduce((acc, curr) => acc + (parseFloat(curr.weight) ?? 0), 0)
+			return `${total} gr`
 		},
 	},
 	{ data: 'description', title: 'Description', visible: false },

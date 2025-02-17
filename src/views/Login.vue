@@ -1,5 +1,7 @@
 <template>
-	<div class="container">
+	<div
+		class="container w-full min-h-full justify-center items-center flex flex-col"
+	>
 		<h1>Login Page</h1>
 		<div class="w-full max-w-xs">
 			<form

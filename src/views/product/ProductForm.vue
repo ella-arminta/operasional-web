@@ -235,10 +235,55 @@
 				:editPath="''"
 				:deletePath="'/inventory/product-code'"
 				:infoPath="''"
+				:defData="{
+					transaction_id: id,
+				}"
 			/>
 		</div>
 	</div>
+	<teleport to="#modal-container">
+		<div
+			v-if="showModal"
+			class="fixed inset-0 z-[999] flex items-center justify-center bg-black bg-opacity-50 transition duration-300"
+			@click.self="closeModal"
+		>
+			<div
+				class="bg-white w-1/4 max-w-3/4 h-auto max-h-3/4 rounded-lg shadow-lg relative overflow-hidden"
+			>
+				<!-- Modal Header -->
+				<div class="flex justify-between items-center p-4 border-b">
+					<h2 class="text-xl font-bold">QR Code</h2>
+					<button
+						class="text-pinkMed text-2xl hover:text-pinkDark transition duration-300 ease-in-out"
+						@click="closeModal"
+					>
+						&times;
+					</button>
+				</div>
+
+				<!-- Modal Body -->
+				<div class="px-12 py-4 h-auto">
+					<img
+						:src="dataModalQR"
+						alt="QR Code"
+						class="w-full h-auto"
+					/>
+				</div>
+
+				<!-- Modal Footer -->
+				<div class="flex justify-end p-4 border-t">
+					<button
+						class="px-4 py-2 bg-pinkLight text-PinkDark rounded-lg hover:bg-pinkMed mr-2 transition duration-300 ease-in-out"
+						@click="closeModal"
+					>
+						Close
+					</button>
+				</div>
+			</div>
+		</div>
+	</teleport>
 </template>
+
 <style scoped>
 /* Transition Animations */
 .image-transition-enter-active,
@@ -316,7 +361,19 @@ const columns = Object.freeze([
 	{
 		data: 'status',
 		title: 'Status',
-		visible: false,
+		render: (data) => (data === 0 ? 'In Stock' : 'Sold'),
+	},
+	{
+		data: 'id',
+		title: 'QR Code',
+		render: (data) => `
+			<button
+				class="bg-pinkDark text-white px-2 py-1 rounded-lg hover:bg-pinkDarker transition duration-300 ease-in-out"
+				onclick="showQrCode('${data}')"
+			>
+				Show QR
+			</button>
+		`,
 	},
 	{
 		data: 'action',
@@ -324,6 +381,28 @@ const columns = Object.freeze([
 		width: '5%',
 	},
 ])
+// Function to fetch data QRCode
+window.showQrCode = async (id) => {
+	try {
+		const response = await axiosInstance.post(
+			`/inventory/generate-product-code-qr/${id}`
+		)
+		dataModalQR.value = await response.data.data
+		openModal()
+		console.log(response.data.data) // Replace this with modal logic
+	} catch (e) {
+		alert('Error: ' + (e.response?.data?.message || 'Something went wrong'))
+	}
+}
+const showModal = ref(false)
+const dataModalQR = ref('')
+const openModal = () => {
+	showModal.value = true
+}
+const closeModal = () => {
+	showModal.value = false
+	dataModalQR.value = null
+}
 
 // Form Data for Product
 const form = ref({
@@ -549,7 +628,7 @@ const submit = async () => {
 	}
 	resetError()
 	const data = await submitProduct()
-	router.push(`/inventory/product/view/${data.id}`)
+	router.push(`/inventory/product/detail/${data.id}`)
 	if (!Array.isArray(form.value.type_id)) {
 		form.value.type_id = [form.value.type_id]
 	}
