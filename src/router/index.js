@@ -173,7 +173,7 @@ const router = createRouter({
 								import('../views/journal/JournalIndex.vue'),
 						},
 						{
-							path: 'journal/view/:id?',
+							path: 'journal/detail/:id?',
 							component: () =>
 								import('../views/journal/JournalDetail.vue'),
 						},
@@ -259,7 +259,7 @@ const router = createRouter({
 								),
 						},
 						{
-							path: 'general-ledger/view/:id',
+							path: 'general-ledger/detail/:id',
 							component: () =>
 								import(
 									'../views/general-ledger/LedgerDetail.vue'
@@ -352,7 +352,7 @@ const router = createRouter({
 	],
 })
 
-const loa = ['add', 'edit', 'delete', 'detail']
+const loa = ['add', 'edit', 'delete', 'detail', 'approve', 'disapprove']
 
 router.beforeEach(async (to, from, next) => {
 	if (!to.matched.some((record) => record.meta.requiresAuth)) {

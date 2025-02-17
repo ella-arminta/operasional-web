@@ -324,6 +324,7 @@ import Dropdown from './Dropdown.vue'
 import InputForm from './InputForm.vue'
 import ExcelJS from 'exceljs'
 import FileSaver from 'file-saver'
+import { useRouter } from 'vue-router'
 
 // Define props
 const props = defineProps({
@@ -359,6 +360,14 @@ const props = defineProps({
 		type: String,
 		default: '',
 	},
+	approvePath: {
+		type: String,
+		default: '',
+	},
+	disapprovePath: {
+		type: String,
+		default: '',
+	},
 	filters: {
 		type: [Array, null],
 		default: () => [],
@@ -390,7 +399,8 @@ let dt
 const bearerToken = decryptData(Cookies.get('token')) || ''
 const store = useStore()
 const filterValues = ref({})
-const baseUrl = import.meta.env.VITE_BASE_URL
+const baseUrl = import.meta.env.VITE_BASE_URL;
+let router = useRouter();
 
 onMounted(() => {
 	dt = table.value.dt
@@ -511,14 +521,79 @@ const deleteData = (id: string) => {
 	})
 }
 
+const toggleApprove = (id: string, status: number) => {
+	const message = status == 1 ? 'Are you sure you want to approve this data?' : 'Are you sure you want to disapprove this data?';
+	const ajaxUrl = status == 1 ? props.approvePath : props.disapprovePath;
+	store.dispatch('triggerAlert', {
+		type: 'warning',
+		title: 'Warning!',
+		message: message,
+		actions: [
+			{
+				label: 'cancel',
+				type: 'secondary',
+				handler: () => store.dispatch('hideAlert'),
+			},
+			{
+				label: 'proceed',
+				type: 'primary',
+				handler: async () => {
+					try {
+						const response = await axiosInstance.put(
+							`${ajaxUrl}/${id}`,
+							{ approve: status }
+						)
+						if (response.data) {
+							const message = status == 1 ? 'Data approved successfully.' : 'Data disapproved successfully.';
+							store.dispatch('triggerAlert', {
+								type: 'success',
+								title: 'Success!',
+								message: message,
+								actions: [
+									{
+										label: 'close',
+										type: 'secondary',
+										handler: () => {
+											store.dispatch('hideAlert')
+											reloadData()
+										},
+									},
+								],
+							})
+						}
+					} catch (error) {
+						const message = status == 1 ? 'Failed to approve data.' : 'Failed to disapprove data.';
+						store.dispatch('triggerAlert', {
+							type: 'error',
+							title: 'Error!',
+							message: message,
+							actions: [
+								{
+									label: 'close',
+									type: 'secondary',
+									handler: () => store.dispatch('hideAlert'),
+								},
+							],
+						})
+					}
+				},
+			},
+		],
+	})
+}
+
+const checkAjaxHasQuery = () => {
+	return props.ajaxPath.includes('?')
+}
 const userdata = decryptData(Cookies.get('userdata'))
 
 // Define ajax options in a computed property
 const ajaxOptions = computed(() => ({
-	url:
+	url: !checkAjaxHasQuery() ?
 		baseUrl +
 		props.ajaxPath +
-		`?auth[company_id]=${userdata.company_id}&auth[store_id]=${userdata.store_id}`,
+		`?auth[company_id]=${userdata.company_id}&auth[store_id]=${userdata.store_id}` : 
+		baseUrl + props.ajaxPath + `&auth[company_id]=${userdata.company_id}&auth[store_id]=${userdata.store_id}`,
 	type: 'GET',
 	cache: true,
 	headers: {
@@ -531,7 +606,6 @@ const ajaxOptions = computed(() => ({
 				filterValues.value[key] !== '' &&
 				filterValues.value[key] !== undefined
 			) {
-				console.log('filterValues', filterValues.value[key])
 				if (filterValues.value[key].length <= 1) {
 					d[key] = filterValues.value[key][0]
 				} else {
@@ -551,40 +625,109 @@ const ajaxOptions = computed(() => ({
 			if (props.columns.find((col) => col.data === 'action')) {
 				let actionHtml = '<div class="flex gap-2">'
 
-				// Info button
-				if (props.infoPath && props.infoPath !== '') {
-					actionHtml += `
-          <div
-            class="w-8 h-8 bg-pinkLight text-white flex justify-center items-center rounded-full cursor-pointer hover:bg-pinkDark transition duration-300 ease-in-out"
-            title="Info"
-            onclick="location.href='${props.infoPath}/${item.id}'"
-          >
-            i
-          </div>`
+				// Does not have Approval
+				if (props.approvePath == '' && props.disapprovePath == '') {
+					// Info button
+					if (props.infoPath && props.infoPath !== '') {
+						actionHtml += `
+							<div
+								class="w-8 h-8 bg-pinkLight text-white flex justify-center items-center rounded-full cursor-pointer hover:bg-pinkDark transition duration-300 ease-in-out redirect"
+								title="Info"
+								data-redirect="${props.infoPath}/${item.id}"
+							>
+								i
+							</div>`
+					}
+	
+					// Edit button
+					if (props.editPath && props.editPath !== '') {
+						actionHtml += `
+							<div
+								class="w-8 h-8 bg-pinkLight text-white flex justify-center items-center rounded-full cursor-pointer hover:bg-pinkDark transition duration-300 ease-in-out redirect"
+								title="Edit"
+								data-redirect="${props.editPath}/${item.id}"
+							>
+								<i class="material-icons text-sm">edit</i>
+							</div>`
+					}
+	
+					// Delete button
+					if (props.deletePath && props.deletePath !== '') {
+						actionHtml += `
+							<div
+								class="w-8 h-8 bg-pinkLight text-white flex justify-center items-center rounded-full cursor-pointer hover:bg-pinkDark delete-btn transition duration-300 ease-in-out"
+								title="Delete"
+								data-id="${item.id}"
+							>
+								<i class="material-icons text-sm">delete</i>
+							</div>`
+					}
 				}
+				// Has Approval
+				else {
+					// Info button
+					if (props.infoPath && props.infoPath !== '') {
+						actionHtml += `
+							<div
+								class="w-8 h-8 bg-pinkLight text-white flex justify-center items-center rounded-full cursor-pointer hover:bg-pinkDark transition duration-300 ease-in-out redirect"
+								title="Info"
+								data-redirect="${props.infoPath}/${item.id}"
+							>
+								i
+							</div>`
+					}
+	
+					// Edit button
+					if (props.editPath && props.editPath !== '' && item.approve != 1) {
+						actionHtml += `
+							<div
+								class="w-8 h-8 bg-pinkLight text-white flex justify-center items-center rounded-full cursor-pointer hover:bg-pinkDark transition duration-300 ease-in-out redirect"
+								title="Edit"
+								data-redirect="${props.editPath}/${item.id}"
+							>
+								<i class="material-icons text-sm">edit</i>
+							</div>`
+					}
+	
+					// Delete button
+					if (props.deletePath && props.deletePath !== '' && item.approve != 1) {
+						actionHtml += `
+							<div
+								class="w-8 h-8 bg-pinkLight text-white flex justify-center items-center rounded-full cursor-pointer hover:bg-pinkDark delete-btn transition duration-300 ease-in-out"
+								title="Delete"
+								data-id="${item.id}"
+							>
+								<i class="material-icons text-sm">delete</i>
+							</div>`
+					}
 
-				// Edit button
-				if (props.editPath && props.editPath !== '') {
-					actionHtml += `
-          <div
-            class="w-8 h-8 bg-pinkLight text-white flex justify-center items-center rounded-full cursor-pointer hover:bg-pinkDark transition duration-300 ease-in-out"
-            title="Edit"
-            onclick="location.href='${props.editPath}/${item.id}'"
-          >
-            <i class="material-icons text-sm">edit</i>
-          </div>`
-				}
-
-				// Delete button
-				if (props.deletePath && props.deletePath !== '') {
-					actionHtml += `
-          <div
-            class="w-8 h-8 bg-pinkLight text-white flex justify-center items-center rounded-full cursor-pointer hover:bg-pinkDark delete-btn transition duration-300 ease-in-out"
-            title="Delete"
-            data-id="${item.id}"
-          >
-            <i class="material-icons text-sm">delete</i>
-          </div>`
+					// Approve button
+					// display approve button
+					console.log('item.approve', item.approve)
+					console.log('item', item);
+					if (props.approvePath != '' && item.approve == 0) {
+						actionHtml += `
+							<div
+								class="w-8 h-8 bg-pinkLight text-white flex justify-center items-center rounded-full cursor-pointer hover:bg-pinkDark approve-btn transition duration-300 ease-in-out"
+								title="Approve"
+								data-id="${item.id}"
+								data-title="Approve"
+							>
+								<i class="material-icons text-sm">check</i>
+							</div>`
+					} 
+					// display dissaprove button
+					else if (props.disapprovePath != '' && item.approve == 1) {
+						actionHtml += `
+							<div
+								class="w-8 h-8 bg-pinkLight text-white flex justify-center items-center rounded-full cursor-pointer hover:bg-pinkDark approve-btn transition duration-300 ease-in-out"
+								title="Disapprove"
+								data-id="${item.id}"
+								data-title="Disapprove"
+							>
+								<i class="material-icons text-sm">close</i>
+							</div>`
+					}
 				}
 
 				actionHtml += '</div>'
@@ -599,6 +742,21 @@ const ajaxOptions = computed(() => ({
 					deleteData(id)
 				})
 			})
+
+			document.querySelectorAll('.approve-btn').forEach((btn) => {
+				btn.addEventListener('click', (e) => {
+					const id = e.target.closest('.approve-btn').dataset.id
+					const status = e.target.closest('.approve-btn').dataset.title === "Approve" ? 1 : 0;
+					toggleApprove(id, status)
+				})
+			})
+
+			document.querySelectorAll('.redirect').forEach((btn) => {
+				btn.addEventListener('click', (e) => {
+					const redirect = e.target.closest('.redirect').dataset.redirect
+					router.push(redirect)
+				})
+			});
 		})
 		return json.data
 	},
@@ -642,9 +800,6 @@ const options = computed(() => ({
 }))
 
 const handleRangeSelected = (range) => {
-	console.log('selected')
-	console.log(range)
-	console.log(filterValues)
 	filterValues.value.dateStart = range.start
 	filterValues.value.dateEnd = range.end
 }
