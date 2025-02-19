@@ -20,6 +20,16 @@ const router = createRouter({
 			component: Logout,
 		},
 		{
+			path: '/',
+			component: InternalLayout,
+			children: [
+				{
+					path: '/faq',
+					component: () => import('../views/faq/FAQIndex.vue'),
+				},
+			]
+		},
+		{
 			path: '/about',
 			component: () => import('../views/About.vue'),
 		},
@@ -31,10 +41,6 @@ const router = createRouter({
 				{
 					path: 'home', // Path kosong sebagai default
 					component: Home,
-				},
-				{
-					path: '/faq',
-					component: () => import('../views/faq/FAQIndex.vue'),
 				},
 				{
 					path: '/customer',
@@ -355,6 +361,10 @@ const router = createRouter({
 const loa = ['add', 'edit', 'delete', 'detail', 'approve', 'disapprove']
 
 router.beforeEach(async (to, from, next) => {
+	if (to.path === '/faq') {
+		next()
+		return
+	}
 	if (!to.matched.some((record) => record.meta.requiresAuth)) {
 		next()
 		return
@@ -364,6 +374,7 @@ router.beforeEach(async (to, from, next) => {
 		// Decrypt token
 		const token = await decryptData(Cookies.get('token'))
 		if (!token) throw new Error('Invalid token')
+
 
 		// If navigating to home or logout, allow directly
 		if (to.path === '/home' || to.path === '/logout') {
@@ -381,7 +392,7 @@ router.beforeEach(async (to, from, next) => {
 		const action = (actionIndex >= 0 ? paths[actionIndex] : 'open').toLowerCase()
 		const basePath =
 			(actionIndex > 0 ? paths.slice(0, actionIndex).join('/') : to.path).toLowerCase()
-		console.log('BasePath and Action',basePath, action)
+		console.log('BasePath and Action', basePath, action)
 
 		// Check if user has permission
 		const allowed = auth.some((item) => {
@@ -394,7 +405,7 @@ router.beforeEach(async (to, from, next) => {
 			next()
 			return
 		} else {
-			console.log('BasePath and Action',basePath, action)
+			console.log('BasePath and Action', basePath, action)
 			store.dispatch('triggerAlert', {
 				message: 'You are not allowed to access this page',
 				type: 'error',
