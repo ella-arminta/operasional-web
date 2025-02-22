@@ -35,7 +35,7 @@
 				<div
 					class="bg-pinkDark text-white w-10 h-10 rounded-full flex items-center justify-center"
 				>
-					<p>{{ inisial }}</p>
+					<p class="uppercase">{{ inisial }}</p>
 				</div>
 			</div>
 		</div>

@@ -112,13 +112,13 @@ const endDate = ref('')
 			<!-- <LineChart :apiPath="'/finance/gold-price'" :title="'Gold Selling Price'" :startDate="startDate" :endDate="endDate" />
       <LineChart :apiPath="'/finance/gold-price'" :title="'Sales'" :startDate="startDate" :endDate="endDate" /> -->
 			<LineChart
-				:apiPath="''"
+				:apiPath="'/finance/gold-price'"
 				:title="'Gold Selling Price'"
 				:startDate="startDate"
 				:endDate="endDate"
 			/>
 			<LineChart
-				:apiPath="''"
+				:apiPath="'/finance/gold-price'"
 				:title="'Sales'"
 				:startDate="startDate"
 				:endDate="endDate"

@@ -142,11 +142,11 @@
 					<!-- Open Date (DatePicker) -->
 					<InputForm
 						v-model="formattedDate"
-						id="trans_date"
+						id="trans_start_date"
 						type="date"
 						label="Start Date"
 						placeholder="Date"
-						:error="formError.trans_date"
+						:error="formError.trans_start_date"
 					/>
 				</div>
 			</div>
@@ -242,7 +242,7 @@ const form = ref({
 	account_cash_id: '',
 	total: 0,
 	description: '',
-	trans_date: '',
+	trans_start_date: '',
 	accounts: [],
 	trans_type_id: '',
 	recurring: true,
@@ -255,7 +255,7 @@ const formError = ref({
 	account_cash_id: '',
 	total: '',
 	description: '',
-	trans_date: '',
+	trans_start_date: '',
 	accounts: '',
 	recurring: '',
 	recurring_period_code: '',
@@ -339,7 +339,7 @@ const mountUpdatedData = async () => {
 	console.log('mount data', JSON.stringify(data))
 	form.value.total = Math.abs(data.total)
 	form.value.description = data.description
-	form.value.trans_date = formatDate(data.trans_date)
+	form.value.trans_start_date = formatDate(data.trans_start_date)
 	var tempaccounts = []
 	data.trans_details_recurring.forEach((details) => {
 		if (details.kas && details.kas == true) {
@@ -361,14 +361,15 @@ const mountUpdatedData = async () => {
 }
 
 const formatDate = (date) => {
+	console.log('date', date)
 	if (!date) return ''
 	return new Date(date).toISOString().split('T')[0] // Extract only the date part
 }
 
 const formattedDate = computed({
-	get: () => formatDate(form.value.trans_date),
+	get: () => formatDate(form.value.trans_start_date),
 	set: (newValue) => {
-		form.value.trans_date = newValue
+		form.value.trans_start_date = newValue
 	},
 })
 
@@ -383,7 +384,7 @@ const resetForm = async () => {
 	const data = response.data.data
 	form.value.total = Math.abs(data.total)
 	form.value.description = data.description
-	form.value.trans_date = formatDate(data.trans_date)
+	form.value.trans_start_date = formatDate(data.trans_start_date)
 	var tempaccounts = []
 	data.trans_details.forEach((details) => {
 		if (details.kas && details.kas == true) {

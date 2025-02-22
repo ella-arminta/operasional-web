@@ -10,6 +10,8 @@
 			:editPath="'/transaction/sales/edit'"
 			:deletePath="'/transaction/transaction'"
 			:infoPath="'/transaction/sales/detail'"
+			:approvePath="'/transaction/transaction-approve'"
+			:disapprovePath="'/transaction/transaction-disapprove'"
 		/>
 	</div>
 </template>

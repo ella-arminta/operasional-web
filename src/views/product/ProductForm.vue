@@ -205,6 +205,17 @@
 							required
 						/>
 					</div>
+					<div>
+						<!-- Harga Beli -->
+						<InputForm
+							v-model="formCode.buy_price"
+							type="number"
+							id="buy_price"
+							label="Harga Beli"
+							placeholder="Harga Beli"
+							required
+						/>
+					</div>
 					<div class="flex justify-end items-end">
 						<!-- Generate -->
 						<button
@@ -362,6 +373,10 @@ const columns = Object.freeze([
 		data: 'status',
 		title: 'Status',
 		render: (data) => (data === 0 ? 'In Stock' : 'Sold'),
+	},
+	{
+		data:'buy_price',
+		title: 'Harga beli',
 	},
 	{
 		data: 'id',
@@ -642,6 +657,7 @@ const submit = async () => {
 const formCode = ref({
 	weight: 0,
 	fixed_price: '',
+	buy_price: 0,
 })
 
 // submit generate code
@@ -656,11 +672,13 @@ const generateCode = async () => {
 			showAlert('success', 'Success!', response.data.message)
 			refTable.value?.reloadData()
 			formCode.value.weight = 0
+			formCode.value.buy_price = 0
 		}
 	} catch (error) {
 		showAlert('error', 'Error!', error.data.message)
 	}
 	formCode.value.weight = 0
+	formCode.value.buy_price = 0
 }
 
 const showAlert = (

@@ -1,13 +1,11 @@
 <template>
-	<div class="content" :class="{ 'full-width': smallMenu }">
-		<MExpensesIndex
-			:addPath="'/finance/mincomes/add'"
-			:editPath="'/finance/mincomes/edit'"
-			:infoPath="'/finance/mincomes/detail'"
-			:ajaxPath="'/finance/uang-keluar-masuk?trans_type_id=2'"
-			:pageTitle="'Miscellaneous Incomes'"
-		/>
-	</div>
+	<MExpensesIndex
+		:addPath="'/finance/mincomes/add'"
+		:editPath="'/finance/mincomes/edit'"
+		:infoPath="'/finance/mincomes/detail'"
+		:ajaxPath="'/finance/uang-keluar-masuk?trans_type_id=2'"
+		:pageTitle="'Miscellaneous Incomes'"
+	/>
 </template>
 <script setup>
 import { useStore } from 'vuex'
