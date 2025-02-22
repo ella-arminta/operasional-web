@@ -20,6 +20,7 @@
 				'placeholder-opacity-50 bg-opacity-25': readonly,
 				'text-opacity-100 bg-opacity-100 text-pinkDark': !readonly,
 			}"
+			@keypress.enter.prevent
 		/>
 
 		<!-- Error Message -->

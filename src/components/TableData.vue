@@ -635,6 +635,15 @@ const ajaxOptions = computed(() => ({
 			}
 			if (props.columns.find((col) => col.data === 'action')) {
 				let actionHtml = '<div class="flex gap-2">'
+				if (
+					props.editPath == '' &&
+					props.deletePath == '' &&
+					props.infoPath == '' &&
+					props.approvePath == '' &&
+					props.disapprovePath == ''
+				) {
+					actionHtml += ' - '
+				}
 
 				// Does not have Approval
 				if (props.approvePath == '' && props.disapprovePath == '') {
