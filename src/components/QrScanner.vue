@@ -39,7 +39,7 @@
 
 <script setup lang="ts">
 import { defineProps, defineEmits } from 'vue'
-import { QrcodeStream, type QrcodeDetectedEvent } from 'vue-qrcode-reader'
+import { QrcodeStream } from 'vue-qrcode-reader'
 
 // Define props
 defineProps<{ show: boolean }>()
@@ -51,7 +51,7 @@ const emit = defineEmits<{
 }>()
 
 // Handle QR Code scan result
-const onDecode = (detectedCodes: QrcodeDetectedEvent) => {
+const onDecode = (detectedCodes) => {
 	if (detectedCodes.length > 0) {
 		const result = detectedCodes[0]?.rawValue || ''
 		console.log('Scanned QR Code:', result)

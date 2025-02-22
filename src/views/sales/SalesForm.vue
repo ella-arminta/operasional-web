@@ -241,13 +241,23 @@
 							:addRoute="'/inventory/operation'"
 						/>
 					</div>
-					<div v-if="selectedType.length > 0" class="flex items-end">
+					<div
+						v-if="selectedType.length > 0"
+						class="flex items-end gap-2"
+					>
 						<button
 							type="button"
 							class="w-full bg-pinkDark text-white rounded-lg py-2 px-4 hover:bg-pinkOrange transition duration-300"
 							@click="handleInsert"
 						>
 							Add Item
+						</button>
+						<button
+							type="button"
+							class="w-full bg-pinkDark text-white rounded-lg py-2 px-4 hover:bg-pinkOrange transition duration-300"
+							@click="scanning = true"
+						>
+							Scan QR Code
 						</button>
 					</div>
 				</div>
@@ -369,6 +379,11 @@
 			</div>
 		</form>
 	</div>
+	<QrScanner
+		:show="scanning"
+		@close="scanning = false"
+		@scanned="handleScan"
+	/>
 </template>
 
 <script setup lang="ts">
@@ -384,6 +399,7 @@ import InputForm from '../../components/InputForm.vue'
 import axiosInstance from '../../axios'
 import Dropdown from '../../components/Dropdown.vue'
 import EditableCat from '../../components/EditableCat.vue'
+import QrScanner from '../../components/QrScanner.vue'
 
 // Declaration of props, store, router
 const props = defineProps({
@@ -394,6 +410,7 @@ const router = useRouter()
 const smallMenu = computed(() => store.getters.smallMenu)
 const id = router.currentRoute.value.params.id
 const tax = ref(0)
+const scanning = ref(false)
 
 // columns for EditableCat
 const transactionDetailsColumns = [
@@ -448,7 +465,13 @@ const status = [
 
 const selectedType = ref([])
 const operationSelected = ref([])
-const itemSelected = ref([])
+const itemSelected = ref(null)
+
+const handleScan = (result) => {
+	console.log('Scanned QR Code:', result)
+	itemSelected.value = result.split(';')[0]
+	handleInsert()
+}
 
 // Handle From insert Operation
 const handleInsert = async () => {
@@ -505,7 +528,8 @@ const handleInsert = async () => {
 					...form.value.transaction_details,
 					data,
 				]
-				itemSelected.value = []
+				itemSelected.value = null
+				operationSelected.value = []
 			}
 		} catch (error) {
 			store.dispatch('triggerAlert', {
@@ -516,44 +540,57 @@ const handleInsert = async () => {
 			})
 		}
 	} else if (selectedType.value[0] == 2) {
-		// Handle for Operation
-		var data = {
-			detail_type: 'operation',
-			id: null,
-			operation_id: operationSelected.value[0],
-			type: 'Operation',
-			name: operations.value.find(
+		console.log('selected', operationSelected.value)
+		operationSelected.value = itemSelected.value
+			? [itemSelected.value]
+			: operationSelected.value
+		try {
+			// Handle for Operation
+			console.log('select', operationSelected.value)
+			const operation = operations.value.find(
 				(operation) => operation.id == operationSelected.value
-			).label,
-			price: parseFloat(
-				operations.value.find(
-					(operation) => operation.id == operationSelected.value
-				).price
-			),
-			quantity: 1,
-			uom: operations.value.find(
-				(operation) => operation.id == operationSelected.value
-			).uom,
-			adjustment_price: 0,
-			total_price: 0,
-		}
-		// Insert if mode edit
-		if (props.mode === 'edit') {
-			data.transaction_id = id
-			data.unit = data.quantity
-			const response = await axiosInstance.post(
-				'/transaction/transaction-detail',
-				data
 			)
-			if (response.data.success) {
-				data.id = response.data.data.id
+			if (!operation) {
+				throw new Error('Operation not found')
 			}
+
+			var data = {
+				detail_type: 'operation',
+				id: null,
+				operation_id: operationSelected.value[0],
+				type: 'Operation',
+				name: operation.label,
+				price: parseFloat(operation.price),
+				quantity: 1,
+				uom: operation.uom,
+				adjustment_price: 0,
+				total_price: 0,
+			}
+			// Insert if mode edit
+			if (props.mode === 'edit') {
+				data.transaction_id = id
+				data.unit = data.quantity
+				const response = await axiosInstance.post(
+					'/transaction/transaction-detail',
+					data
+				)
+				if (response.data.success) {
+					data.id = response.data.data.id
+				}
+			}
+			form.value.transaction_details = [
+				...form.value.transaction_details,
+				data,
+			]
+		} catch (error) {
+			store.dispatch('triggerAlert', {
+				type: 'error',
+				title: 'Error!',
+				message: error.response?.data?.message ?? error.message,
+			})
 		}
-		form.value.transaction_details = [
-			...form.value.transaction_details,
-			data,
-		]
 		operationSelected.value = []
+		itemSelected.value = null
 	}
 	selectedType.value = []
 	console.log(form.value.transaction_details)
