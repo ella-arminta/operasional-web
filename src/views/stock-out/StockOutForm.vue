@@ -79,6 +79,7 @@
 					<button
 						type="button"
 						class="w-full bg-pinkDark text-white hover:bg-pinkOrange font-bold py-2 px-4 rounded-lg"
+						@click="scanning = true"
 					>
 						Scan QR
 					</button>
@@ -103,6 +104,12 @@
 			</div>
 		</form>
 	</div>
+	<!-- QR Scanner Component -->
+	<QrScanner
+		:show="scanning"
+		@close="scanning = false"
+		@scanned="handleScan"
+	/>
 </template>
 <script setup lang="ts">
 import { useStore } from 'vuex'
@@ -115,6 +122,7 @@ import FormSectionHeader from '../../components/FormSectionHeader.vue'
 import InputForm from '../../components/InputForm.vue'
 import Dropdown from '../../components/Dropdown.vue'
 import EditableCat from '../../components/EditableCat.vue'
+import QrScanner from '../../components/QrScanner.vue'
 import axiosInstance from '../../axios'
 import { decryptData } from '../../utils/crypto'
 import Cookies from 'js-cookie'
@@ -128,6 +136,8 @@ const props = defineProps({
 		required: true,
 	},
 })
+
+const scanning = ref(false)
 
 const reasons = Object.freeze([
 	{ id: 'broken', label: 'Broken' },
@@ -158,6 +168,12 @@ const itemColumns = Object.freeze([
 	{ key: 'price', label: 'Price', type: 'text', readonly: true },
 	{ key: 'description', type: 'text', label: 'Description' },
 ])
+
+const handleScan = (result) => {
+	console.log('Scanned Result in Parent:', result)
+	code.value = result.split(';')[0]
+	addProduct(code)
+}
 
 const addProduct = async () => {
 	try {
