@@ -372,7 +372,8 @@ const columns = Object.freeze([
 	{
 		data: 'status',
 		title: 'Status',
-		render: (data) => (data === 0 ? 'In Stock' : 'Sold'),
+		render: (data) =>
+			data === 0 ? 'In Stock' : data === 3 ? 'Taken Out' : 'Sold',
 	},
 	{
 		data:'buy_price',
@@ -701,7 +702,7 @@ const showAlert = (
 }
 
 // Reload Child REF
-const refTable = ref(null)
+const refTable = ref('')
 
 onMounted(async () => {
 	await fetchCategory()

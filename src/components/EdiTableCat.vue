@@ -225,7 +225,6 @@ const props = defineProps({
 		type: Array,
 		required: true,
 		default: () => [],
-		// Example: [{ label: "Name", key: "name", type: "string", required: true }, { label: "Age", key: "age", type: "int", required: true }]
 	},
 	initialRows: {
 		type: Array,
@@ -403,6 +402,7 @@ const saveRow = async (index: number) => {
 			result = await editLogic(index)
 		}
 	} else {
+		console.log('rows:', rows.value[index])
 		result = true
 	}
 	if (result) {

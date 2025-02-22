@@ -399,8 +399,8 @@ let dt
 const bearerToken = decryptData(Cookies.get('token')) || ''
 const store = useStore()
 const filterValues = ref({})
-const baseUrl = import.meta.env.VITE_BASE_URL;
-let router = useRouter();
+const baseUrl = import.meta.env.VITE_BASE_URL
+let router = useRouter()
 
 onMounted(() => {
 	dt = table.value.dt
@@ -522,8 +522,11 @@ const deleteData = (id: string) => {
 }
 
 const toggleApprove = (id: string, status: number) => {
-	const message = status == 1 ? 'Are you sure you want to approve this data?' : 'Are you sure you want to disapprove this data?';
-	const ajaxUrl = status == 1 ? props.approvePath : props.disapprovePath;
+	const message =
+		status == 1
+			? 'Are you sure you want to approve this data?'
+			: 'Are you sure you want to disapprove this data?'
+	const ajaxUrl = status == 1 ? props.approvePath : props.disapprovePath
 	store.dispatch('triggerAlert', {
 		type: 'warning',
 		title: 'Warning!',
@@ -544,7 +547,10 @@ const toggleApprove = (id: string, status: number) => {
 							{ approve: status }
 						)
 						if (response.data) {
-							const message = status == 1 ? 'Data approved successfully.' : 'Data disapproved successfully.';
+							const message =
+								status == 1
+									? 'Data approved successfully.'
+									: 'Data disapproved successfully.'
 							store.dispatch('triggerAlert', {
 								type: 'success',
 								title: 'Success!',
@@ -562,7 +568,10 @@ const toggleApprove = (id: string, status: number) => {
 							})
 						}
 					} catch (error) {
-						const message = status == 1 ? 'Failed to approve data.' : 'Failed to disapprove data.';
+						const message =
+							status == 1
+								? 'Failed to approve data.'
+								: 'Failed to disapprove data.'
 						store.dispatch('triggerAlert', {
 							type: 'error',
 							title: 'Error!',
@@ -589,11 +598,13 @@ const userdata = decryptData(Cookies.get('userdata'))
 
 // Define ajax options in a computed property
 const ajaxOptions = computed(() => ({
-	url: !checkAjaxHasQuery() ?
-		baseUrl +
-		props.ajaxPath +
-		`?auth[company_id]=${userdata.company_id}&auth[store_id]=${userdata.store_id}` : 
-		baseUrl + props.ajaxPath + `&auth[company_id]=${userdata.company_id}&auth[store_id]=${userdata.store_id}`,
+	url: !checkAjaxHasQuery()
+		? baseUrl +
+			props.ajaxPath +
+			`?auth[company_id]=${userdata.company_id}&auth[store_id]=${userdata.store_id}`
+		: baseUrl +
+			props.ajaxPath +
+			`&auth[company_id]=${userdata.company_id}&auth[store_id]=${userdata.store_id}`,
 	type: 'GET',
 	cache: true,
 	headers: {
@@ -624,6 +635,15 @@ const ajaxOptions = computed(() => ({
 			}
 			if (props.columns.find((col) => col.data === 'action')) {
 				let actionHtml = '<div class="flex gap-2">'
+				if (
+					props.editPath == '' &&
+					props.deletePath == '' &&
+					props.infoPath == '' &&
+					props.approvePath == '' &&
+					props.disapprovePath == ''
+				) {
+					actionHtml += ' - '
+				}
 
 				// Does not have Approval
 				if (props.approvePath == '' && props.disapprovePath == '') {
@@ -638,7 +658,7 @@ const ajaxOptions = computed(() => ({
 								i
 							</div>`
 					}
-	
+
 					// Edit button
 					if (props.editPath && props.editPath !== '') {
 						actionHtml += `
@@ -650,7 +670,7 @@ const ajaxOptions = computed(() => ({
 								<i class="material-icons text-sm">edit</i>
 							</div>`
 					}
-	
+
 					// Delete button
 					if (props.deletePath && props.deletePath !== '') {
 						actionHtml += `
@@ -676,9 +696,13 @@ const ajaxOptions = computed(() => ({
 								i
 							</div>`
 					}
-	
+
 					// Edit button
-					if (props.editPath && props.editPath !== '' && item.approve != 1) {
+					if (
+						props.editPath &&
+						props.editPath !== '' &&
+						item.approve != 1
+					) {
 						actionHtml += `
 							<div
 								class="w-8 h-8 bg-pinkLight text-white flex justify-center items-center rounded-full cursor-pointer hover:bg-pinkDark transition duration-300 ease-in-out redirect"
@@ -688,9 +712,13 @@ const ajaxOptions = computed(() => ({
 								<i class="material-icons text-sm">edit</i>
 							</div>`
 					}
-	
+
 					// Delete button
-					if (props.deletePath && props.deletePath !== '' && item.approve != 1) {
+					if (
+						props.deletePath &&
+						props.deletePath !== '' &&
+						item.approve != 1
+					) {
 						actionHtml += `
 							<div
 								class="w-8 h-8 bg-pinkLight text-white flex justify-center items-center rounded-full cursor-pointer hover:bg-pinkDark delete-btn transition duration-300 ease-in-out"
@@ -704,7 +732,7 @@ const ajaxOptions = computed(() => ({
 					// Approve button
 					// display approve button
 					console.log('item.approve', item.approve)
-					console.log('item', item);
+					console.log('item', item)
 					if (props.approvePath != '' && item.approve == 0) {
 						actionHtml += `
 							<div
@@ -715,7 +743,7 @@ const ajaxOptions = computed(() => ({
 							>
 								<i class="material-icons text-sm">check</i>
 							</div>`
-					} 
+					}
 					// display dissaprove button
 					else if (props.disapprovePath != '' && item.approve == 1) {
 						actionHtml += `
@@ -746,17 +774,22 @@ const ajaxOptions = computed(() => ({
 			document.querySelectorAll('.approve-btn').forEach((btn) => {
 				btn.addEventListener('click', (e) => {
 					const id = e.target.closest('.approve-btn').dataset.id
-					const status = e.target.closest('.approve-btn').dataset.title === "Approve" ? 1 : 0;
+					const status =
+						e.target.closest('.approve-btn').dataset.title ===
+						'Approve'
+							? 1
+							: 0
 					toggleApprove(id, status)
 				})
 			})
 
 			document.querySelectorAll('.redirect').forEach((btn) => {
 				btn.addEventListener('click', (e) => {
-					const redirect = e.target.closest('.redirect').dataset.redirect
+					const redirect =
+						e.target.closest('.redirect').dataset.redirect
 					router.push(redirect)
 				})
-			});
+			})
 		})
 		return json.data
 	},
@@ -774,31 +807,55 @@ const options = computed(() => ({
 	],
 	ajax: ajaxOptions.value,
 	scrollX: props.options.scrollX || false,
+	stateSave: true,
 	fixedColumns: props.fixedColumns,
+	drawCallback: attachDrawCallBack,
 	footerCallback: function (row, data, start, end, display) {
 		if (dt && props.totalFooter) {
-			// Iterate over each column
 			dt.columns().every(function () {
 				const column = this
 				const columnIndex = column.index()
 
-				// Check if the column should be summed
 				if (props.columns[columnIndex]?.sum) {
 					let total = column
 						.data()
 						.reduce((sum, value) => sum + parseFloat(value) || 0, 0)
 
-					// Update the footer content
 					const footer = column.footer()
 					if (footer) {
-						footer.innerHTML = total.toLocaleString() // Format number
+						footer.innerHTML = total.toLocaleString()
 					}
 				}
 			})
 		}
 	},
 }))
+const attachDrawCallBack = () => {
+	document.querySelectorAll('.delete-btn').forEach((btn) => {
+		btn.addEventListener('click', (e) => {
+			const id = e.target.closest('.delete-btn').dataset.id
+			deleteData(id)
+		})
+	})
 
+	document.querySelectorAll('.approve-btn').forEach((btn) => {
+		btn.addEventListener('click', (e) => {
+			const id = e.target.closest('.approve-btn').dataset.id
+			const status =
+				e.target.closest('.approve-btn').dataset.title === 'Approve'
+					? 1
+					: 0
+			toggleApprove(id, status)
+		})
+	})
+
+	document.querySelectorAll('.redirect').forEach((btn) => {
+		btn.addEventListener('click', (e) => {
+			const redirect = e.target.closest('.redirect').dataset.redirect
+			router.push(redirect)
+		})
+	})
+}
 const handleRangeSelected = (range) => {
 	filterValues.value.dateStart = range.start
 	filterValues.value.dateEnd = range.end

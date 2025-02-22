@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Home from '../views/Home.vue'
+// import Home from '../views/Home.vue'
 import Login from '../views/Login.vue'
 import InternalLayout from '../layouts/InternalLayout.vue'
 import Logout from '../components/Logout.vue'
@@ -20,6 +20,16 @@ const router = createRouter({
 			component: Logout,
 		},
 		{
+			path: '/',
+			component: InternalLayout,
+			children: [
+				{
+					path: '/faq',
+					component: () => import('../views/faq/FAQIndex.vue'),
+				},
+			],
+		},
+		{
 			path: '/about',
 			component: () => import('../views/About.vue'),
 		},
@@ -30,11 +40,7 @@ const router = createRouter({
 			children: [
 				{
 					path: 'home', // Path kosong sebagai default
-					component: Home,
-				},
-				{
-					path: '/faq',
-					component: () => import('../views/faq/FAQIndex.vue'),
+					component: import('../views/Home.vue'),
 				},
 				{
 					path: '/customer',
@@ -143,6 +149,20 @@ const router = createRouter({
 							path: 'product/:mode/:id?',
 							component: () =>
 								import('../views/product/ProductForm.vue'),
+							props: (route) => ({
+								mode: route.params.mode,
+							}),
+						},
+						// Path for Stock-Out
+						{
+							path: 'stock-out',
+							component: () =>
+								import('../views/stock-out/StockOutIndex.vue'),
+						},
+						{
+							path: 'stock-out/:mode/:id?',
+							component: () =>
+								import('../views/stock-out/StockOutForm.vue'),
 							props: (route) => ({
 								mode: route.params.mode,
 							}),
@@ -355,6 +375,10 @@ const router = createRouter({
 const loa = ['add', 'edit', 'delete', 'detail', 'approve', 'disapprove']
 
 router.beforeEach(async (to, from, next) => {
+	if (to.path === '/faq') {
+		next()
+		return
+	}
 	if (!to.matched.some((record) => record.meta.requiresAuth)) {
 		next()
 		return
@@ -378,10 +402,13 @@ router.beforeEach(async (to, from, next) => {
 		// Extract base path and action
 		const paths = to.path.split('/')
 		const actionIndex = paths.findIndex((item) => loa.includes(item))
-		const action = (actionIndex >= 0 ? paths[actionIndex] : 'open').toLowerCase()
-		const basePath =
-			(actionIndex > 0 ? paths.slice(0, actionIndex).join('/') : to.path).toLowerCase()
-		console.log('BasePath and Action',basePath, action)
+		const action = (
+			actionIndex >= 0 ? paths[actionIndex] : 'open'
+		).toLowerCase()
+		const basePath = (
+			actionIndex > 0 ? paths.slice(0, actionIndex).join('/') : to.path
+		).toLowerCase()
+		console.log('BasePath and Action', basePath, action)
 
 		// Check if user has permission
 		const allowed = auth.some((item) => {
@@ -394,7 +421,7 @@ router.beforeEach(async (to, from, next) => {
 			next()
 			return
 		} else {
-			console.log('BasePath and Action',basePath, action)
+			console.log('BasePath and Action', basePath, action)
 			store.dispatch('triggerAlert', {
 				message: 'You are not allowed to access this page',
 				type: 'error',

@@ -104,6 +104,10 @@ const menuTree = ref([
 				path: '/inventory/product',
 			},
 			{
+				label: 'Stock Out',
+				path: '/inventory/stock-out',
+			},
+			{
 				label: 'Operation',
 				path: '/inventory/operation',
 			},
@@ -232,6 +236,7 @@ const explorePath = async () => {
 	})
 	paths.push('/home')
 	paths.push('/logout')
+	paths.push('/faq')
 	// reduce data
 	menuTree.value = await filterMenu(menuTree.value, new Set(paths))
 }
