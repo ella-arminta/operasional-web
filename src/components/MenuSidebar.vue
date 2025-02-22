@@ -236,6 +236,7 @@ const explorePath = async () => {
 	})
 	paths.push('/home')
 	paths.push('/logout')
+	paths.push('/faq')
 	// reduce data
 	menuTree.value = await filterMenu(menuTree.value, new Set(paths))
 }

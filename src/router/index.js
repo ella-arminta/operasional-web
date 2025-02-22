@@ -20,6 +20,16 @@ const router = createRouter({
 			component: Logout,
 		},
 		{
+			path: '/',
+			component: InternalLayout,
+			children: [
+				{
+					path: '/faq',
+					component: () => import('../views/faq/FAQIndex.vue'),
+				},
+			],
+		},
+		{
 			path: '/about',
 			component: () => import('../views/About.vue'),
 		},
@@ -31,10 +41,6 @@ const router = createRouter({
 				{
 					path: 'home', // Path kosong sebagai default
 					component: import('../views/Home.vue'),
-				},
-				{
-					path: '/faq',
-					component: () => import('../views/faq/FAQIndex.vue'),
 				},
 				{
 					path: '/customer',
@@ -369,6 +375,10 @@ const router = createRouter({
 const loa = ['add', 'edit', 'delete', 'detail', 'approve', 'disapprove']
 
 router.beforeEach(async (to, from, next) => {
+	if (to.path === '/faq') {
+		next()
+		return
+	}
 	if (!to.matched.some((record) => record.meta.requiresAuth)) {
 		next()
 		return
