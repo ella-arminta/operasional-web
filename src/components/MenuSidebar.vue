@@ -193,6 +193,10 @@ const menuTree = ref([
 				label: 'Bank Account',
 				path: '/marketplace/bank_account',
 			},
+			{
+				label: 'Balance',
+				path: '/marketplace/balance',
+			},
 		],
 	},
 	{

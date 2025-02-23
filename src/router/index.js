@@ -341,6 +341,11 @@ const router = createRouter({
 								mode: route.params.mode,
 							}),
 						},
+						{
+							path: 'balance',
+							component: () =>
+								import('../views/balance/Balance.vue'),
+						},
 					],
 				},
 				{
