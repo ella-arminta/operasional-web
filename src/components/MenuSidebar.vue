@@ -189,6 +189,10 @@ const menuTree = ref([
 				label: 'Voucher',
 				path: '/marketplace/voucher',
 			},
+			{
+				label: 'Bank Account',
+				path: '/marketplace/bank_account',
+			},
 		],
 	},
 	{

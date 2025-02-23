@@ -328,6 +328,19 @@ const router = createRouter({
 								mode: route.params.mode,
 							}),
 						},
+						{
+							path: 'bank_account',
+							component: () =>
+								import('../views/bank-account/BankAccountIndex.vue'),
+						},
+						{
+							path: 'bank_account/:mode/:id?',
+							component: () =>
+								import('../views/bank-account/BankAccountForm.vue'),
+							props: (route) => ({
+								mode: route.params.mode,
+							}),
+						},
 					],
 				},
 				{
