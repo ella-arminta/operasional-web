@@ -126,10 +126,22 @@ const payoutColumns = [
 ];
 
 const balanceColumns = [
-    { data: 'amount', title: 'Amount', render: data => `Rp ${formatNumber(data)}` },
+    {
+        data: 'amount',
+        title: 'Amount',
+        render: data => {
+            const formattedAmount = `Rp ${formatNumber(data)}`;
+            const color = data < 0 ? 'text-red-500' : 'text-green-500';
+            return `<span class="${color} font-semibold">${formattedAmount}</span>`;
+        }
+    },
     { data: 'type', title: 'Type' },
     { data: 'information', title: 'Description' },
-    { data: 'created_at', title: 'Tanggal', render: data => formatDate(data) }
+    {
+        data: 'created_at',
+        title: 'Tanggal',
+        render: data => formatDate(data)
+    }
 ]
 
 const fetchBalanceData = async () => {
