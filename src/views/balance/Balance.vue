@@ -77,7 +77,7 @@ const balance = ref(0)
 const payoutRequests = ref([])
 const balanceLogs = ref([])
 const bankAccounts = ref([])
-const selectedBankAccount = ref([])
+const selectedBankAccount = ref(null)
 
 // Modal Reactive State
 const showProofModal = ref(false)
@@ -142,11 +142,9 @@ const fetchBalanceData = async () => {
         balanceLogs.value = data.BalanceLog.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
         bankAccounts.value = data.BankAccount.map(acc => ({
-            value: acc.id,
+            id: acc.id,
             label: `${acc.bank_name} - ${acc.account_number} (${acc.account_holder})`
         }));
-
-        console.log(bankAccounts);
 
         if (bankAccounts.value.length > 0) {
             selectedBankAccount.value = [bankAccounts.value[0].value];
@@ -171,7 +169,6 @@ const fetchBalanceData = async () => {
 watch(
     () => selectedBankAccount.value,
     async (newValue) => {
-        console.log(newValue);
         if (!newValue || newValue.length === 0) return; // Pastikan ada nilai baru
 
         console.log("✅ Bank Account Changed:", newValue[0]); // Debugging
