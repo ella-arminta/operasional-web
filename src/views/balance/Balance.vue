@@ -13,7 +13,8 @@
                             Bank Account<span class="text-pinkDark">*</span>
                         </label>
                         <Dropdown :items="bankAccounts" v-model="selectedBankAccount"
-                            placeholder="Select a bank account" :multiple="false" :searchable="true" />
+                            placeholder="Select a bank account" :multiple="false" :searchable="true"
+                            :addRoute="'/marketplace/bank_account/add'" />
 
                         <p v-if="formError.bank_account_id" class="text-pinkDark text-xs italic">
                             {{ formError.bank_account_id }}
