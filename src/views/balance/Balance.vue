@@ -122,14 +122,14 @@ const payoutColumns = [
         title: 'Bukti',
         render: (data) => data ? `<button class="proof-btn bg-pinkDark text-white px-2 py-1 rounded" data-proof="http://127.0.0.1:3000/${data}">Lihat Bukti</button>` : `<span class="text-gray-500">Tidak Ada Bukti</span>`
     },
-    { data: 'created_at', title: 'Created At', render: data => formatDate(data) }
+    { data: 'created_at', title: 'Tanggal Payout', render: data => formatDate(data) }
 ];
 
 const balanceColumns = [
     { data: 'amount', title: 'Amount', render: data => `Rp ${formatNumber(data)}` },
     { data: 'type', title: 'Type' },
     { data: 'information', title: 'Description' },
-    { data: 'created_at', title: 'Created At', render: data => formatDate(data) }
+    { data: 'created_at', title: 'Tanggal', render: data => formatDate(data) }
 ]
 
 const fetchBalanceData = async () => {
