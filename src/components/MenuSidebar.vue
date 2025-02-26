@@ -157,8 +157,12 @@ const menuTree = ref([
 						path: '/finance/journal',
 					},
 					{
+						label: 'Trial Balance',
+						path: '/finance/trial-balance',
+					},
+					{
 						label: 'General Ledger',
-						path: '/finance/general-ledger',
+						path: '/finance/general-ledger/detail',
 					},
 					{
 						label: 'Profit & Loss',

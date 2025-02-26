@@ -76,6 +76,7 @@
 						<Dropdown
 							:items="filter.options"
 							:multiple="filter.multiple || false"
+							:disabled="filter.disabled || false"
 							v-model="filterValues[filter.name]"
 						/>
 					</div>
@@ -129,7 +130,7 @@
 			</thead>
 			<tfoot v-if="props.totalFooter" class="bg-white">
 				<tr>
-					<th v-for="(column, index) in columns" :key="index">
+					<th v-for="(column, index) in columns" :key="index" class="text-end">
 						{{ index === 0 ? 'Total' : column.sum ? 'Total' : '' }}
 					</th>
 				</tr>
@@ -301,7 +302,7 @@ tbody > tr:nth-child(even) > td {
 	box-shadow: none !important;
 }
 .dataTable tfoot th {
-	text-align: start !important;
+	text-align: right !important;
 }
 </style>
 <script setup lang="ts">
@@ -455,13 +456,19 @@ watch(
 					return acc
 				}
 				if (filter.type == 'select') {
-					acc[filter.name] = filter.options[0].value
+					if (filter.value) {
+						acc[filter.name] = [filter.value]
+					} else  {
+						acc[filter.name] = filter.options[0].value
+					}
+					return acc
 				}
 				return acc
 			},
 			{} as Record<string, string>
 		)
-	}
+	},
+	{ deep: true }
 )
 
 // function to delete data by id

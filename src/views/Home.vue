@@ -3,6 +3,7 @@ import { computed, ref, onMounted } from 'vue'
 import { useStore } from 'vuex'
 import PageTitle from '../components/PageTitle.vue'
 import LineChart from '../components/chart/LineChart.vue'
+import axiosInstance from '../axios'
 
 const store = useStore()
 const smallMenu = computed(() => store.getters.smallMenu)
@@ -10,6 +11,33 @@ const sellPrice = ref(0)
 const buyPrice = ref(0)
 const startDate = ref('')
 const endDate = ref('')
+const lastUpdated = ref('')
+onMounted(async () => {
+  const today = new Date();
+  const tomorrow = new Date();
+  tomorrow.setDate(today.getDate() + 1);
+
+  startDate.value = today.toISOString().split('T')[0]; // Format YYYY-MM-DD
+  endDate.value = tomorrow.toISOString().split('T')[0];
+
+  const response = await axiosInstance.get('/finance/current-gold-price');
+  console.log('response', response.data.data);
+  sellPrice.value = response.data.data.sellPrice;
+  buyPrice.value = response.data.data.buyPrice;
+  lastUpdated.value = new Date(response.data.data.created_at).toLocaleString('id-ID', {
+	day: '2-digit',
+	month: '2-digit',
+	year: 'numeric',
+	hour: '2-digit',
+	minute: '2-digit',
+	hour12: true
+  });
+});
+
+const formatIDR = (value: number) => {
+  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(value);
+};
+
 </script>
 
 <template>
@@ -18,7 +46,7 @@ const endDate = ref('')
 
 		<!-- Filters -->
 		<div
-			class="shadow-md mb-6 bg-white shadow-md rounded-lg md:rounded-full px-4 py-4 text-center md:text-start md:flex justify-start items-center mb-5 md:w-[45%]"
+			class="shadow-md mb-6 bg-white shadow-md rounded-lg md:rounded-full px-4 py-4 text-center md:text-start md:flex justify-center items-center mb-5 md:w-[50%] box-border"
 		>
 			<div
 				class="md:text-start text-pinkDark w-full md:w-[20%] text-center"
@@ -29,7 +57,7 @@ const endDate = ref('')
 				<div class="w-full">
 					<label
 						for="start-date"
-						class="block md:inline-block text-gray-500"
+						class="block  text-gray-500"
 						>Start Date</label
 					>
 					<input
@@ -43,7 +71,7 @@ const endDate = ref('')
 				<div class="w-full">
 					<label
 						for="end-date"
-						class="block md:inline-block text-gray-500"
+						class="block  text-gray-500"
 						>End Date</label
 					>
 					<input
@@ -61,24 +89,32 @@ const endDate = ref('')
 			<div class="card w-full bg-white rounded-lg px-4 py-7 shadow-md">
 				<div class="card-header">
 					<h2 class="text-center text-2xl text-wrap text-pinkDark">
-						Rp. 100.000.100.000
+						{{ formatIDR(sellPrice) }}
 					</h2>
 				</div>
 				<div class="card-body mt-2">
 					<p class="card-title text-center text-gray-500 text-lg">
 						Gold Selling Price
 					</p>
+					<!-- last updated -->
+					<p class="card-title text-center text-gray-500 text-xs mt-2">
+						Last Updated: {{ lastUpdated }}
+					</p>
 				</div>
 			</div>
 			<div class="card w-full bg-white rounded-lg px-4 py-7 shadow-md">
 				<div class="card-header">
 					<h2 class="text-center text-2xl text-wrap text-pinkDark">
-						Rp. 100.000.200.000
+						{{ formatIDR(buyPrice) }}
 					</h2>
 				</div>
 				<div class="card-body mt-2">
 					<p class="card-title text-center text-gray-500 text-lg">
 						Gold Buying Price
+					</p>
+					<!-- last updated -->
+					<p class="card-title text-center text-gray-500 text-xs mt-2">
+						Last Updated: {{ lastUpdated }}
 					</p>
 				</div>
 			</div>
@@ -109,8 +145,6 @@ const endDate = ref('')
 		</div>
 
 		<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-5">
-			<!-- <LineChart :apiPath="'/finance/gold-price'" :title="'Gold Selling Price'" :startDate="startDate" :endDate="endDate" />
-      <LineChart :apiPath="'/finance/gold-price'" :title="'Sales'" :startDate="startDate" :endDate="endDate" /> -->
 			<LineChart
 				:apiPath="'/finance/gold-price'"
 				:title="'Gold Selling Price'"

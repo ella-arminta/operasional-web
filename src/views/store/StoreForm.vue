@@ -184,15 +184,35 @@
 						label="Active Status"
 						:disabled="mode === 'detail'"
 					/>
-					<!-- Tax Percentage -->
+					<!-- Tax Percentage / PPN Jual -->
 					<InputForm
 						v-model="form.tax_percentage"
 						id="tax_percentage"
 						type="number"
-						label="Tax Percentage (%)"
-						placeholder="Tax Percentage (%)"
+						label="PPN Jual (%)"
+						placeholder="PPN Jual (%)"
 						:readonly="mode === 'detail'"
 						:error="formError.tax_percentage"
+					/>
+					<!-- PPN Beli -->
+					<InputForm
+						v-model="form.tax_purchase"
+						id="tax_purchase"
+						type="number"
+						label="PPN Beli (%)"
+						placeholder="PPN Beli (%)"
+						:readonly="mode === 'detail'"
+						:error="formError.tax_purchase"
+					/>
+					<!-- PPh -->
+					<InputForm
+						v-model="form.income_tax"
+						id="income_tax"
+						type="number"
+						label="Pph (%)"
+						placeholder="Pph (%)"
+						:readonly="mode === 'detail'"
+						:error="formError.income_tax"
 					/>
 					<!-- Flexible Price -->
 					<ToggleForm
@@ -412,6 +432,8 @@ const form = ref({
 	tax_percentage: 0,
 	defect_nominal: 0,
 	defect_percentage: 0,
+	tax_purchase: 0,
+	income_tax: 0
 })
 const formCopy = ref({ ...form.value })
 const formError = ref({
@@ -432,6 +454,8 @@ const formError = ref({
 	tax_percentage: '',
 	defect_nominal: '',
 	defect_percentage: '',
+	tax_purchase: 0,
+	income_tax: 0
 })
 
 // MapPicker

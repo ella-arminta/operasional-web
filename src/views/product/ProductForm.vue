@@ -206,14 +206,43 @@
 						/>
 					</div>
 					<div>
-						<!-- Harga Beli -->
+						<!-- Harga Beli (sebelum pajak) -->
 						<InputForm
 							v-model="formCode.buy_price"
 							type="number"
 							id="buy_price"
-							label="Harga Beli"
-							placeholder="Harga Beli"
+							label="Harga Beli (sebelum pajak)"
+							placeholder="Harga Beli (sebelum pajak)"
 							required
+						/>
+					</div>
+					<div>
+						<!-- PPN Beli -->
+						<InputForm
+							v-model="formCode.tax_purchase"
+							type="number"
+							id="tax_purchase"
+							:label="'PPN Beli (' + taxPurchasePercentage + '%)'"
+							:placeholder="'PPN Beli (' + taxPurchasePercentage + '%)'"
+							:editPath="'/master/store/edit/' + form.store_id"
+							required
+						/>
+					</div>
+					<div>
+						<!-- Akun cash / bank -->
+						 <!-- Label -->
+						<label :for="account_id" class="block text-sm text-gray-900 font-medium">
+							Kas/Bank <span class="text-pinkDark">*</span>
+						</label>
+						<Dropdown
+							:items="accounts"
+							v-model="formCode.account_id"
+							placeholder="Select an account"
+							:multiple="false"
+							:searchable="true"
+							:disabled="mode === 'detail'"
+							:addRoute="'/master/account/add'"
+							id="account_id"
 						/>
 					</div>
 					<div class="flex justify-end items-end">
@@ -659,12 +688,17 @@ const formCode = ref({
 	weight: 0,
 	fixed_price: '',
 	buy_price: 0,
+	tax_purchase:0,
+	account_id: [],
 })
 
 // submit generate code
 const generateCode = async () => {
 	console.log('refTable', refTable.value)
 	try {
+		if (formCode.value.account_id.length > 0) {
+			formCode.value.account_id = formCode.value.account_id[0]
+		}
 		const response = await axiosInstance.post(
 			`/inventory/generate-product-code/${id}`,
 			formCode.value
@@ -674,9 +708,13 @@ const generateCode = async () => {
 			refTable.value?.reloadData()
 			formCode.value.weight = 0
 			formCode.value.buy_price = 0
+			formCode.value.tax_purchase = 0
+			formCode.value.account_id = []
 		}
 	} catch (error) {
-		showAlert('error', 'Error!', error.data.message)
+		formCode.value.account_id = [formCode.value.account_id]
+		console.log(error);
+		showAlert('error', 'Error!', error?.message, error?.response?.data?.errors)
 	}
 	formCode.value.weight = 0
 	formCode.value.buy_price = 0
@@ -685,8 +723,14 @@ const generateCode = async () => {
 const showAlert = (
 	type: 'success' | 'error' | 'warning',
 	title: string,
-	message: string
+	message: string,
+	errors?: any
 ) => {
+	if (errors) {
+		message += `<br><ul>
+			${errors.map((err: any) => `<li>${err.field}: ${err.message}</li>`).join('')}
+		</ul>`;
+	}
 	store.dispatch('triggerAlert', {
 		type,
 		title,
@@ -703,7 +747,8 @@ const showAlert = (
 
 // Reload Child REF
 const refTable = ref('')
-
+const taxPurchasePercentage = ref(0);
+const accounts = ref([]);
 onMounted(async () => {
 	await fetchCategory()
 	if (props.mode !== 'add' && id) {
@@ -720,5 +765,24 @@ onMounted(async () => {
 		}
 	}
 	form.value.store_id = decryptData(Cookies.get('userdata')).store_id
+
+	// PPN Beli
+	const store	= await axiosInstance.get(`/master/store/${form.value.store_id}`);
+	taxPurchasePercentage.value = parseFloat(store.data.data.tax_purchase);
+	const accresponse = await axiosInstance.get('/finance/account');
+	accounts.value = accresponse.data.data.map((account) => ({
+		id: account.id,
+		label: `${account.code} - ${account.name}`,
+	}));
 })
+
+// harga beli on change
+watch(
+	() => formCode.value.buy_price,
+	(newVal) => {
+		formCode.value.tax_purchase = (newVal * taxPurchasePercentage.value) / 100
+	},
+	{ deep: true }
+)
+
 </script>

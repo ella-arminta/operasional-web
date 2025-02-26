@@ -272,17 +272,17 @@ const router = createRouter({
 								import('../views/stock/StockMutationIndex.vue'),
 						},
 						{
-							path: 'general-ledger',
+							path: 'trial-balance',
 							component: () =>
 								import(
-									'../views/general-ledger/GeneralLedgerIndex.vue'
+									'../views/report/TrialBalance.vue'
 								),
 						},
 						{
-							path: 'general-ledger/detail/:id',
+							path: 'general-ledger/detail/:id?',
 							component: () =>
 								import(
-									'../views/general-ledger/LedgerDetail.vue'
+									'../views/report/LedgerDetail.vue'
 								),
 						},
 						{
