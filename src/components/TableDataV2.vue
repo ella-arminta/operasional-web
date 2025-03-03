@@ -92,12 +92,24 @@ const tableData = computed(() => {
     })
 })
 
-const tableOptions = {
-    searching: true,
-    paging: true,
-    ordering: true,
-    autoWidth: false
-}
+const tableOptions = computed(() => {
+    const createdAtIndex = getCreatedAtColumnIndex(props.columns);
+    return {
+        searching: true,
+        paging: true,
+        ordering: true,
+        autoWidth: false,
+        order: createdAtIndex !== -1 ? [[createdAtIndex, 'desc']] : [] // Urutkan hanya jika ada kolom `created_at`
+    };
+});
+
+
+
+const getCreatedAtColumnIndex = (columns) => {
+    console.log(columns);
+    return columns.findIndex(col => col.data === 'created_at');
+};
+
 
 const toggleFilters = () => {
     isFiltersOpen.value = !isFiltersOpen.value
