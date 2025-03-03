@@ -114,8 +114,8 @@
 					</div>
 				</div>
 				<EditableCat :initialRows="form.transaction_details" :columns="transactionDetailsColumns"
-					:required="false" :readonly="mode === 'detail'" :allActive="false" :independent="mode !== 'add'"
-					:addable="false" title="Items Detail" @update:rows="handleRowsUpdate"
+					:required="false" :readonly="mode === 'detail' || form.payment_method == 5" :allActive="false"
+					:independent="mode !== 'add'" :addable="false" title="Items Detail" @update:rows="handleRowsUpdate"
 					:addPath="'/transaction/transaction-detail'" :editPath="'/transaction/transaction-detail'"
 					:deletePath="'/transaction/transaction-detail'" :noDataState="noDataState" />
 				<div class="grid grid-cols-5 gap-6 mt-8 place-items-end mr-4">
