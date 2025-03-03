@@ -301,10 +301,14 @@ const columns = Object.freeze([
 	{
 		data: "image",
 		title: "Image",
-		render: (data) =>
-			data
-				? `<img src="http://127.0.0.1:3000/${data}" onclick="window.showImage('${data}')" class="w-12 h-12 cursor-pointer rounded-md shadow-md hover:shadow-lg transition" />`
-				: "No Image",
+		render: (data) => {
+			if (!data) return "No Image";
+			
+			// Ubah backslash ke forward slash
+			const formattedData = data.replace(/\\/g, "/");
+
+			return `<img src="http://127.0.0.1:3000/${formattedData}" onclick="window.showImage('${formattedData}')" class="w-12 h-12 cursor-pointer rounded-md shadow-md hover:shadow-lg transition" />`;
+		},
 	},
 	{
 		data: 'action',
@@ -341,9 +345,9 @@ const closeModal = () => {
 	dataModalQR.value = null
 }
 const openImageModal = (imagePath) => {
-	const sanitizedPath = imagePath.replace(/\\/g, '/');
+	// const sanitizedPath = imagePath.replace(/\\/g, '/');
 
-	selectedImage.value = `http://127.0.0.1:3000/${sanitizedPath}`;
+	selectedImage.value = `http://127.0.0.1:3000/${imagePath}`;
 	showImageModal.value = true;
 };
 
