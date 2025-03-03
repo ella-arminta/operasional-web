@@ -80,7 +80,7 @@
 			</div>
 			<FormSectionHeader title="Transaction Details" icon="shopping_cart" />
 			<div class="mt-4">
-				<div v-if="mode !== 'detail'" class="grid grid-cols-3 gap-6 mb-4">
+				<div v-if="mode !== 'detail' && form.payment_method != '5'" class="grid grid-cols-3 gap-6 mb-4">
 					<div>
 						<label for="dropdown" class="block text-sm text-grey-900 font-medium mb-1">
 							Type of Sales<span class="text-pinkDark">*</span>
@@ -115,9 +115,10 @@
 				</div>
 				<EditableCat :initialRows="form.transaction_details" :columns="transactionDetailsColumns"
 					:required="false" :readonly="mode === 'detail' || form.payment_method == 5" :allActive="false"
-					:independent="mode !== 'add'" :addable="false" title="Items Detail" @update:rows="handleRowsUpdate"
-					:addPath="'/transaction/transaction-detail'" :editPath="'/transaction/transaction-detail'"
-					:deletePath="'/transaction/transaction-detail'" :noDataState="noDataState" />
+					:independent="mode !== 'add'" :addable="form.payment_method != 5" title="Items Detail"
+					@update:rows="handleRowsUpdate" :addPath="'/transaction/transaction-detail'"
+					:editPath="'/transaction/transaction-detail'" :deletePath="'/transaction/transaction-detail'"
+					:noDataState="noDataState" />
 				<div class="grid grid-cols-5 gap-6 mt-8 place-items-end mr-4">
 					<div class="col-start-4 space-y-2">
 						<h5>Weight Total</h5>
