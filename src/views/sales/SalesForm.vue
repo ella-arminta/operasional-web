@@ -135,8 +135,7 @@
 						<h5>{{ form.weight_total }} gram</h5>
 						<h5>{{ formatNumber(form.sub_total_price) }}</h5>
 						<h5>{{ form.poin_earned }}</h5>
-						<h5>{{ formatNumber(Math.max(0, Number(form.total_price) - (Number(form.sub_total_price) +
-							Number(form.tax_price)))) }}</h5>
+						<h5>-{{ formatNumber(form.voucher_discount) }}</h5>
 						<h5>{{ formatNumber(form.tax_price) }}</h5>
 						<h5>{{ formatNumber(form.total_price) }}</h5>
 					</div>
@@ -722,9 +721,11 @@ const fetchTax = async () => {
 	if (response.data.success) {
 		tax.value = parseFloat(response.data.data.tax_percentage)
 		form.value.tax_price = form.value.sub_total_price * (tax.value / 100)
-		form.value.total_price =
-			parseFloat(form.value.sub_total_price) +
-			parseFloat(form.value.tax_price)
+		if (form.value.voucher_own_id == null) {
+			form.value.total_price =
+				parseFloat(form.value.sub_total_price) +
+				parseFloat(form.value.tax_price)
+		}
 		console.log(tax.value)
 		console.log(form.value)
 	} else {
@@ -742,6 +743,11 @@ const fetchTransaction = async () => {
 	if (response.data.success) {
 		const data = response.data.data
 		console.log(data)
+
+		const voucherDiscount =
+			data.voucher_own_id !== null
+				? (parseFloat(data.sub_total_price) + parseFloat(data.tax_price)) - parseFloat(data.total_price)
+				: 0;
 
 		form.value = {
 			...data,
@@ -767,6 +773,7 @@ const fetchTransaction = async () => {
 				(acc, product) => acc + parseFloat(product.weight),
 				0
 			),
+			voucher_discount: voucherDiscount,
 		}
 
 		form.value.status = [form.value.status]
