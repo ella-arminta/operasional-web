@@ -341,9 +341,12 @@ const closeModal = () => {
 	dataModalQR.value = null
 }
 const openImageModal = (imagePath) => {
-	selectedImage.value = `http://127.0.0.1:3000/${imagePath}`; // Sesuaikan URL backend
+	const sanitizedPath = imagePath.replace(/\\/g, '/');
+
+	selectedImage.value = `http://127.0.0.1:3000/${sanitizedPath}`;
 	showImageModal.value = true;
 };
+
 
 const closeImageModal = () => {
 	showImageModal.value = false;
