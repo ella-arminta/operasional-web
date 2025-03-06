@@ -107,8 +107,6 @@
 							focus:outline-none focus:ring focus:ring-pinkOrange focus:ring-opacity-25" :class="{
 								'border-pinkDark': formError.tags,
 								'border-pinkOrange': !formError.tags,
-								'placeholder-opacity-50 bg-opacity-25': readonly,
-								'text-opacity-100 bg-opacity-100 text-pinkDark': !readonly,
 							}" />
 								<!-- Tombol Add di sebelah kanan input dengan gaya yang serupa -->
 								<button type="button" @click="addTag" class="ml-2 px-4 py-2 bg-pinkGray border border-pinkOrange border-opacity-25 rounded-lg
@@ -413,6 +411,7 @@ const formError = ref({
 	type_id: '',
 	price: '',
 	images: '',
+	tags: '',
 	description: '',
 	product_codes: '',
 })
@@ -566,7 +565,7 @@ const hasUnsavedChanges = computed(() => {
 		(key) => form.value[key] !== formCopy.value[key]
 	)
 })
-const excludedKeys = ['code', 'description']
+const excludedKeys = ['code', 'description', 'tags', 'tagsInput']
 const hasFullyFilled = computed(() => {
 	return Object.keys(form.value)
 		.filter((key) => !excludedKeys.includes(key))
