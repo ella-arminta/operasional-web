@@ -109,9 +109,9 @@
 								'border-pinkOrange': !formError.tags,
 							}" />
 								<!-- Tombol Add di sebelah kanan input dengan gaya yang serupa -->
-								<button type="button" @click="addTag" class="ml-2 px-4 py-2 bg-pinkGray border border-pinkOrange border-opacity-25 rounded-lg
-								text-pinkDark hover:bg-pinkDark hover:text-white focus:outline-none focus:ring
-								focus:ring-pinkOrange focus:ring-opacity-25 transition duration-300 ease-in-out">
+								<button v-if="mode !== 'detail'" type="button" @click="addTag" class="ml-2 px-4 py-2 bg-pinkGray border border-pinkOrange border-opacity-25 rounded-lg
+				text-pinkDark hover:bg-pinkDark hover:text-white focus:outline-none focus:ring
+				focus:ring-pinkOrange focus:ring-opacity-25 transition duration-300 ease-in-out">
 									Add
 								</button>
 							</div>
@@ -120,7 +120,8 @@
 								<span v-for="(tag, index) in form.tags" :key="index"
 									class="inline-flex items-center bg-pinkLight text-pinkDark text-xs font-semibold rounded-full px-2 py-1">
 									{{ tag }}
-									<button type="button" @click="removeTag(index)" class="ml-2 text-pinkDark">
+									<button v-if="mode !== 'detail'" type="button" @click="removeTag(index)"
+										class="ml-2 text-pinkDark">
 										×
 									</button>
 								</span>
