@@ -102,15 +102,14 @@
 								Tags
 							</label>
 							<div class="relative flex items-center">
-								<input v-if="mode !== 'detail'" v-model=" form.tagsInput" id="tags" type="text"
-									placeholder="Add a tag" :readonly="mode !== 'add'" :value="form.tagsInput"
+								<input v-if="mode !== 'detail'" v-model="form.tagsInput" id="tags" type="text"
+									placeholder="Add a tag" :readonly="mode === 'detail'" :value="form.tagsInput"
 									@input="$emit('update:modelValue', $event.target.value)"
 									class="w-full bg-pinkGray border border-pinkOrange border-opacity-25 transition duration-300 placeholder-pinkOrange placeholder-opacity-25 rounded-lg px-3 py-2 text-pinkDark focus:outline-none focus:ring focus:ring-pinkOrange focus:ring-opacity-25"
 									:class="{
 										'border-pinkDark': formError.tags,
 										'border-pinkOrange': !formError.tags,
-										'placeholder-opacity-50 bg-opacity-25': mode !== 'add',  // Apply this class when readonly
-										'text-opacity-100 bg-opacity-100 text-pinkDark': mode === 'add', // When not readonly
+										'text-opacity-100 bg-opacity-100 text-pinkDark': mode === 'detail', // When not readonly
 									}" @keypress.enter.prevent />
 
 								<!-- Tombol Add di sebelah kanan input dengan gaya yang serupa -->
