@@ -4,6 +4,7 @@ import { useStore } from 'vuex'
 import PageTitle from '../components/PageTitle.vue'
 import LineChart from '../components/chart/LineChart.vue'
 import axiosInstance from '../axios'
+import { formatIDR } from '../utils/common'
 
 const store = useStore()
 const smallMenu = computed(() => store.getters.smallMenu)
@@ -33,10 +34,6 @@ onMounted(async () => {
 	hour12: true
   });
 });
-
-const formatIDR = (value: number) => {
-  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(value);
-};
 
 </script>
 
@@ -89,7 +86,7 @@ const formatIDR = (value: number) => {
 			<div class="card w-full bg-white rounded-lg px-4 py-7 shadow-md">
 				<div class="card-header">
 					<h2 class="text-center text-2xl text-wrap text-pinkDark">
-						{{ formatIDR(sellPrice) }}
+						Rp. {{ formatIDR(sellPrice) }}
 					</h2>
 				</div>
 				<div class="card-body mt-2">
@@ -105,7 +102,7 @@ const formatIDR = (value: number) => {
 			<div class="card w-full bg-white rounded-lg px-4 py-7 shadow-md">
 				<div class="card-header">
 					<h2 class="text-center text-2xl text-wrap text-pinkDark">
-						{{ formatIDR(buyPrice) }}
+						Rp. {{ formatIDR(buyPrice) }}
 					</h2>
 				</div>
 				<div class="card-body mt-2">

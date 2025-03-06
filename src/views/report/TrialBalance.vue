@@ -6,7 +6,7 @@ import axiosInstance from '../../axios'
 import { useStore } from 'vuex'
 import DropdownFinance from '../../components/DropdownFinance.vue'
 import { name } from 'eslint-plugin-prettier/recommended'
-
+import { formatIDR } from '../../utils/common'
 const columns = [
 	{ data: 'code', title: 'Code' },
 	{ data: 'name', title: 'Name' },
@@ -42,11 +42,6 @@ const columns = [
 		orderable: false,
 	},
 ];
-
-function formatIDR(value) {
-	if (!value) return '0';
-	return parseInt(value).toLocaleString('id-ID');
-}
 
 const store = useStore()
 const smallMenu = computed(() => store.getters.smallMenu)
