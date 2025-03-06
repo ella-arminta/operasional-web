@@ -6,36 +6,145 @@ import axiosInstance from '../../axios';
 import { useStore } from 'vuex';
 
 const columns = [
-    { data: 'date', title: 'Date', render: (data) => new Date(data).toLocaleDateString() },
+    { 
+        data: 'date', 
+        title: 'Date', 
+        render: (data) => {
+            const date = new Date(data);
+            return date.toLocaleDateString('id-ID') + ' ' + 
+                   date.toLocaleTimeString('id-ID', { hour12: false });
+        } 
+    },
     { data: 'code', title: 'Code' },
     { data: 'name', title: 'Name' },
     { data: 'description', title: 'Description' },
-    { data:'in', title: 'In' },
+    { data: 'in', title: 'In' },
     { data: 'out', title: 'Out' },
-    { data: 'balance', title: 'Balance' },
+    { data: 'balance', title: 'Balance', render: (data) => Number(data) }
 ];
 const store = useStore();
 const smallMenu = computed(() => store.getters.smallMenu);
 
-const ajaxPath = '/inventory/stock-card';
-const pageTitle = 'Stock Mutation';
+const ajaxPath = '/finance/stock-card';
+const pageTitle = 'Stock Card';
 
 const filters = ref([]);
 
 onMounted(async () => {
+	const categoryData = await axiosInstance.get('/inventory/category');
+	var categoryFormat = categoryData.data.data.map((cat) => ({
+		label: cat.name,
+		id: cat.id,
+	}))
+	var prodData = await axiosInstance.get('/inventory/product');
+	var prodFormat = prodData.data.data.map((prod) => ({
+		label: prod.name,
+		id: prod.id,
+	}))
+	var typeData = await axiosInstance.get('/inventory/type');
+	var typeFormat = typeData.data.data.map((type) => ({
+		label: type.name,
+		id: type.id,
+	}))
+	var companyData = await axiosInstance.get('/master/company');
+	var companyFormat = companyData.data.data.map((company) => ({
+		label: company.name,
+		id: company.id,
+	}))
+	var storeData = await axiosInstance.get('/master/store');
+	var storeFormat = storeData.data.data.map((store) => ({
+		label: store.name,
+		id: store.id,
+	}));
   filters.value = [
-    {
-      type: 'date',
-      label: 'Start Date',
-      name: 'start_date',
-    },
-    {
-      type: 'date',
-      label: 'End Date',
-      name: 'end_date',
-    },
-  ];
+		{
+			type: 'selectRangeFinance',
+			label: 'Range',
+			name: 'range',
+		},
+		{
+			type: 'select',
+			label: 'Company',
+			name: 'company_id',
+			options: [{ label: 'All Company', value: '' }, ...companyFormat],
+		},
+		{
+			type: 'select',
+			label: 'Store',
+			name: 'store_id',
+			options: [{ label: 'All Store', value: '' }, ...storeFormat],
+		},
+		{
+			type: 'select',
+			label: 'Category',
+			name: 'category_id',
+			options: [{ label: 'All Category', value: '' }, ...categoryFormat],
+		},
+		{
+			type: 'select',
+			label: 'Type',
+			name: 'type_id',
+			options: [{ label: 'All Type', value: '' }, ...typeFormat],
+		},
+		{
+			type: 'select',
+			label: 'Product',
+			name: 'product_id',
+			options: [{ label: 'All Product', value: '' }, ...prodFormat],
+		},
+	]
 });
+const prevDatas = ref({});
+const handleFilterChange = (data) => {
+  const updateFilter = (key, fetchFunctions) => {
+    if (data[key] && data[key] != null && data[key][0] != prevDatas.value[key]) {
+      prevDatas.value[key] = data[key][0] || '';
+      fetchFunctions.forEach(fn => refetchData(fn, data));
+    }
+  };
+
+// 0 -> value yg keupdate user, 1 -> value yg diupdate sesuai value 0
+  updateFilter('company_id', ['store', 'type', 'product', 'category']);
+  updateFilter('category_id', ['type', 'product']);
+  updateFilter('type_id', ['product']);
+  updateFilter('store_id', ['type', 'product', 'category']);
+};
+
+const setValuePrev = (data) => {
+  const keys = ['company_id', 'store_id', 'category_id', 'type_id', 'product_id'];
+  keys.forEach((key, index) => {
+    filters.value[index + 1].value = data[key]?.[0] || '';
+  });
+};
+
+const refetchData = async (type, data) => {
+  const endpoints = {
+    store: { url: '/master/store', params: ['company_id'], filterIndex: 2, label: 'All Store' },
+    type: { url: '/inventory/type', params: ['company_id', 'store_id', 'category_id'], filterIndex: 4, label: 'All Type' },
+    product: { url: '/inventory/product', params: ['category_id', 'type_id', 'company_id', 'store_id'], filterIndex: 5, label: 'All Product' },
+    category: { url: '/inventory/category', params: ['company_id', 'store_id'], filterIndex: 3, label: 'All Category' },
+  };
+
+  const { url, params, filterIndex, label } = endpoints[type];
+  const queryParams = new URLSearchParams();
+
+  params.forEach(param => {
+    if (data[param] && data[param][0]) {
+      queryParams.append(param, data[param][0]);
+    }
+  });
+
+  const fullUrl = queryParams.toString() ? `${url}?${queryParams.toString()}` : url;
+  const response = await axiosInstance.get(fullUrl);
+
+  const formattedData = response.data.data.map(item => ({
+    label: item.name,
+    id: item.id,
+  }));
+
+  filters.value[filterIndex].options = [{ label, value: '' }, ...formattedData];
+  setValuePrev(data);
+};
 </script>
 
 <template>
@@ -49,6 +158,7 @@ onMounted(async () => {
       :reload="true"
       :filters="filters"
       :ajaxPath="ajaxPath"
+	  @filterValuesChanged="handleFilterChange"
     />
   </div>
 </template>

@@ -55,6 +55,7 @@ const selectRange = () => {
             tempEndDate.getFullYear();
 
     }
+    console.log('beforevalue', JSON.stringify(selectedRange.value.value));
 
     isDropdownOpen.value = false;
     labelFixSelected.value = selectedRange.value.label;
@@ -65,10 +66,16 @@ const selectRange = () => {
     if (!(selectedRange.value.value.end instanceof Date)) {
       selectedRange.value.value.end = new Date(selectedRange.value.value.end);
     }
+    // Convert buat di emit
     selectedRange.value.value.start = selectedRange.value.value.start.toISOString().split('T')[0];
     selectedRange.value.value.end = selectedRange.value.value.end.toISOString().split('T')[0];
     selectedRange.value.value.label = labelFixSelected.value;
+    console.log('middlevalue', JSON.stringify(selectedRange.value.value));
     emit("range-selected",  selectedRange.value.value );
+    // balikin format 
+    selectedRange.value.value.start = new Date(selectedRange.value.value.start);
+    selectedRange.value.value.end = new Date(selectedRange.value.value.end);
+    console.log('aftervalue', JSON.stringify(selectedRange.value.value));
 };
 
 const navigate = (direction, options) => {

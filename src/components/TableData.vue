@@ -314,7 +314,7 @@ import ColumnVisibility from 'datatables.net-buttons/js/buttons.colVis.js' // Co
 import FixedColumns from 'datatables.net-fixedcolumns-dt'
 import 'datatables.net-fixedcolumns-dt/css/fixedColumns.dataTables.css' // include fixedcolumns css
 
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, onMounted, computed, watch, defineEmits } from 'vue'
 import Select from 'datatables.net-select'
 import Cookies from 'js-cookie'
 import { decryptData } from '../utils/crypto'
@@ -817,6 +817,7 @@ const options = computed(() => ({
 	stateSave: true,
 	fixedColumns: props.fixedColumns,
 	drawCallback: attachDrawCallBack,
+	order: [[1, 'desc']],
 	footerCallback: function (row, data, start, end, display) {
 		if (dt && props.totalFooter) {
 			dt.columns().every(function () {
@@ -959,4 +960,14 @@ const exportTable = async () => {
 	const filename = `${Date.now()}_${window.location.pathname.split('/').pop().replace(/-/g, '_')}.xlsx`
 	FileSaver.saveAs(blob, filename)
 }
+
+// Emit filterValues value when change
+const emit = defineEmits(["filterValuesChanged"]); // Define emit event
+watch(
+	filterValues,
+	() => {
+		emit('filterValuesChanged', filterValues.value)
+	},
+	{ deep: true }
+)
 </script>
