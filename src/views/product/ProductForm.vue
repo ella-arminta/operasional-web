@@ -90,10 +90,46 @@
 						</div>
 					</div>
 					<div class="space-y-3">
-						<!-- Description -->
-						<TextareaForm v-model="form.description" id="description" label="Description"
-							placeholder="Description" :error="formError.description" :readonly="mode === 'detail'" />
+						<div class="space-y-3">
+							<!-- Description -->
+							<TextareaForm v-model="form.description" id="description" label="Description"
+								placeholder="Description" :error="formError.description"
+								:readonly="mode === 'detail'" />
+						</div>
+						<!-- Tags -->
+						<div class="space-y-3">
+							<label for="tags" class="block text-sm text-grey-900 font-medium mb-1">
+								Tags
+							</label>
+							<div class="relative flex items-center">
+								<input v-model="form.tagsInput" id="tags" type="text" placeholder="Add a tag" class="w-full bg-pinkGray border border-pinkOrange border-opacity-25 transition duration-300
+							placeholder-pinkOrange placeholder-opacity-25 rounded-lg px-3 py-2 text-pinkDark
+							focus:outline-none focus:ring focus:ring-pinkOrange focus:ring-opacity-25" :class="{
+								'border-pinkDark': formError.tags,
+								'border-pinkOrange': !formError.tags,
+								'placeholder-opacity-50 bg-opacity-25': readonly,
+								'text-opacity-100 bg-opacity-100 text-pinkDark': !readonly,
+							}" />
+								<!-- Tombol Add di sebelah kanan input dengan gaya yang serupa -->
+								<button type="button" @click="addTag" class="ml-2 px-4 py-2 bg-pinkGray border border-pinkOrange border-opacity-25 rounded-lg
+								text-pinkDark hover:bg-pinkDark hover:text-white focus:outline-none focus:ring
+								focus:ring-pinkOrange focus:ring-opacity-25 transition duration-300 ease-in-out">
+									Add
+								</button>
+							</div>
+							<div class="mt-2 flex flex-wrap gap-2">
+								<!-- Menampilkan tag yang sudah dimasukkan -->
+								<span v-for="(tag, index) in form.tags" :key="index"
+									class="inline-flex items-center bg-pinkLight text-pinkDark text-xs font-semibold rounded-full px-2 py-1">
+									{{ tag }}
+									<button type="button" @click="removeTag(index)" class="ml-2 text-pinkDark">
+										×
+									</button>
+								</span>
+							</div>
+						</div>
 					</div>
+
 				</div>
 			</form>
 			<form @submit.prevent="generateCode" v-if="mode !== 'add'">
@@ -303,7 +339,7 @@ const columns = Object.freeze([
 		title: "Image",
 		render: (data) => {
 			if (!data) return "No Image";
-			
+
 			// Ubah backslash ke forward slash
 			const formattedData = data.replace(/\\/g, "/");
 
@@ -366,6 +402,7 @@ const form = ref({
 	price: '',
 	images: [''],
 	description: '',
+	tags: [],
 	store_id: '',
 })
 const formCopy = ref({ ...form.value })
@@ -402,6 +439,18 @@ const fetchCategory = async () => {
 		categories.value = []
 	}
 }
+
+const addTag = () => {
+	if (form.value.tagsInput.trim() !== '') {
+		form.value.tags.push(form.value.tagsInput.trim()); // Menambahkan tag ke array tags
+		form.value.tagsInput = ''; // Reset input field setelah menambahkan tag
+	}
+}
+
+const removeTag = (index) => {
+	form.value.tags.splice(index, 1); // Menghapus tag berdasarkan index
+}
+
 // watch category
 watch(
 	() => form.value.category_id,
