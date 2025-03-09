@@ -377,10 +377,6 @@ const props = defineProps({
 		type: Object,
 		default: () => ({}),
 	},
-	fixedColumns: {
-		type: Object,
-		default: () => [],
-	},
 	totalFooter: {
 		type: Boolean,
 		default: false,
@@ -392,7 +388,6 @@ DataTable.use(Select)
 DataTable.use(Buttons)
 DataTable.use(ColumnVisibility)
 DataTable.use(FixedColumns)
-
 // Declaration
 const isFiltersOpen = ref(true)
 const table = ref()
@@ -815,7 +810,7 @@ const options = computed(() => ({
 	ajax: ajaxOptions.value,
 	scrollX: props.options.scrollX || false,
 	stateSave: true,
-	fixedColumns: props.fixedColumns,
+	fixedColumns: props.options.fixedColumns,
 	drawCallback: attachDrawCallBack,
 	order: [[1, 'desc']],
 	footerCallback: function (row, data, start, end, display) {
