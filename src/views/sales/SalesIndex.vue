@@ -16,6 +16,8 @@
 			:infoPath="
 				actions.includes('detail') ? '/transaction/sales/detail' : ''
 			"
+			:approvePath="'/transaction/transaction-approve'"
+			:disapprovePath="'/transaction/transaction-disapprove'"
 		/>
 	</div>
 </template>

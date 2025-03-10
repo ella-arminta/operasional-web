@@ -157,8 +157,12 @@ const menuTree = ref([
 						path: '/finance/journal',
 					},
 					{
+						label: 'Trial Balance',
+						path: '/finance/trial-balance',
+					},
+					{
 						label: 'General Ledger',
-						path: '/finance/general-ledger',
+						path: '/finance/general-ledger/detail',
 					},
 					{
 						label: 'Profit & Loss',
@@ -188,6 +192,14 @@ const menuTree = ref([
 			{
 				label: 'Voucher',
 				path: '/marketplace/voucher',
+			},
+			{
+				label: 'Bank Account',
+				path: '/marketplace/bank_account',
+			},
+			{
+				label: 'Balance',
+				path: '/marketplace/balance',
 			},
 		],
 	},

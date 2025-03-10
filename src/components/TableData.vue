@@ -76,6 +76,7 @@
 						<Dropdown
 							:items="filter.options"
 							:multiple="filter.multiple || false"
+							:disabled="filter.disabled || false"
 							v-model="filterValues[filter.name]"
 						/>
 					</div>
@@ -129,7 +130,7 @@
 			</thead>
 			<tfoot v-if="props.totalFooter" class="bg-white">
 				<tr>
-					<th v-for="(column, index) in columns" :key="index">
+					<th v-for="(column, index) in columns" :key="index" class="text-end">
 						{{ index === 0 ? 'Total' : column.sum ? 'Total' : '' }}
 					</th>
 				</tr>
@@ -301,7 +302,7 @@ tbody > tr:nth-child(even) > td {
 	box-shadow: none !important;
 }
 .dataTable tfoot th {
-	text-align: start !important;
+	text-align: right !important;
 }
 </style>
 <script setup lang="ts">
@@ -313,7 +314,7 @@ import ColumnVisibility from 'datatables.net-buttons/js/buttons.colVis.js' // Co
 import FixedColumns from 'datatables.net-fixedcolumns-dt'
 import 'datatables.net-fixedcolumns-dt/css/fixedColumns.dataTables.css' // include fixedcolumns css
 
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, onMounted, computed, watch, defineEmits } from 'vue'
 import Select from 'datatables.net-select'
 import Cookies from 'js-cookie'
 import { decryptData } from '../utils/crypto'
@@ -376,10 +377,6 @@ const props = defineProps({
 		type: Object,
 		default: () => ({}),
 	},
-	fixedColumns: {
-		type: Object,
-		default: () => [],
-	},
 	totalFooter: {
 		type: Boolean,
 		default: false,
@@ -391,7 +388,6 @@ DataTable.use(Select)
 DataTable.use(Buttons)
 DataTable.use(ColumnVisibility)
 DataTable.use(FixedColumns)
-
 // Declaration
 const isFiltersOpen = ref(true)
 const table = ref()
@@ -455,13 +451,19 @@ watch(
 					return acc
 				}
 				if (filter.type == 'select') {
-					acc[filter.name] = filter.options[0].value
+					if (filter.value) {
+						acc[filter.name] = [filter.value]
+					} else  {
+						acc[filter.name] = filter.options[0].value
+					}
+					return acc
 				}
 				return acc
 			},
 			{} as Record<string, string>
 		)
-	}
+	},
+	{ deep: true }
 )
 
 // function to delete data by id
@@ -808,8 +810,9 @@ const options = computed(() => ({
 	ajax: ajaxOptions.value,
 	scrollX: props.options.scrollX || false,
 	stateSave: true,
-	fixedColumns: props.fixedColumns,
+	fixedColumns: props.options.fixedColumns,
 	drawCallback: attachDrawCallBack,
+	order: [[1, 'desc']],
 	footerCallback: function (row, data, start, end, display) {
 		if (dt && props.totalFooter) {
 			dt.columns().every(function () {
@@ -952,4 +955,14 @@ const exportTable = async () => {
 	const filename = `${Date.now()}_${window.location.pathname.split('/').pop().replace(/-/g, '_')}.xlsx`
 	FileSaver.saveAs(blob, filename)
 }
+
+// Emit filterValues value when change
+const emit = defineEmits(["filterValuesChanged"]); // Define emit event
+watch(
+	filterValues,
+	() => {
+		emit('filterValuesChanged', filterValues.value)
+	},
+	{ deep: true }
+)
 </script>

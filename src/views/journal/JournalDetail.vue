@@ -4,20 +4,31 @@ import PageTitle from '../../components/PageTitle.vue'
 import axiosInstance from '../../axios'
 import { useStore } from 'vuex'
 import TableDataGroup from '../../components/TableDataGroup.vue'
+import { useRoute } from 'vue-router';
+import { formatDate, formatIDR } from '../../utils/common'
 
 const columns = [
 	{ data: 'code', title: 'Journal Entry', visible: false },
-	{ data: 'name', title: 'Date' },
-	{ data: 'debit', title: 'Account' },
-	{ data: 'credit', title: 'Label' },
-	{ data: 'balance', title: 'Debit' },
-	{ data: 'credit', title: 'Credit' },
+	{ data: 'date', title: 'Date', 
+		render: function (data) {
+		return formatDate(data);
+		}
+	},
+	{ data: 'account', title: 'Account' },
+	{ data: 'label', title: 'Label' },
+	{ data: 'debit', title: 'Debit', name: 'debit', render: function (data) {
+			return `<div style="text-align:right;">${formatIDR(data)}</div>`;
+	}},
+	{ data: 'credit', title: 'Credit', name:'credit', render: function (data) {
+			return `<div style="text-align:right;">${formatIDR(data)}</div>`;
+		}  
+	},
 ]
 const store = useStore()
 const smallMenu = computed(() => store.getters.smallMenu)
-
+const route = useRoute();
+const id = route.params.id || null;
 const filters = ref([])
-const ajaxPath = ref('/finance/journal')
 onMounted(async () => {
 	filters.value = [
 		{
@@ -38,9 +49,8 @@ onMounted(async () => {
 			:reload="true"
 			:export="true"
 			:filters="filters"
-			:ajaxPath="ajaxPath"
-			:infoPath="'/finance/journal/detail'"
-			:infoLabel="'Buku besar'"
+			:ajaxPath="`/finance/journal/${id}`"
+			:infoLabel="'Jurnal'"
 		/>
 	</div>
 </template>

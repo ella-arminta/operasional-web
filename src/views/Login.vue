@@ -1,55 +1,28 @@
 <template>
-	<div
-		class="container w-full min-h-full justify-center items-center flex flex-col"
-	>
-		<h1>Login Page</h1>
-		<div class="w-full max-w-xs">
-			<form
-				@submit.prevent="submit"
-				class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
-			>
+	<div class="app flex justify-center items-center min-h-screen bg-pinkGray">
+		<div class="w-full max-w-sm bg-white p-8 rounded-lg shadow-md">
+			<h1 class="text-center text-2xl font-bold text-pinkDark mb-8">Login Logamas</h1>
+
+			<form @submit.prevent="submit" class="space-y-4">
 				<div class="mb-4">
-					<label
-						class="block text-gray-700 text-sm font-bold mb-2"
-						for="email"
-					>
-						Email
-					</label>
-					<input
-						v-model="data.email"
-						class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-						id="email"
-						type="email"
-						placeholder="email"
-					/>
+					<label for="email" class="block text-sm font-medium text-grey-900">Email</label>
+					<input v-model="data.email" id="email" type="email" placeholder="Enter your email"
+						class="mt-2 block w-full px-4 py-2 border border-pinkOrange rounded-lg focus:ring-2 focus:ring-pinkOrange focus:outline-none" />
 				</div>
+
 				<div class="mb-6">
-					<label
-						class="block text-gray-700 text-sm font-bold mb-2"
-						for="password"
-					>
-						Password
-					</label>
-					<input
-						v-model="data.password"
-						class="shadow appearance-none border border-red-500 rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
-						id="password"
-						type="password"
-						placeholder="******************"
-					/>
+					<label for="password" class="block text-sm font-medium text-grey-900">Password</label>
+					<input v-model="data.password" id="password" type="password" placeholder="Enter your password"
+						class="mt-2 block w-full px-4 py-2 border border-pinkOrange rounded-lg focus:ring-2 focus:ring-pinkOrange focus:outline-none" />
 				</div>
-				<div class="flex items-center justify-between">
-					<button
-						class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-						type="submit"
-					>
+
+				<div class="flex justify-between items-center">
+					<button type="submit"
+						class="w-full bg-pinkDark hover:bg-pinkDarker text-white font-semibold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-pinkOrange">
 						Sign In
 					</button>
 				</div>
 			</form>
-			<p class="text-center text-gray-500 text-xs">
-				&copy;2020 Acme Corp. All rights reserved.
-			</p>
 		</div>
 	</div>
 </template>
@@ -82,13 +55,10 @@ export default {
 				// Check if response contains token
 				if (response.data) {
 					// Save JWT token in a cookie for 5 hours
-					console.log(response.data.data)
 					Cookies.set(
 						'token',
 						encryptData(response.data.data.token),
-						{
-							expires: 5 / 24,
-						}
+						{ expires: 5 / 24 }
 					)
 					Cookies.set(
 						'userdata',
@@ -132,3 +102,77 @@ export default {
 	},
 }
 </script>
+
+<style scoped>
+/* Body Styling */
+body {
+	font-family: 'Arial', sans-serif;
+	background-color: #f3f4f6;
+}
+
+/* Gradient Background */
+.bg-pinkGray {
+	background-color: #f9f9f9;
+	/* Soft pink-gray background */
+}
+
+/* Form container styling */
+.app {
+	display: flex;
+	/* Ensure the parent flex */
+	align-items: center;
+	justify-content: center;
+	height: 100vh;
+	/* Full screen height */
+}
+
+.w-full {
+	width: 100%;
+}
+
+.max-w-sm {
+	max-width: 380px;
+}
+
+.bg-white {
+	background-color: #fff;
+}
+
+.p-8 {
+	padding: 2rem;
+}
+
+.rounded-lg {
+	border-radius: 1rem;
+}
+
+.shadow-md {
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Button hover and focus effects */
+button:hover {
+	background-color: #c97b8c;
+}
+
+button:focus {
+	outline: 2px solid #c97b8c;
+}
+
+button:focus:ring-2 {
+	outline-offset: 2px;
+}
+
+input:focus {
+	outline: 2px solid #c97b8c;
+}
+
+/* Input styling */
+input {
+	font-size: 1rem;
+	padding: 0.75rem 1rem;
+	border-radius: 0.375rem;
+	border: 1px solid #f3a5c0;
+	transition: border-color 0.3s ease;
+}
+</style>

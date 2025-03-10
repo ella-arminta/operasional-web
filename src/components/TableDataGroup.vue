@@ -113,6 +113,16 @@
 					</th>
 				</tr>
 			</thead>
+			<tfoot>
+				<tr>
+					<th v-for="column in columns" :key="column.data">
+						<!-- Show total for debit & credit columns -->
+						<span v-if="column.data === 'debit'">Total Debit: <span id="total-debit">0</span></span>
+						<span v-else-if="column.data === 'credit'">Total Credit: <span id="total-credit">0</span></span>
+					</th>
+				</tr>
+			</tfoot>
+
 		</DataTable>
 	</div>
 </template>
@@ -244,6 +254,8 @@ import axiosInstance from '../axios'
 import DropdownFinance from './DropdownFinance.vue'
 import FileSaver from 'file-saver'
 import ExcelJS from 'exceljs'
+import { useRouter } from 'vue-router'
+import { formatDate, formatIDR } from '../utils/common'
 
 // Define props
 const props = defineProps({
@@ -303,6 +315,7 @@ const bearerToken = decryptData(Cookies.get('token')) || ''
 const store = useStore()
 const filterValues = ref({})
 const baseUrl = import.meta.env.VITE_BASE_URL
+let router = useRouter()
 
 onMounted(() => {
 	dt = table.value.dt
@@ -335,9 +348,34 @@ watch(
 		filterValues.value = props.filters.reduce(
 			(acc, filter) => {
 				if (filter.type == 'selectRangeFinance') {
-					return ''
+					// this month start and end in string format
+					const today = new Date()
+					const start = new Date(
+						today.getFullYear(),
+						today.getMonth(),
+						1
+					)
+						.toISOString()
+						.split('T')[0]
+					const end = new Date(
+						today.getFullYear(),
+						today.getMonth() + 1,
+						0
+					)
+						.toISOString()
+						.split('T')[0]
+					acc.dateStart = start
+					acc.dateEnd = end
+					return acc
 				}
-				acc[filter.name] = filter.options[0].value
+				if (filter.type == 'select') {
+					if (filter.value) {
+						acc[filter.name] = [filter.value]
+					} else  {
+						acc[filter.name] = filter.options[0].value
+					}
+					return acc
+				}
 				return acc
 			},
 			{} as Record<string, string>
@@ -401,10 +439,17 @@ const deleteData = (id: string) => {
 		],
 	})
 }
+const userdata = decryptData(Cookies.get('userdata'))
 
 // Define ajax options in a computed property
 const ajaxOptions = computed(() => ({
-	url: baseUrl + props.ajaxPath,
+	url: !checkAjaxHasQuery()
+		? baseUrl +
+			props.ajaxPath +
+			`?auth[company_id]=${userdata.company_id}&auth[store_id]=${userdata.store_id}`
+		: baseUrl +
+			props.ajaxPath +
+			`&auth[company_id]=${userdata.company_id}&auth[store_id]=${userdata.store_id}`,
 	type: 'GET',
 	cache: true,
 	headers: {
@@ -413,8 +458,15 @@ const ajaxOptions = computed(() => ({
 	},
 	data: (d) => {
 		for (const key in filterValues.value) {
-			if (filterValues.value[key] !== '') {
-				d[key] = filterValues.value[key]
+			if (
+				filterValues.value[key] !== '' &&
+				filterValues.value[key] !== undefined
+			) {
+				if (filterValues.value[key].length <= 1) {
+					d[key] = filterValues.value[key][0]
+				} else {
+					d[key] = JSON.stringify(filterValues.value[key])
+				}
 			}
 		}
 	},
@@ -536,14 +588,44 @@ const options = computed(() => ({
 					</td>
 					<td colspan="1" style="padding: 10px 30px 10px 10px;"></td>
 					<td colspan="1" style="padding: 10px 30px 10px 10px;"></td>
-					<td colspan="1" class="text-start" style="padding: 10px 30px 10px 10px;"><strong>${totalDebit.toFixed(2)}</strong></td>
-					<td colspan="1" class="text-start" style="padding: 10px 30px 10px 10px;"><strong>${totalCredit.toFixed(2)}</strong></td>
+					<td colspan="1" class="text-end" style="padding: 10px 30px 10px 10px;"><strong>${formatIDR(totalDebit)}</strong></td>
+					<td colspan="1" class="text-end" style="padding: 10px 30px 10px 10px;"><strong>${formatIDR(totalCredit)}</strong></td>
 				</tr>
 				</tbody>
 			</table>
 			`
 		},
 	},
+	footerCallback: function (row, data, start, end, display) {
+		console.log(dt);
+		if (!dt) return; // Ensure dt is initialized
+
+		// Helper function to sum a column for all pages
+		const sumColumn = (columnIndex) => {
+			return dt
+				.column(columnIndex) // Remove { page: 'current' } to sum all data
+				.data()
+				.reduce((a, b) => (parseFloat(a) || 0) + (parseFloat(b) || 0), 0);
+		};
+
+		// Ensure dt is ready before accessing columns
+		if (!dt.columns().count()) return;
+
+		// Get column indexes
+		console.log('column', dt.column());
+		const debitIndex = dt.column('debit:name').index();
+		const creditIndex = dt.column('credit:name').index();
+		console.log('debit', debitIndex, 'credit', creditIndex);
+
+		// Calculate sums for all pages
+		const totalDebit = sumColumn(debitIndex);
+		const totalCredit = sumColumn(creditIndex);
+		console.log('totalDebit', totalDebit, 'totalCredit', totalCredit);
+
+		// Update the footer
+		document.getElementById('total-debit').innerText = formatIDR(totalDebit);
+		document.getElementById('total-credit').innerText = formatIDR(totalCredit);
+	}
 }))
 const handleRangeSelected = (range) => {
 	console.log('selected')
@@ -622,6 +704,9 @@ const exportTable = async () => {
 	const filename = `${Date.now()}_${window.location.pathname.split('/').pop().replace(/-/g, '_')}.xlsx`;
 	FileSaver.saveAs(blob, filename);
 };
+const checkAjaxHasQuery = () => {
+	return props.ajaxPath.includes('?')
+}
 </script>
 <style>
 @import 'datatables.net-dt';

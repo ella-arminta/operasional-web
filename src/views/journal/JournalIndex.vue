@@ -1,17 +1,23 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, render } from 'vue'
 import PageTitle from '../../components/PageTitle.vue'
 import TableData from '../../components/TableData.vue'
 import axiosInstance from '../../axios'
 import { useStore } from 'vuex'
 import DropdownFinance from '../../components/DropdownFinance.vue'
+import { formatIDR } from '../../utils/common'
 
 const columns = [
 	{ data: 'name', title: 'Name' },
-	{ data: 'code', title: 'Code' },
-	{ data: 'debit', title: 'Debit' },
-	{ data: 'credit', title: 'Credit' },
-	{ data: 'balance', title: 'Balance' },
+	{ data: 'debit', title: 'Debit', render:function(data, type, row){
+		return row.debit ? `<div style="text-align:right;">${formatIDR(data)}</div>` : '<div style="text-align:right;">0</div>'
+	} },
+	{ data: 'credit', title: 'Credit' , render: function(data, type, row){
+		return row.credit ? `<div style="text-align:right;">${formatIDR(data)}</div>` : '<div style="text-align:right;">0</div>'
+	}},
+	{ data: 'balance', title: 'Balance', render: function(data, type, row){
+		return row.balance ? `<div style="text-align:right;">${formatIDR(data)}</div>` : '<div style="text-align:right;">0</div>'
+	}},
 	{
 		data: 'action',
 		title: 'Action',

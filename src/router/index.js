@@ -272,17 +272,17 @@ const router = createRouter({
 								import('../views/stock/StockMutationIndex.vue'),
 						},
 						{
-							path: 'general-ledger',
+							path: 'trial-balance',
 							component: () =>
 								import(
-									'../views/general-ledger/GeneralLedgerIndex.vue'
+									'../views/report/TrialBalance.vue'
 								),
 						},
 						{
-							path: 'general-ledger/detail/:id',
+							path: 'general-ledger/detail/:id?',
 							component: () =>
 								import(
-									'../views/general-ledger/LedgerDetail.vue'
+									'../views/report/LedgerDetail.vue'
 								),
 						},
 						{
@@ -327,6 +327,24 @@ const router = createRouter({
 							props: (route) => ({
 								mode: route.params.mode,
 							}),
+						},
+						{
+							path: 'bank_account',
+							component: () =>
+								import('../views/bank-account/BankAccountIndex.vue'),
+						},
+						{
+							path: 'bank_account/:mode/:id?',
+							component: () =>
+								import('../views/bank-account/BankAccountForm.vue'),
+							props: (route) => ({
+								mode: route.params.mode,
+							}),
+						},
+						{
+							path: 'balance',
+							component: () =>
+								import('../views/balance/Balance.vue'),
 						},
 					],
 				},

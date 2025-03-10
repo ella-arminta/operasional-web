@@ -39,9 +39,6 @@ const loading = ref(true);
 const localStartDate = ref(props.startDate);
 const localEndDate = ref(props.endDate);
 
-// const startDate = ref('');
-// const endDate = ref('');
-
 const chartData = ref({
   labels: [],
   datasets: [
@@ -69,7 +66,6 @@ const fetchGoldPrices = async () => {
   try {
     loading.value = true;
     let url = `${props.apiPath}`;
-    console.log('fetchgoldprices',localStartDate.value, localEndDate.value);
 
     if (localStartDate.value) {
       url += `?start_date=${localStartDate.value}`;
@@ -84,7 +80,6 @@ const fetchGoldPrices = async () => {
 
     const response = await axiosInstance.get(url);
     if (response.data.success) {
-      console.log('Gold prices:', response.data.data);
       processData(response.data.data);
     }
   } catch (error) {
@@ -95,29 +90,53 @@ const fetchGoldPrices = async () => {
 
 const processData = (data) => {
   if (chartMode.value === 'date') {
-    chartData.value.labels = data
-      .map(item =>
-        new Date(item.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
-      );
+    // Mode Date: Format tanggal lengkap
+    chartData.value.labels = data.map(item =>
+      new Date(item.created_at).toLocaleString('id-ID', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      })
+    );
     chartData.value.datasets[0].data = data.map(item => item.sellPrice);
-    loading.value = false;
   } else {
-    const monthlyData = {};
+    // Mode Month: Ambil harga terakhir di setiap hari
+    const dailyLastPrice = {};
+
     data.forEach(item => {
       const date = new Date(item.created_at);
-      const monthKey = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+      const dayKey = date.toISOString().split('T')[0]; // YYYY-MM-DD
 
-      if (!monthlyData[monthKey]) {
-        monthlyData[monthKey] = { total: 0, count: 0 };
-      }
-
-      monthlyData[monthKey].total += item.sellPrice;
-      monthlyData[monthKey].count += 1;
+      // Simpan harga terakhir untuk setiap hari
+      dailyLastPrice[dayKey] = item.sellPrice;
     });
 
-    chartData.value.labels = Object.keys(monthlyData);
-    chartData.value.datasets[0].data = Object.values(monthlyData).map(month => Math.round(month.total / month.count));
-    loading.value = false;
+    // Ambil bulan dalam range startDate - endDate
+    const start = new Date(localStartDate.value);
+    const end = new Date(localEndDate.value);
+    const monthLabels = [];
+    const monthPrices = {};
+
+    for (let d = new Date(start); d <= end; d.setMonth(d.getMonth() + 1)) {
+      const monthKey = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}`;
+      monthLabels.push(monthKey);
+      monthPrices[monthKey] = null; // Default null
+    }
+
+    // Ambil harga terakhir dari setiap bulan
+    Object.keys(dailyLastPrice).forEach(dateKey => {
+      const date = new Date(dateKey);
+      const monthKey = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+
+      // Simpan harga terakhir dalam bulan tersebut
+      monthPrices[monthKey] = dailyLastPrice[dateKey];
+    });
+
+    chartData.value.labels = monthLabels;
+    chartData.value.datasets[0].data = monthLabels.map(month => monthPrices[month] || 0);
   }
 };
 
@@ -135,10 +154,13 @@ watch(() => [props.startDate, props.endDate], ([newStart, newEnd], [oldStart, ol
   if (newStart !== oldStart || newEnd !== oldEnd) {
     localStartDate.value = newStart;
     localEndDate.value = newEnd;
-    console.log('watcg',localStartDate.value, localEndDate.value);
     fetchGoldPrices();
   }
 });
+watch(chartData, (newData) => {
+  loading.value = false;
+}, { deep: true });
+
 </script>
 
 <template>

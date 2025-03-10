@@ -3,6 +3,12 @@
 		<!-- Label -->
 		<label :for="id" class="block text-sm text-gray-900 font-medium">
 			{{ label }} <span v-if="required" class="text-pinkDark">*</span>
+			<!-- edit -->
+			<router-link
+				v-if="editPath != ''"
+				:to="editPath"
+				class="material-icons text-sm text-pinkDark"
+				>edit</router-link>
 		</label>
 
 		<!-- Input -->
@@ -40,6 +46,7 @@ const props = defineProps({
 	required: { type: Boolean, default: false },
 	error: { type: String, default: '' },
 	readonly: { type: Boolean, default: false },
+	editPath: { type: String, default: '' },
 })
 
 const emit = defineEmits(['update:modelValue'])

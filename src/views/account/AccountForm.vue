@@ -54,6 +54,7 @@
 							@update:modelValue="onCompanyChange"
 							placeholder="Select a company"
 							:multiple="false"
+							:disabled="true"
 							:searchable="true"
 						/>
 						<p
@@ -158,6 +159,8 @@ import PageTitle from '../../components/PageTitle.vue'
 import Dropdown from '../../components/Dropdown.vue'
 import InputForm from '../../components/InputForm.vue'
 import TextareaForm from '../../components/TextareaForm.vue'
+import { decryptData } from '../../utils/crypto'
+import Cookies from 'js-cookie'
 
 const companyItems = ref([])
 const storeItems = ref([])
@@ -202,7 +205,6 @@ onMounted(async () => {
 	const companyData = await axiosInstance.get('/master/company')
 	companyItems.value = companyData.data.data.map(
 		(company) => (
-			console.log('company', company),
 			{
 				label: company.name,
 				id: company.id,
@@ -222,10 +224,12 @@ onMounted(async () => {
 		code: account.code,
 	}))
 
+	const userdata = decryptData(Cookies.get('userdata'))
+	form.value.company_id = [userdata.company_id]
+
 	if (props.mode !== 'add' && id) {
 		try {
 			const response = await axiosInstance.get(`/finance/account/${id}`)
-			console.log('response', JSON.stringify(response))
 			const dataDb = response.data.data
 			form.value.code = dataDb.code
 			form.value.name = dataDb.name
@@ -233,7 +237,6 @@ onMounted(async () => {
 			form.value.company_id = [dataDb.company_id]
 			form.value.account_type_id = [dataDb.account_type_id]
 			form.value.store_id = [dataDb.store_id]
-			console.log('form.value', JSON.stringify(form.value))
 			formCopy.value = { ...form.value }
 		} catch (error) {
 			store.dispatch('triggerAlert', {
@@ -289,12 +292,9 @@ const onCompanyChange = async () => {
 }
 
 const onAccountTypeChange = async () => {
-	console.log('accounttypehcange')
 	const accountData = await axiosInstance.get(
 		`/finance/account-type/${form.value.account_type_id[0]}?company_id=${form.value.company_id[0]}&code=1`
 	)
-	console.log('accountData', JSON.stringify(accountData))
-	console.log('accountData.data.data', JSON.stringify(accountData.data.data))
 	form.value.code = accountData.data.data
 }
 
@@ -317,7 +317,6 @@ const submit = async () => {
 				: '/finance/account'
 		const method = props.mode === 'edit' ? 'put' : 'post'
 		const response = await axiosInstance[method](endpoint, form.value)
-		console.log(response)
 		if (response.data) {
 			const action = props.mode === 'edit' ? 'Updated' : 'Created'
 			store.dispatch('triggerAlert', {
