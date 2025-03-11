@@ -145,18 +145,12 @@
 			<div v-if="mode !== 'add'" class="mt-6">
 				<FormSectionHeader title="Customer Reviews" icon="star" />
 
-				<div v-if="
-					form.transaction_details.some(
-						(item) => item.TransactionReview
-					)
-				">
+				<div v-if="form.transaction_details.some(item => item.TransactionReview)">
 					<div v-for="item in form.transaction_details" :key="item.id"
 						class="bg-white p-4 rounded-lg shadow-md border border-gray-200 mb-4">
 						<h5 class="font-semibold text-gray-800">
 							{{
-								item.product_code
-									? item.product_code.barcode
-									: 'Unknown Product'
+								item.product_code ? item.product_code.barcode : 'Unknown Product'
 							}}
 						</h5>
 						<p class="text-gray-600 text-sm">
@@ -165,19 +159,75 @@
 
 						<!-- Display Review If Available -->
 						<div v-if="item.TransactionReview">
-							<span class="text-yellow-500 font-bold">⭐ {{ item.TransactionReview.rating }} /
-								5</span>
+							<span class="text-yellow-500 font-bold">
+								⭐ {{ item.TransactionReview.rating }} / 5
+							</span>
 							<br />
-							<span class="text-gray-700 italic">"{{ item.TransactionReview.review }}"</span>
+							<span class="text-gray-700 italic">
+								"{{ item.TransactionReview.review }}"
+							</span>
 							<br />
 
-							<!-- Show admin reply (read-only) if reply_admin exists -->
-							<p v-if="item.TransactionReview.reply_admin" class="text-gray-700 text-sm mt-2">
-								<b class="text-gray-800">Admin Reply:</b>
-								{{ item.TransactionReview.reply_admin }}
-							</p>
+							<!-- Show admin reply (read-only) -->
+							<div v-if="item.TransactionReview.reply_admin">
+								<p class="text-gray-700 text-sm mt-2">
+									<b class="text-gray-800">Admin Reply:</b>
+									<span v-if="!item.editingAdminReply">
+										{{ item.TransactionReview.reply_admin }}
+									</span>
+								</p>
 
-							<!-- Show input field for reply only if there's no reply_admin yet -->
+								<div class="flex items-center space-x-2 mt-2">
+									<!-- Edit Button -->
+									<button v-if="mode === 'edit' && !item.editingAdminReply"
+										@click="item.editingAdminReply = true; item.adminReply = item.TransactionReview.reply_admin"
+										class="flex items-center space-x-1 px-3 py-1 text-sm text-blue-600 font-medium border border-blue-500 rounded-lg hover:bg-blue-100 transition">
+										<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+											stroke="currentColor" class="w-4 h-4">
+											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+												d="M15.232 5.232l3.536 3.536M9 11l6.232-6.232a2.5 2.5 0 013.536 3.536L12.536 14.536a2 2 0 01-1.415.586H9v-3.536a2 2 0 01.586-1.414z">
+											</path>
+										</svg>
+										<span>Edit Reply</span>
+									</button>
+								</div>
+
+								<!-- Editable Admin Reply Input -->
+								<div v-if="item.editingAdminReply" class="mt-3">
+									<textarea v-model="item.adminReply"
+										class="border border-gray-300 rounded-md px-3 py-2 w-full text-gray-800 focus:border-pinkDark focus:ring-pinkDark"
+										placeholder="Edit admin reply..."></textarea>
+
+									<div class="flex justify-end space-x-2 mt-2">
+										<!-- Save Button -->
+										<button @click="submitAdminReply(item)"
+											class="flex items-center space-x-1 px-4 py-2 text-sm text-white bg-pinkDark rounded-lg hover:bg-pinkOrange transition">
+											<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+												stroke="currentColor" class="w-4 h-4">
+												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+													d="M5 13l4 4L19 7">
+												</path>
+											</svg>
+											<span>Save</span>
+										</button>
+
+										<!-- Cancel Button -->
+										<button @click="item.editingAdminReply = false"
+											class="flex items-center space-x-1 px-4 py-2 text-sm text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition">
+											<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+												stroke="currentColor" class="w-4 h-4">
+												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+													d="M6 18L18 6M6 6l12 12">
+												</path>
+											</svg>
+											<span>Cancel</span>
+										</button>
+									</div>
+								</div>
+							</div>
+
+
+							<!-- Show input field for new reply if there's no reply_admin yet -->
 							<div v-else-if="mode === 'edit'" class="mt-2">
 								<label class="text-gray-700 text-sm font-semibold">Admin Reply:</label>
 								<input v-model="item.adminReply" type="text"
@@ -200,6 +250,7 @@
 					No customer reviews found for this transaction.
 				</p>
 			</div>
+
 		</form>
 	</div>
 	<QrScanner :show="scanning" @close="scanning = false" @scanned="handleScan" />
@@ -536,9 +587,9 @@ const submitAdminReply = async (item) => {
 				message: 'Reply submitted successfully.',
 			})
 
-			// Update the UI without reloading
+			// Update the UI
 			item.TransactionReview.reply_admin = item.adminReply
-			item.adminReply = '' // Clear input field
+			item.editingAdminReply = false // Hide input field
 		} else {
 			throw new Error(response.data.message)
 		}
@@ -550,6 +601,7 @@ const submitAdminReply = async (item) => {
 		})
 	}
 }
+
 
 // Data Operations
 const operations = ref([])
