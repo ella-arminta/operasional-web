@@ -108,6 +108,10 @@ const menuTree = ref([
 				path: '/inventory/stock-out',
 			},
 			{
+				label: 'Stock Opname',
+				path: '/inventory/stock-opname',
+			},
+			{
 				label: 'Operation',
 				path: '/inventory/operation',
 			},
