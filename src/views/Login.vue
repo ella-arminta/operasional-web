@@ -4,11 +4,8 @@
 
 			<!-- Logo -->
 			<div class="flex justify-center mb-6">
-				<img src="/logo.png" alt="Logamas Logo" class="h-32 w-auto" />
+				<img src="/logo.png" alt="Logamas Logo" class="w-auto" />
 			</div>
-
-			<h1 class="text-center text-2xl font-bold text-pinkDark mb-8">Login</h1>
-
 			<form @submit.prevent="submit" class="space-y-4">
 				<div class="mb-4">
 					<label for="email" class="block text-sm font-medium text-grey-900">Email</label>
@@ -183,6 +180,7 @@ input {
 }
 
 img {
+	height: 200px;
 	object-fit: contain;
 }
 </style>
