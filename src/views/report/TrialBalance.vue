@@ -7,6 +7,9 @@ import { useStore } from 'vuex'
 import DropdownFinance from '../../components/DropdownFinance.vue'
 import { name } from 'eslint-plugin-prettier/recommended'
 import { formatIDR } from '../../utils/common'
+import { decryptData } from '../../utils/crypto'
+import Cookies from 'js-cookie'
+
 const columns = [
 	{ data: 'code', title: 'Code' },
 	{ data: 'name', title: 'Name' },
@@ -54,7 +57,8 @@ onMounted(async () => {
 	var companyOptions = companyData.data.data.map((company) => {
 		return { label: company.name, id: company.id }
 	})
-	const selectedCompany = companyOptions.length > 0 ? companyOptions[0].id : ''
+    const userdata = decryptData(Cookies.get('userdata'))
+	const selectedCompany = userdata.company_id;
 
 	const storeData = await axiosInstance.get('/master/store')
 	var storeOptions = storeData.data.data.map((store) => {

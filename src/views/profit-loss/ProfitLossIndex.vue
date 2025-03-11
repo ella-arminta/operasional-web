@@ -116,6 +116,8 @@ import InputForm from '../../components/InputForm.vue';
 import axiosInstance from '../../axios';
 import { useStore } from 'vuex';
 import DropdownFinance from '../../components/DropdownFinance.vue';
+import { decryptData } from '../../utils/crypto';
+import Cookies from 'js-cookie'
 
 const columns = [
     { data: 'name', title: 'Name' },
@@ -149,6 +151,8 @@ onMounted(async () => {
             id: item.id,
         };
     });
+    var userdata = decryptData(Cookies.get('userdata'))
+	const selectedCompany = userdata.company_id;
 
     const storeData = await axiosInstance.get('/master/store');
     const storeFormated = storeData.data.data.map((item) => {
@@ -168,9 +172,9 @@ onMounted(async () => {
             label: 'Company',
             name: 'company',
             options: [
-                { label: 'All Company', id: '' },
                 ...companyFormated
             ],
+            value: selectedCompany,
         },
         {
             type: 'select',
@@ -187,6 +191,47 @@ onMounted(async () => {
 watch(filterValues, () => {
     getProfitLossData();
 }, { deep: true });
+
+watch(
+	() => filters,
+	() => {
+		filterValues.value = filters.value.reduce(
+			(acc, filter) => {
+                if (filter.type == 'selectRangeFinance') {
+					// this month start and end in string format
+					const today = new Date()
+					const start = new Date(
+						today.getFullYear(),
+						today.getMonth(),
+						1
+					)
+						.toISOString()
+						.split('T')[0]
+					const end = new Date(
+						today.getFullYear(),
+						today.getMonth() + 1,
+						0
+					)
+						.toISOString()
+						.split('T')[0]
+					acc.dateStart = start
+					acc.dateEnd = end
+					return acc
+				}
+				if (filter.type == 'select') {
+					if (filter.value) {
+						acc[filter.name] = [filter.value]
+					}
+					return acc
+				}
+				return acc
+			},
+			{} as Record<string, string>
+		)
+        getProfitLossData()
+	},
+	{ deep: true }
+)
 
 const formatDate = (date: Date) => {
     return date.toISOString().split('T')[0];
@@ -208,11 +253,19 @@ const getProfitLossData = () => {
     const params = { ...filterValues.value };
 
     if (Array.isArray(params.company) && params.company.length > 0) {
-        params.company = params.company[0];
+        if (params.company[0] == '') {
+            delete params.company;
+        } else {
+            params.company = params.company[0];
+        }
     }
 
     if (Array.isArray(params.store) && params.store.length > 0) {
-        params.store = params.store[0];
+        if (params.store[0] == '') {
+            delete params.store;
+        } else {
+            params.store = params.store[0];
+        }
     }
 
     const data = axiosInstance.get('/finance/profit-loss', {
@@ -265,20 +318,26 @@ const printPdf = async () => {
         const params = { ...filterValues.value };
 
         if (Array.isArray(params.company) && params.company.length > 0) {
-            params.company = params.company[0];
+            if (params.company[0] == '') {
+                delete params.company;
+            } else {
+                params.company = params.company[0];
+            }
         }
 
         if (Array.isArray(params.store) && params.store.length > 0) {
-            params.store = params.store[0];
+            if (params.store[0] == '') {
+                delete params.store;
+            } else {
+                params.store = params.store[0];
+            }
         }
 
 
 
         const response = await axiosInstance.post("/finance/pdf-profit-loss", {
-            'filters': params,
-            'data' : {
-                'labelRangeSelected': labelRangeSelected.value,
-            }
+            ...params,
+            'labelRangeSelected': labelRangeSelected.value,
         });
         if (response.data.success) {
             const pdfBase64 = response.data.data.pdf;
