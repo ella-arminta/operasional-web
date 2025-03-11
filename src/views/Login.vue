@@ -1,7 +1,13 @@
 <template>
 	<div class="app flex justify-center items-center min-h-screen bg-pinkGray">
 		<div class="w-full max-w-sm bg-white p-8 rounded-lg shadow-md">
-			<h1 class="text-center text-2xl font-bold text-pinkDark mb-8">Login Logamas</h1>
+
+			<!-- Logo -->
+			<div class="flex justify-center mb-6">
+				<img src="/logo.png" alt="Logamas Logo" class="h-32 w-auto" />
+			</div>
+
+			<h1 class="text-center text-2xl font-bold text-pinkDark mb-8">Login</h1>
 
 			<form @submit.prevent="submit" class="space-y-4">
 				<div class="mb-4">
@@ -174,5 +180,9 @@ input {
 	border-radius: 0.375rem;
 	border: 1px solid #f3a5c0;
 	transition: border-color 0.3s ease;
+}
+
+img {
+	object-fit: contain;
 }
 </style>
