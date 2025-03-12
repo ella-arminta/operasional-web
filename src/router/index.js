@@ -330,6 +330,11 @@ const router = createRouter({
 					path: 'marketplace',
 					children: [
 						{
+							path: 'dashboard',
+							component: () =>
+								import('../views/marketplace-dashboard/Dashboard.vue'),
+						},
+						{
 							path: 'voucher',
 							component: () =>
 								import('../views/marketplace/VoucherIndex.vue'),
@@ -426,7 +431,7 @@ router.beforeEach(async (to, from, next) => {
 		if (!token) throw new Error('Invalid token')
 
 		// If navigating to home or logout, allow directly
-		if (to.path === '/home' || to.path === '/logout') {
+		if (to.path === '/home' || to.path === '/logout' || to.path === '/marketplace/dashboard') {
 			next()
 			return
 		}
