@@ -193,7 +193,7 @@
 <script setup lang="ts">
 import { useStore } from 'vuex'
 import PageTitle from '../../components/PageTitle.vue'
-import { computed, onMounted, ref, render } from 'vue'
+import { computed, onMounted, ref, render, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../vuex/auth'
 import FormHeader from '../../components/FormHeader.vue'
@@ -243,7 +243,7 @@ const form = ref({
 	date: '',
 	category_id: '',
 	description: '',
-	status: 0,
+	status: [0],
 	approved: false,
 	details: [],
 })
@@ -265,6 +265,7 @@ const itemColumns = Object.freeze([
 	{ key: 'name', label: 'Name', type: 'text', width: '15%', readonly: true },
 	{ key: 'type', label: 'Type', type: 'text', readonly: true },
 	{ key: 'weight', label: 'Weight', type: 'text', readonly: true },
+	{ key: 'status', label: 'Status', type: 'text', readonly: true },
 	{ key: 'scanned', label: 'Scanned', type: 'text', readonly: true },
 ])
 
@@ -332,13 +333,13 @@ const submit = async () => {
 	form.value.category_id = form.value.category_id[0]
 	form.value.status = form.value.status[0]
 	try {
-		if (!form.value.date) {
+		if (form.value.date === null) {
 			throw new Error('Date is required')
 		}
-		if (!form.value.category_id) {
+		if (form.value.category_id === null) {
 			throw new Error('Kategori is required')
 		}
-		if (!form.value.status) {
+		if (form.value.status === null) {
 			throw new Error('Status is required')
 		}
 
@@ -409,7 +410,13 @@ const getProductCodes = async () => {
 			code: product.barcode,
 			name: product.product.name,
 			type: product.product.type.name,
-			weight: product.weight,
+			weight: `${product.weight} gr`,
+			status:
+				product.status == 0
+					? 'Available'
+					: product.status == 1
+						? 'Sold'
+						: 'Taken Out',
 			scanned:
 				form.value.details.filter(
 					(p) => p.product_code_id === product.id
@@ -427,4 +434,15 @@ onMounted(async () => {
 		await getProductCodes()
 	}
 })
+
+// For after creation
+watch(
+	() => router.currentRoute.value.params.id,
+	async (newId) => {
+		if (newId) {
+			await getStockOpname(router.currentRoute.value.params.id)
+			await getProductCodes()
+		}
+	}
+)
 </script>

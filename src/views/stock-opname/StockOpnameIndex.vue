@@ -20,6 +20,16 @@
 					? '/inventory/stock-opname/detail'
 					: ''
 			"
+			:approvePath="
+				actions.includes('approve')
+					? '/inventory/stock-opname-approve'
+					: ''
+			"
+			:disapprovePath="
+				actions.includes('disapprove')
+					? '/inventory/stock-opname-disapprove'
+					: ''
+			"
 		/>
 	</div>
 </template>
@@ -80,6 +90,7 @@ onMounted(() => {
 	const path = authStore.allowedPaths.find(
 		(item) => item.path === currentPath
 	)
+	console.log(path)
 	actions.value = path ? path.action : []
 })
 </script>

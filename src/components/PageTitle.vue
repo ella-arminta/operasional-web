@@ -43,8 +43,9 @@
 </template>
 
 <script setup lang="ts">
+import { watch } from 'vue'
 import Cookies from 'js-cookie'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { decryptData } from '../utils/crypto'
 
 const props = defineProps({
@@ -55,6 +56,7 @@ const props = defineProps({
 })
 
 const router = useRouter()
+const route = useRoute()
 const path = window.location.pathname
 const breadcrumb = path
 	.split('/')
@@ -79,4 +81,19 @@ const inisial = name
 	.split(' ')
 	.map((n) => n.charAt(0))
 	.join('')
+
+watch(
+	() => route.fullPath,
+	() => {
+		const path = window.location.pathname
+		const breadcrumb = path
+			.split('/')
+			.slice(1)
+			.map((s) => {
+				return s.split('-')[0]
+			})
+			.join(' / ')
+	},
+	{ immediate: true }
+)
 </script>

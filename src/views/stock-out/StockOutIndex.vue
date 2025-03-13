@@ -31,21 +31,27 @@ const store = useStore()
 const smallMenu = computed(() => store.getters.smallMenu)
 const columns = ref([
 	{ data: 'no', title: 'No', width: '5%' },
+	{
+		data: 'taken_out_at',
+		title: 'Date',
+		hidden: true,
+		render: (data) => formatDate(data),
+	},
 	{ data: 'name', title: 'Name', width: '15%' },
 	{ data: 'type', title: 'Type' },
-	{ data: 'weight', title: 'Weight' },
+	{
+		data: 'weight',
+		title: 'Weight',
+		render: (data) => {
+			return `<div class="text-end w-full">${data} gr</div>`
+		},
+	},
 	{
 		data: 'price',
 		title: 'Price',
 		render: (data) => {
 			return `<div class="text-end w-full">${formatCurrency(data)}</div>`
 		},
-	},
-	{
-		data: 'taken_out_at',
-		title: 'Taken Out Date',
-		hidden: true,
-		render: (data) => formatDate(data),
 	},
 	{
 		data: 'action',
