@@ -34,11 +34,47 @@
 
         <!-- Payout Requests Table -->
         <h3 class="mt-6 text-lg font-semibold">Payout Requests</h3>
-        <TableDataV2 :columns="payoutColumns" :data="payoutRequests" :exportable="true" />
+         <!-- Filter Section -->
+         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 my-4">
+            <input type="number" v-model="filters.payoutMin" placeholder="Min Amount" class="border p-2 rounded-lg">
+            <input type="number" v-model="filters.payoutMax" placeholder="Max Amount" class="border p-2 rounded-lg">
+            <select v-model="filters.payoutStatus" class="border p-2 rounded-lg">
+                <option value="">All</option>
+                <option value="1">✅ Approved</option>
+                <option value="0">⏳ Pending</option>
+            </select>
+            <div>
+                <label class="block text-sm font-medium mb-1">Start Date</label>
+                <input type="date" v-model="filters.payoutStartDate" class="border p-2 rounded-lg w-full">
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">End Date</label>
+                <input type="date" v-model="filters.payoutEndDate" class="border p-2 rounded-lg w-full">
+            </div>
+        </div>
+        <TableDataV2 :columns="payoutColumns" :data="filteredPayoutRequests" :exportable="true" />
 
         <!-- Balance Logs Table -->
         <h3 class="mt-6 text-lg font-semibold">Balance Logs</h3>
-        <TableDataV2 :columns="balanceColumns" :data="balanceLogs" :exportable="true" />
+        <!-- Filter Section -->
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 my-4">
+            <input type="number" v-model="filters.balanceMin" placeholder="Min Amount" class="border p-2 rounded-lg">
+            <input type="number" v-model="filters.balanceMax" placeholder="Max Amount" class="border p-2 rounded-lg">
+            <select v-model="filters.balanceType" class="border p-2 rounded-lg">
+                <option value="">All</option>
+                <option value="INCOME">INCOME</option>
+                <option value="PAYOUT_REQUEST">PAYOUT_REQUEST</option>
+            </select>
+            <div>
+                <label class="block text-sm font-medium mb-1">Start Date</label>
+                <input type="date" v-model="filters.balanceStartDate" class="border p-2 rounded-lg w-full">
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">End Date</label>
+                <input type="date" v-model="filters.balanceEndDate" class="border p-2 rounded-lg w-full">
+            </div>
+        </div>
+        <TableDataV2 :columns="balanceColumns" :data="filteredBalanceLogs" :exportable="true" />
 
         <!-- Modal untuk Bukti -->
         <div v-if="showProofModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center p-4">
@@ -79,6 +115,46 @@ const payoutRequests = ref([])
 const balanceLogs = ref([])
 const bankAccounts = ref([])
 const selectedBankAccount = ref(null)
+
+const filters = ref({
+    payoutMin: null,
+    payoutMax: null,
+    payoutStatus: "",
+    payoutStartDate: "",
+    payoutEndDate: "",
+
+    balanceMin: null,
+    balanceMax: null,
+    balanceType: "",
+    balanceStartDate: "",
+    balanceEndDate: "",
+})
+
+// Filtered Data for Payout Requests
+const filteredPayoutRequests = computed(() => {
+    return payoutRequests.value.filter(req => {
+        const withinAmount = (!filters.value.payoutMin || req.amount >= filters.value.payoutMin) &&
+            (!filters.value.payoutMax || req.amount <= filters.value.payoutMax);
+        const matchesStatus = !filters.value.payoutStatus || String(req.status) === filters.value.payoutStatus;
+        const withinDateRange = (!filters.value.payoutStartDate || new Date(req.created_at) >= new Date(filters.value.payoutStartDate)) &&
+            (!filters.value.payoutEndDate || new Date(req.created_at) <= new Date(filters.value.payoutEndDate));
+
+        return withinAmount && matchesStatus && withinDateRange;
+    });
+});
+
+// Filtered Data for Balance Logs
+const filteredBalanceLogs = computed(() => {
+    return balanceLogs.value.filter(log => {
+        const withinAmount = (!filters.value.balanceMin || log.amount >= filters.value.balanceMin) &&
+            (!filters.value.balanceMax || log.amount <= filters.value.balanceMax);
+        const matchesType = !filters.value.balanceType || log.type === filters.value.balanceType;
+        const withinDateRange = (!filters.value.balanceStartDate || new Date(log.created_at) >= new Date(filters.value.balanceStartDate)) &&
+            (!filters.value.balanceEndDate || new Date(log.created_at) <= new Date(filters.value.balanceEndDate));
+
+        return withinAmount && matchesType && withinDateRange;
+    });
+});
 
 // Modal Reactive State
 const showProofModal = ref(false)

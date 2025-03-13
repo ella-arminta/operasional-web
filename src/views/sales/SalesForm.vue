@@ -721,9 +721,9 @@ const submitAdminReply = async (item) => {
 				message: 'Reply submitted successfully.',
 			})
 
-			// Update the UI without reloading
+			// Update the UI
 			item.TransactionReview.reply_admin = item.adminReply
-			item.adminReply = '' // Clear input field
+			item.editingAdminReply = false // Hide input field
 		} else {
 			throw new Error(response.data.message)
 		}

@@ -194,6 +194,10 @@ const menuTree = ref([
 		icon: 'storefront',
 		children: [
 			{
+				label: 'Dashboard',
+				path: '/marketplace/dashboard',
+			},
+			{
 				label: 'Voucher',
 				path: '/marketplace/voucher',
 			},
@@ -253,6 +257,7 @@ const explorePath = async () => {
 	paths.push('/home')
 	paths.push('/logout')
 	paths.push('/faq')
+	paths.push('/marketplace/dashboard')
 	// reduce data
 	menuTree.value = await filterMenu(menuTree.value, new Set(paths))
 }
