@@ -130,7 +130,11 @@
 			</thead>
 			<tfoot v-if="props.totalFooter" class="bg-white">
 				<tr>
-					<th v-for="(column, index) in columns" :key="index" class="text-end">
+					<th
+						v-for="(column, index) in columns"
+						:key="index"
+						class="text-end"
+					>
 						{{ index === 0 ? 'Total' : column.sum ? 'Total' : '' }}
 					</th>
 				</tr>
@@ -453,7 +457,7 @@ watch(
 				if (filter.type == 'select') {
 					if (filter.value) {
 						acc[filter.name] = [filter.value]
-					} else  {
+					} else {
 						acc[filter.name] = filter.options[0].value
 					}
 					return acc
@@ -631,7 +635,8 @@ const ajaxOptions = computed(() => ({
 		// d.store_id = userdata.storeId
 	},
 	dataSrc: (json) => {
-		json.data = json.data.map((item, index) => {
+		var res = json.data?.data || json.data
+		json.data = res.map((item, index) => {
 			if (props.columns.find((col) => col.data === 'no')) {
 				item.no = index + 1
 			}
@@ -957,7 +962,7 @@ const exportTable = async () => {
 }
 
 // Emit filterValues value when change
-const emit = defineEmits(["filterValuesChanged"]); // Define emit event
+const emit = defineEmits(['filterValuesChanged']) // Define emit event
 watch(
 	filterValues,
 	() => {

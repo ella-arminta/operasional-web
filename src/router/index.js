@@ -173,6 +173,24 @@ const router = createRouter({
 								mode: route.params.mode,
 							}),
 						},
+						// Path for Stock Opname
+						{
+							path: 'stock-opname',
+							component: () =>
+								import(
+									'../views/stock-opname/StockOpnameIndex.vue'
+								),
+						},
+						{
+							path: 'stock-opname/:mode/:id?',
+							component: () =>
+								import(
+									'../views/stock-opname/StockOpnameForm.vue'
+								),
+							props: (route) => ({
+								mode: route.params.mode,
+							}),
+						},
 						// Path for Operation
 						{
 							path: 'operation',
@@ -280,16 +298,12 @@ const router = createRouter({
 						{
 							path: 'trial-balance',
 							component: () =>
-								import(
-									'../views/report/TrialBalance.vue'
-								),
+								import('../views/report/TrialBalance.vue'),
 						},
 						{
 							path: 'general-ledger/detail/:id?',
 							component: () =>
-								import(
-									'../views/report/LedgerDetail.vue'
-								),
+								import('../views/report/LedgerDetail.vue'),
 						},
 						{
 							path: 'profit-loss',
@@ -322,6 +336,11 @@ const router = createRouter({
 					path: 'marketplace',
 					children: [
 						{
+							path: 'dashboard',
+							component: () =>
+								import('../views/marketplace-dashboard/Dashboard.vue'),
+						},
+						{
 							path: 'voucher',
 							component: () =>
 								import('../views/marketplace/VoucherIndex.vue'),
@@ -337,12 +356,16 @@ const router = createRouter({
 						{
 							path: 'bank_account',
 							component: () =>
-								import('../views/bank-account/BankAccountIndex.vue'),
+								import(
+									'../views/bank-account/BankAccountIndex.vue'
+								),
 						},
 						{
 							path: 'bank_account/:mode/:id?',
 							component: () =>
-								import('../views/bank-account/BankAccountForm.vue'),
+								import(
+									'../views/bank-account/BankAccountForm.vue'
+								),
 							props: (route) => ({
 								mode: route.params.mode,
 							}),
@@ -414,7 +437,7 @@ router.beforeEach(async (to, from, next) => {
 		if (!token) throw new Error('Invalid token')
 
 		// If navigating to home or logout, allow directly
-		if (to.path === '/home' || to.path === '/logout') {
+		if (to.path === '/home' || to.path === '/logout' || to.path === '/marketplace/dashboard') {
 			next()
 			return
 		}

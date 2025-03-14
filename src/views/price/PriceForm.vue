@@ -142,7 +142,7 @@ const fetchCategory = async () => {
 	try {
 		const response = await axiosInstance.get('/inventory/category')
 		if (response.data) {
-			const ownedCategories = response.data.data
+			const ownedCategories = response.data.data.data
 			categories.value = ownedCategories.map((category) => ({
 				id: category.id,
 				label: `${category.code} - ${category.name}`,

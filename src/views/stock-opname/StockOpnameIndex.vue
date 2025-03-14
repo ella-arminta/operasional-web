@@ -3,18 +3,32 @@
 		<PageTitle />
 		<TableData
 			:columns="columns"
-			:addPath="actions.includes('add') ? '/inventory/stock-out/add' : ''"
+			:addPath="
+				actions.includes('add') ? '/inventory/stock-opname/add' : ''
+			"
 			:export="false"
 			:reload="true"
-			:ajaxPath="'/inventory/stock-out'"
+			:ajaxPath="'/inventory/stock-opname'"
 			:editPath="
-				actions.includes('edit') ? '/inventory/stock-out/edit' : ''
+				actions.includes('edit') ? '/inventory/stock-opname/edit' : ''
 			"
 			:deletePath="
-				actions.includes('delete') ? '/inventory/unstock-out' : ''
+				actions.includes('delete') ? '/inventory/stock-opname' : ''
 			"
 			:infoPath="
-				actions.includes('detail') ? '/inventory/stock-out/detail' : ''
+				actions.includes('detail')
+					? '/inventory/stock-opname/detail'
+					: ''
+			"
+			:approvePath="
+				actions.includes('approve')
+					? '/inventory/stock-opname-approve'
+					: ''
+			"
+			:disapprovePath="
+				actions.includes('disapprove')
+					? '/inventory/stock-opname-disapprove'
+					: ''
 			"
 		/>
 	</div>
@@ -31,27 +45,21 @@ const store = useStore()
 const smallMenu = computed(() => store.getters.smallMenu)
 const columns = ref([
 	{ data: 'no', title: 'No', width: '5%' },
+	{ data: 'date', title: 'Date', render: (data) => formatDate(data) },
 	{
-		data: 'taken_out_at',
-		title: 'Date',
-		hidden: true,
-		render: (data) => formatDate(data),
-	},
-	{ data: 'name', title: 'Name', width: '15%' },
-	{ data: 'type', title: 'Type' },
-	{
-		data: 'weight',
-		title: 'Weight',
-		render: (data) => {
-			return `<div class="text-end w-full">${data} gr</div>`
-		},
+		data: 'category',
+		title: 'Category',
+		render: (data) => `${data.code} - ${data.name}`,
 	},
 	{
-		data: 'price',
-		title: 'Price',
-		render: (data) => {
-			return `<div class="text-end w-full">${formatCurrency(data)}</div>`
-		},
+		data: 'store',
+		title: 'Store',
+		render: (data) => `${data.code} - ${data.name}`,
+	},
+	{
+		data: 'status',
+		title: 'Status',
+		render: (data) => (data == 0 ? 'Draft' : 'Done'),
 	},
 	{
 		data: 'action',
@@ -82,6 +90,7 @@ onMounted(() => {
 	const path = authStore.allowedPaths.find(
 		(item) => item.path === currentPath
 	)
+	console.log(path)
 	actions.value = path ? path.action : []
 })
 </script>
