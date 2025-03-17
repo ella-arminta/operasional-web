@@ -67,6 +67,10 @@ const menuTree = ref([
 						path: '/master/account',
 					},
 					{
+						label: 'Account Setting',
+						path: '/master/account-setting',
+					},
+					{
 						label: 'Company',
 						path: '/master/company',
 					},

@@ -106,6 +106,12 @@ const router = createRouter({
 								mode: route.params.mode,
 							}),
 						},
+						// Path for Account Setting
+						{
+							path: 'account-setting',
+							component: () =>
+								import('../views/account/AccountSetting.vue'),
+						},
 						// Path for Category
 						{
 							path: 'category',
