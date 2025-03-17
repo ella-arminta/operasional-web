@@ -44,17 +44,17 @@
 						</label>
 						<Dropdown
 							:items="reasons"
-							v-model="form.reason"
+							v-model="form.taken_out_reason"
 							placeholder="Select a reason"
 							:multiple="false"
 							:searchable="false"
 							:disabled="mode === 'detail'"
 						/>
 						<p
-							v-if="formError.reason"
+							v-if="formError.taken_out_reason"
 							class="text-pinkDark text-xs italic transition duration-300"
 						>
-							{{ formError.reason }}
+							{{ formError.taken_out_reason }}
 						</p>
 					</div>
 					<div class="w-full flex flex-col items-start justify-end">
@@ -140,21 +140,20 @@ const props = defineProps({
 const scanning = ref(false)
 
 const reasons = Object.freeze([
-	{ id: 'broken', label: 'Broken' },
-	{ id: 'expired', label: 'Expired' },
-	{ id: 'lost', label: 'Lost' },
-	{ id: 'other', label: 'Other' },
+	{ id: 1, label: 'Repair' },
+	{ id: 2, label: 'Lost' },
+	{ id: 3, label: 'Other' },
 ])
 
 const form = ref({
 	date: '',
-	reason: '',
+	taken_out_reason: '',
 	codes: [],
 })
 
 const formError = ref({
 	date: '',
-	reason: '',
+	taken_out_reason: '',
 	codes: '',
 })
 
@@ -197,6 +196,25 @@ const addProduct = async () => {
 		if (!response.data.success) {
 			throw new Error('Product not found')
 		}
+
+		if (response.data.data.status == 1) {
+			throw new Error(
+				'Product cannot be taken out because it is already sold.'
+			)
+		}
+
+		if (response.data.data.status == 2) {
+			throw new Error(
+				'Product cannot be taken out because it is already returned.'
+			)
+		}
+
+		if (response.data.data.status == 3) {
+			throw new Error(
+				'Product cannot be taken out because it is already taken out.'
+			)
+		}
+
 		const product = response.data.data
 		form.value.codes = [
 			...form.value.codes,
@@ -217,6 +235,7 @@ const addProduct = async () => {
 			type: 'error',
 			title: 'Error',
 		})
+		code.value = ''
 	}
 }
 
@@ -239,11 +258,12 @@ const formattedDate = computed({
 const submit = async () => {
 	console.log('submit')
 	console.log(form.value)
+	form.value.taken_out_reason = form.value.taken_out_reason[0]
 	try {
 		if (!form.value.date) {
 			throw new Error('Date is required')
 		}
-		if (!form.value.reason) {
+		if (!form.value.taken_out_reason) {
 			throw new Error('Reason is required')
 		}
 		if (form.value.codes.length === 0) {
@@ -269,6 +289,7 @@ const submit = async () => {
 			title: 'Error',
 		})
 	}
+	form.value.taken_out_reason = [form.value.taken_out_reason]
 }
 
 onMounted(() => {

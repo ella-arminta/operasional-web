@@ -54,6 +54,11 @@ const columns = ref([
 		},
 	},
 	{
+		data: 'taken_out_reason',
+		title: 'Reason',
+		render: (data) => (data == 1 ? 'Repair' : data == 2 ? 'Lost' : 'Other'),
+	},
+	{
 		data: 'action',
 		title: 'Action',
 		width: '10%',
