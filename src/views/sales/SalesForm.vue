@@ -185,6 +185,15 @@
 								:addRoute="''"
 							/>
 						</div>
+						<div v-if="mode !== 'add'">
+							<button
+								type="button"
+								class="w-full bg-pinkDark text-white rounded-lg py-2 px-4 hover:bg-pinkOrange transition duration-300"
+								@click="downloadNota"
+							>
+								Download Nota
+							</button>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -477,6 +486,47 @@ const handleScan = (result) => {
 	handleInsert()
 }
 
+// Handle for download
+const downloadNota = async () => {
+	try {
+		const response = await axiosInstance.get(`/nota/${id}`, {
+			responseType: 'blob', // Important to handle binary data correctly
+		})
+
+		const contentDisposition = response.headers['content-disposition']
+		let filename = `${form.value.code}.pdf` // Default filename
+
+		if (contentDisposition) {
+			const match = contentDisposition.match(/filename="?([^"]+)"?/)
+			if (match) {
+				filename = match[1] // Extracted filename from header
+			}
+		}
+
+		// Create a URL for the Blob response
+		const url = window.URL.createObjectURL(response.data)
+
+		// Create a download link
+		const link = document.createElement('a')
+		link.href = url
+		link.setAttribute('download', filename)
+		document.body.appendChild(link)
+		link.click()
+
+		// Clean up
+		document.body.removeChild(link)
+		window.URL.revokeObjectURL(url)
+	} catch (error) {
+		console.error(error)
+		store.dispatch('triggerAlert', {
+			type: 'error',
+			title: 'Error!',
+			message:
+				error.response?.data?.message || 'Failed to download the file.',
+		})
+	}
+}
+
 // Handle From insert Operation
 const handleInsert = async () => {
 	if (selectedType.value[0] == 1) {
@@ -644,6 +694,7 @@ const handleRowsUpdate = (newRows) => {
 	if (props.mode === 'edit') {
 		form.value.transaction_details = newRows
 		formCopy.value.transaction_details = newRows
+		console.log(newRows)
 	}
 	form.value.transaction_details = newRows
 }
