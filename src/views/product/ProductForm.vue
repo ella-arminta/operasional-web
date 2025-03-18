@@ -312,7 +312,7 @@
 						<!-- Akun cash / bank -->
 						<!-- Label -->
 						<label
-							:for="account_id"
+							for="account_id"
 							class="block text-sm text-gray-900 font-medium"
 						>
 							Kas/Bank <span class="text-pinkDark">*</span>
@@ -837,7 +837,7 @@ const formCode = ref({
 	fixed_price: '',
 	buy_price: 0,
 	tax_purchase: 0,
-	account_id: [],
+	account_id: [''],
 	image: '',
 })
 
