@@ -4,176 +4,87 @@
 		<!-- Form section -->
 		<div class="w-full bg-white h-auto rounded-lg shadow-sm py-3 px-4">
 			<form @submit.prevent="submit">
-				<FormHeader
-					:title="
-						mode === 'edit'
-							? 'Edit Product'
-							: mode === 'add'
-								? 'Add Product'
-								: 'Product Detail'
-					"
-					:showResetButton="
-						mode === 'edit' && hasUnsavedChanges.value
-					"
-					:showSaveButton="mode !== 'detail'"
-					@reset="resetForm"
-				/>
-				<FormSectionHeader
-					title="Basic Product Information"
-					icon="info"
-				/>
+				<FormHeader :title="mode === 'edit'
+						? 'Edit Product'
+						: mode === 'add'
+							? 'Add Product'
+							: 'Product Detail'
+					" :showResetButton="mode === 'edit' && hasUnsavedChanges.value
+						" :showSaveButton="mode !== 'detail'" @reset="resetForm" />
+				<FormSectionHeader title="Basic Product Information" icon="info" />
 				<div class="grid grid-cols-3 gap-6 mt-4">
 					<div class="space-y-3">
 						<!-- Code -->
-						<InputForm
-							v-if="mode !== 'add'"
-							v-model="form.code"
-							id="code"
-							label="Code"
-							placeholder="Code"
-							required
-							:error="formError.code"
-							:readonly="mode !== 'add'"
-						/>
+						<InputForm v-if="mode !== 'add'" v-model="form.code" id="code" label="Code" placeholder="Code"
+							required :error="formError.code" :readonly="mode !== 'add'" />
 						<!-- Name -->
-						<InputForm
-							v-model="form.name"
-							id="name"
-							label="Name"
-							placeholder="Name"
-							required
-							:error="formError.name"
-							:readonly="mode === 'detail'"
-						/>
+						<InputForm v-model="form.name" id="name" label="Name" placeholder="Name" required
+							:error="formError.name" :readonly="mode === 'detail'" />
 						<!-- Category -->
 						<div>
-							<label
-								for="dropdown"
-								class="block text-sm text-grey-900 font-medium mb-1"
-							>
+							<label for="dropdown" class="block text-sm text-grey-900 font-medium mb-1">
 								Category<span class="text-pinkDark">*</span>
 							</label>
-							<Dropdown
-								:items="categories"
-								v-model="form.category_id"
-								placeholder="Select a category"
-								:multiple="false"
-								:searchable="true"
-								:disabled="mode === 'detail'"
-								:addRoute="'/master/category/add'"
-							/>
-							<p
-								v-if="formError.category_id"
-								class="text-pinkDark text-xs italic transition duration-300"
-							>
+							<Dropdown :items="categories" v-model="form.category_id" placeholder="Select a category"
+								:multiple="false" :searchable="true" :disabled="mode === 'detail'"
+								:addRoute="'/master/category/add'" />
+							<p v-if="formError.category_id"
+								class="text-pinkDark text-xs italic transition duration-300">
 								{{ formError.category_id }}
 							</p>
 						</div>
 						<!-- Type -->
 						<div>
-							<label
-								for="dropdown"
-								class="block text-sm text-grey-900 font-medium mb-1"
-							>
+							<label for="dropdown" class="block text-sm text-grey-900 font-medium mb-1">
 								Type<span class="text-pinkDark">*</span>
 							</label>
-							<Dropdown
-								:items="types"
-								v-model="form.type_id"
-								placeholder="Select a type"
-								:multiple="false"
-								:searchable="true"
-								:disabled="mode === 'detail'"
-								:addRoute="`/master/category/view/${form.category_id}`"
-							/>
-							<p
-								v-if="formError.type_id"
-								class="text-pinkDark text-xs italic transition duration-300"
-							>
+							<Dropdown :items="types" v-model="form.type_id" placeholder="Select a type"
+								:multiple="false" :searchable="true" :disabled="mode === 'detail'"
+								:addRoute="`/master/category/view/${form.category_id}`" />
+							<p v-if="formError.type_id" class="text-pinkDark text-xs italic transition duration-300">
 								{{ formError.type_id }}
 							</p>
 						</div>
 						<!-- Price -->
-						<InputForm
-							v-model="form.price"
-							id="price"
-							label="Active Price"
-							placeholder="Active Price"
-							required
-							:error="formError.price"
-							:readonly="true"
-						/>
+						<InputForm v-model="form.price" id="price" label="Active Price" placeholder="Active Price"
+							required :error="formError.price" :readonly="true" />
 					</div>
 					<div class="space-y-3">
 						<!-- Images -->
 						<div>
-							<label
-								for="image"
-								class="block text-sm text-grey-900 font-medium mb-1"
-							>
+							<label for="image" class="block text-sm text-grey-900 font-medium mb-1">
 								Images<span class="text-pinkDark">*</span>
 							</label>
 
 							<!-- Pagination Buttons at the Top -->
-							<button
-								v-if="startIndex > 0"
-								type="button"
-								@click="prevPage"
-								class="w-full mb-2 pt-1 px-4 bg-pinkGray text-pinkOrange border border-pinkOrange border-opacity-25 rounded-lg hover:bg-pinkDark hover:text-white transition duration-300 justify-center items-center"
-							>
-								<i class="material-icons"
-									>keyboard_double_arrow_up</i
-								>
+							<button v-if="startIndex > 0" type="button" @click="prevPage"
+								class="w-full mb-2 pt-1 px-4 bg-pinkGray text-pinkOrange border border-pinkOrange border-opacity-25 rounded-lg hover:bg-pinkDark hover:text-white transition duration-300 justify-center items-center">
+								<i class="material-icons">keyboard_double_arrow_up</i>
 							</button>
 
 							<!-- Transition Group for Animated Scrolling Effect -->
-							<TransitionGroup
-								tag="div"
-								name="scroll-transition"
-								class="space-y-2"
-							>
-								<div
-									v-for="(image, index) in paginatedImages"
-									:key="startIndex + index"
-									class="rounded-lg shadow-sm bg-white"
-								>
-									<ImageUpload
-										v-model="
-											form.images[startIndex + index]
-										"
-										:readonly="mode === 'detail'"
-										:uploadFile="'/upload-product'"
-									/>
+							<TransitionGroup tag="div" name="scroll-transition" class="space-y-2">
+								<div v-for="(image, index) in paginatedImages" :key="startIndex + index"
+									class="rounded-lg shadow-sm bg-white">
+									<ImageUpload v-model="form.images[startIndex + index]
+										" :readonly="mode === 'detail'" :uploadFile="'/upload-product'" />
 								</div>
 							</TransitionGroup>
 
 							<!-- Pagination Buttons at the Bottom -->
-							<button
-								v-if="
-									startIndex + pageSize < form.images.length
-								"
-								type="button"
-								@click="nextPage"
-								class="mt-2 w-full pt-1 px-4 bg-pinkGray text-pinkOrange border border-pinkOrange border-opacity-25 rounded-lg hover:bg-pinkDark hover:text-white transition duration-300 justify-center items-center"
-							>
-								<i class="material-icons"
-									>keyboard_double_arrow_down</i
-								>
+							<button v-if="
+								startIndex + pageSize < form.images.length
+							" type="button" @click="nextPage"
+								class="mt-2 w-full pt-1 px-4 bg-pinkGray text-pinkOrange border border-pinkOrange border-opacity-25 rounded-lg hover:bg-pinkDark hover:text-white transition duration-300 justify-center items-center">
+								<i class="material-icons">keyboard_double_arrow_down</i>
 							</button>
 
 							<!-- Add Image Button (only on last page) -->
-							<button
-								v-if="mode !== 'detail' && isLastPage"
-								@click="addImage"
-								type="button"
-								class="w-full px-4 py-2 bg-pinkDark text-white rounded-lg hover:bg-pinkDarker transition duration-300 mt-2"
-							>
+							<button v-if="mode !== 'detail' && isLastPage" @click="addImage" type="button"
+								class="w-full px-4 py-2 bg-pinkDark text-white rounded-lg hover:bg-pinkDarker transition duration-300 mt-2">
 								+ Add Image
 							</button>
-							<p
-								v-if="formError.images"
-								class="text-pinkDark text-xs italic transition duration-300"
-							>
+							<p v-if="formError.images" class="text-pinkDark text-xs italic transition duration-300">
 								{{ formError.images }}
 							</p>
 						</div>
@@ -181,76 +92,49 @@
 					<div class="space-y-3">
 						<div class="space-y-3">
 							<!-- Description -->
-							<TextareaForm
-								v-model="form.description"
-								id="description"
-								label="Description"
-								placeholder="Description"
-								:error="formError.description"
-								:readonly="mode === 'detail'"
-							/>
+							<TextareaForm v-model="form.description" id="description" label="Description"
+								placeholder="Description" :error="formError.description"
+								:readonly="mode === 'detail'" />
 						</div>
 						<!-- Tags -->
 						<div class="space-y-3">
-							<label
-								for="tags"
-								class="block text-sm text-grey-900 font-medium mb-1"
-							>
+							<label for="tags" class="block text-sm text-grey-900 font-medium mb-1">
 								Tags
 							</label>
 							<div class="relative flex items-center">
-								<input
-									v-if="mode !== 'detail'"
-									v-model="form.tagsInput"
-									id="tags"
-									type="text"
-									placeholder="Add a tag"
-									:readonly="mode === 'detail'"
-									:value="form.tagsInput"
+								<input v-if="mode !== 'detail'" v-model="form.tagsInput" id="tags" type="text"
+									placeholder="Add a tag" :readonly="mode === 'detail'" :value="form.tagsInput"
 									@input="
 										$emit(
 											'update:modelValue',
 											$event.target.value
 										)
-									"
-									class="w-full bg-pinkGray border border-pinkOrange border-opacity-25 transition duration-300 placeholder-pinkOrange placeholder-opacity-25 rounded-lg px-3 py-2 text-pinkDark focus:outline-none focus:ring focus:ring-pinkOrange focus:ring-opacity-25"
+										" class="w-full bg-pinkGray border border-pinkOrange border-opacity-25 transition duration-300 placeholder-pinkOrange placeholder-opacity-25 rounded-lg px-3 py-2 text-pinkDark focus:outline-none focus:ring focus:ring-pinkOrange focus:ring-opacity-25"
 									:class="{
 										'border-pinkDark': formError.tags,
 										'border-pinkOrange': !formError.tags,
 										'text-opacity-100 bg-opacity-100 text-pinkDark':
 											mode === 'detail', // When not readonly
-									}"
-									@keypress.enter.prevent
-								/>
+									}" @keypress.enter.prevent />
 
 								<!-- Tombol Add di sebelah kanan input dengan gaya yang serupa -->
-								<button
-									v-if="mode !== 'detail'"
-									type="button"
-									@click="addTag"
-									class="ml-2 px-4 py-2 bg-pinkGray border border-pinkOrange border-opacity-25 rounded-lg text-pinkDark hover:bg-pinkDark hover:text-white focus:outline-none focus:ring focus:ring-pinkOrange focus:ring-opacity-25 transition duration-300 ease-in-out"
-								>
+								<button v-if="mode !== 'detail'" type="button" @click="addTag"
+									class="ml-2 px-4 py-2 bg-pinkGray border border-pinkOrange border-opacity-25 rounded-lg text-pinkDark hover:bg-pinkDark hover:text-white focus:outline-none focus:ring focus:ring-pinkOrange focus:ring-opacity-25 transition duration-300 ease-in-out">
 									Add
 								</button>
 							</div>
 							<div class="mt-2 flex flex-wrap gap-2">
 								<!-- Menampilkan tag yang sudah dimasukkan -->
-								<span
-									v-for="(tag, index) in form.tags"
-									:key="index"
-									class="inline-flex items-center bg-pinkLight text-pinkDark text-xs font-semibold rounded-full px-2 py-1"
-								>
+								<span v-for="(tag, index) in form.tags" :key="index"
+									class="inline-flex items-center bg-pinkLight text-pinkDark text-sm font-semibold rounded-full px-4 py-2">
 									{{ tag }}
-									<button
-										v-if="mode !== 'detail'"
-										type="button"
-										@click="removeTag(index)"
-										class="ml-2 text-pinkDark"
-									>
+									<button v-if="mode !== 'detail'" type="button" @click="removeTag(index)"
+										class="ml-2 text-pinkDark">
 										×
 									</button>
 								</span>
 							</div>
+
 						</div>
 					</div>
 				</div>
@@ -260,125 +144,67 @@
 				<div class="grid grid-cols-3 gap-6 mt-4">
 					<div>
 						<!-- Weight -->
-						<InputForm
-							v-model="formCode.weight"
-							type="number"
-							id="weight"
-							label="Weight"
-							placeholder="Weight"
-							required
-						/>
+						<InputForm v-model="formCode.weight" type="number" id="weight" label="Weight"
+							placeholder="Weight" required />
 					</div>
 					<!-- Upload Image for Product Code -->
 					<div>
-						<label
-							for="image"
-							class="block text-sm text-grey-900 font-medium mb-1"
-						>
+						<label for="image" class="block text-sm text-grey-900 font-medium mb-1">
 							Upload Image<span class="text-pinkDark">*</span>
 						</label>
-						<ImageUpload
-							v-model="formCode.image"
-							:uploadFile="'/upload-product'"
-							:readonly="mode === 'detail'"
-						/>
+						<ImageUpload v-model="formCode.image" :uploadFile="'/upload-product'"
+							:readonly="mode === 'detail'" />
 					</div>
 					<div>
 						<!-- Harga Beli (sebelum pajak) -->
-						<InputForm
-							v-model="formCode.buy_price"
-							type="number"
-							id="buy_price"
-							label="Harga Beli (sebelum pajak)"
-							placeholder="Harga Beli (sebelum pajak)"
-							required
-						/>
+						<InputForm v-model="formCode.buy_price" type="number" id="buy_price"
+							label="Harga Beli (sebelum pajak)" placeholder="Harga Beli (sebelum pajak)" required />
 					</div>
 					<div>
 						<!-- PPN Beli -->
-						<InputForm
-							v-model="formCode.tax_purchase"
-							type="number"
-							id="tax_purchase"
-							:label="'PPN Beli (' + taxPurchasePercentage + '%)'"
-							:placeholder="
-								'PPN Beli (' + taxPurchasePercentage + '%)'
-							"
-							:editPath="'/master/store/edit/' + form.store_id"
-							required
-						/>
+						<InputForm v-model="formCode.tax_purchase" type="number" id="tax_purchase"
+							:label="'PPN Beli (' + taxPurchasePercentage + '%)'" :placeholder="'PPN Beli (' + taxPurchasePercentage + '%)'
+								" :editPath="'/master/store/edit/' + form.store_id" required />
 					</div>
 					<div>
 						<!-- Akun cash / bank -->
 						<!-- Label -->
-						<label
-							for="account_id"
-							class="block text-sm text-gray-900 font-medium"
-						>
+						<label for="account_id" class="block text-sm text-gray-900 font-medium">
 							Kas/Bank <span class="text-pinkDark">*</span>
 						</label>
-						<Dropdown
-							:items="accounts"
-							v-model="formCode.account_id"
-							placeholder="Select an account"
-							:multiple="false"
-							:searchable="true"
-							:disabled="mode === 'detail'"
-							:addRoute="'/master/account/add'"
-							id="account_id"
-						/>
+						<Dropdown :items="accounts" v-model="formCode.account_id" placeholder="Select an account"
+							:multiple="false" :searchable="true" :disabled="mode === 'detail'"
+							:addRoute="'/master/account/add'" id="account_id" />
 					</div>
 
 					<div class="flex justify-end items-end">
 						<!-- Generate -->
-						<button
-							type="button"
-							@click="generateCode"
-							class="w-full px-4 py-2 border border-pinkDark bg-pinkDark text-white hover:bg-pinkOrange rounded-lg transition duration-300 ease-in-out hover:ring hover:ring-pinkOrange hover:ring-opacity-25"
-						>
+						<button type="button" @click="generateCode"
+							class="w-full px-4 py-2 border border-pinkDark bg-pinkDark text-white hover:bg-pinkOrange rounded-lg transition duration-300 ease-in-out hover:ring hover:ring-pinkOrange hover:ring-opacity-25">
 							Generate
 						</button>
 					</div>
 				</div>
 			</form>
 		</div>
-		<div
-			class="w-full bg-white h-auto rounded-lg shadow-sm mt-4"
-			v-if="mode !== 'add'"
-		>
+		<div class="w-full bg-white h-auto rounded-lg shadow-sm mt-4" v-if="mode !== 'add'">
 			<h1 class="text-xl text-pinkDark font-bold pt-3 px-4">
 				Product Codes
 			</h1>
-			<TableData
-				ref="refTable"
-				:columns="columns"
-				:addPath="''"
-				:export="false"
-				:reload="true"
-				:ajaxPath="`/inventory/product-codes/${id}`"
-				:editPath="''"
-				:deletePath="'/inventory/product-code'"
-				:infoPath="''"
-				:defData="{
+			<TableData ref="refTable" :columns="columns" :addPath="''" :export="false" :reload="true"
+				:ajaxPath="`/inventory/product-codes/${id}`" :editPath="''" :deletePath="'/inventory/product-code'"
+				:infoPath="''" :defData="{
 					transaction_id: id,
-				}"
-			/>
+				}" />
 			<!-- Modal for Image Preview -->
 			<teleport to="body">
-				<div
-					v-if="showImageModal"
+				<div v-if="showImageModal"
 					class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
-					@click.self="closeImageModal"
-				>
+					@click.self="closeImageModal">
 					<div class="bg-white p-4 rounded-lg shadow-lg max-w-md">
-						<img
-							:src="selectedImage"
-							class="w-full h-auto rounded-lg"
-						/>
-						<button
-							class="mt-2 px-4 py-2 bg-pinkDark text-white rounded-lg w-full"
-							@click="closeImageModal"
-						>
+						<img :src="selectedImage" class="w-full h-auto rounded-lg" />
+						<button class="mt-2 px-4 py-2 bg-pinkDark text-white rounded-lg w-full"
+							@click="closeImageModal">
 							Close
 						</button>
 					</div>
@@ -387,40 +213,29 @@
 		</div>
 	</div>
 	<teleport to="#modal-container">
-		<div
-			v-if="showModal"
+		<div v-if="showModal"
 			class="fixed inset-0 z-[999] flex items-center justify-center bg-black bg-opacity-50 transition duration-300"
-			@click.self="closeModal"
-		>
-			<div
-				class="bg-white w-1/4 max-w-3/4 h-auto max-h-3/4 rounded-lg shadow-lg relative overflow-hidden"
-			>
+			@click.self="closeModal">
+			<div class="bg-white w-1/4 max-w-3/4 h-auto max-h-3/4 rounded-lg shadow-lg relative overflow-hidden">
 				<!-- Modal Header -->
 				<div class="flex justify-between items-center p-4 border-b">
 					<h2 class="text-xl font-bold">QR Code</h2>
-					<button
-						class="text-pinkMed text-2xl hover:text-pinkDark transition duration-300 ease-in-out"
-						@click="closeModal"
-					>
+					<button class="text-pinkMed text-2xl hover:text-pinkDark transition duration-300 ease-in-out"
+						@click="closeModal">
 						&times;
 					</button>
 				</div>
 
 				<!-- Modal Body -->
 				<div class="px-12 py-4 h-auto">
-					<img
-						:src="dataModalQR"
-						alt="QR Code"
-						class="w-full h-auto"
-					/>
+					<img :src="dataModalQR" alt="QR Code" class="w-full h-auto" />
 				</div>
 
 				<!-- Modal Footer -->
 				<div class="flex justify-end p-4 border-t">
 					<button
 						class="px-4 py-2 bg-pinkLight text-PinkDark rounded-lg hover:bg-pinkMed mr-2 transition duration-300 ease-in-out"
-						@click="closeModal"
-					>
+						@click="closeModal">
 						Close
 					</button>
 				</div>
