@@ -448,25 +448,16 @@ const submitType = async (category_id) => {
 			type.category_id = category_id
 		})
 		try {
-			// Send bulk insert request
-			const response = await axiosInstance.post('/inventory/bulk-type', {
+			await axiosInstance.post('/inventory/bulk-type', {
 				types: form.value.types,
 			})
-
-			if (response.data) {
-				showAlert(
-					'success',
-					'Success!',
-					'Subcategories created successfully.'
-				)
-			}
 		} catch (error) {
 			console.error('Error submitting types:', error)
 			showAlert('error', 'Error!', 'Failed to create subcategories.')
 		}
 	} else {
 		try {
-			const response = await axiosInstance.put('/inventory/bulk-type', {
+			await axiosInstance.put('/inventory/bulk-type', {
 				types: form.value.types,
 			})
 		} catch (error) {
@@ -496,6 +487,7 @@ const submit = async () => {
 	}
 	resetError()
 	const data = await submitCategory()
+	// After the Category is created than create the sub category [Type]
 	if (data) {
 		if (props.mode === 'add') {
 			await submitType(data.id)
