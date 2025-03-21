@@ -5,10 +5,11 @@
 			{{ label }} <span v-if="required" class="text-pinkDark">*</span>
 			<!-- edit -->
 			<router-link
-				v-if="editPath != ''"
+				v-if="editPath !== ''"
 				:to="editPath"
 				class="material-icons text-sm text-pinkDark"
-				>edit</router-link>
+				>edit</router-link
+			>
 		</label>
 
 		<!-- Input -->
@@ -17,8 +18,8 @@
 			:type="type"
 			:placeholder="placeholder"
 			:readonly="readonly"
-			:value="modelValue"
-			@input="$emit('update:modelValue', $event.target.value)"
+			v-model="inputValue"
+			@input="onInput"
 			class="w-full bg-pinkGray border border-pinkOrange border-opacity-25 transition duration-300 placeholder-pinkOrange placeholder-opacity-25 rounded-lg px-3 py-2 text-pinkDark focus:outline-none focus:ring focus:ring-pinkOrange focus:ring-opacity-25"
 			:class="{
 				'border-pinkDark': error,
@@ -37,6 +38,9 @@
 </template>
 
 <script setup>
+import { ref, watch } from 'vue'
+import { formatIDR, formatDate } from '../utils/common'
+
 const props = defineProps({
 	modelValue: { type: [String, Number, null], required: true },
 	id: { type: String, required: true },
@@ -47,7 +51,49 @@ const props = defineProps({
 	error: { type: String, default: '' },
 	readonly: { type: Boolean, default: false },
 	editPath: { type: String, default: '' },
+	format: { type: String, default: 'text' }, // 'currency', 'date', 'percent'
 })
 
 const emit = defineEmits(['update:modelValue'])
+const inputValue = ref(props.modelValue || '')
+
+// Watch modelValue to keep inputValue in sync externally
+watch(
+	() => props.modelValue,
+	(newValue) => {
+		console.log('change value', newValue)
+		inputValue.value = formatValue(newValue)
+	}
+)
+
+// Format input value based on type
+const formatValue = (value) => {
+	if (!value) return ''
+	if (props.format === 'currency') return formatIDR(value)
+	if (props.format === 'date') return formatDate(value)
+	if (props.format === 'percent')
+		return `${Math.min(Math.max(parseFloat(value) || 0, 0), 100)}`
+	return value
+}
+
+// Handle user input dynamically
+const onInput = (event) => {
+	let rawValue = event.target.value
+
+	if (props.format === 'currency') {
+		rawValue = rawValue.replace(/\D/g, '')
+		console.log('Raw Value : ', rawValue)
+		inputValue.value = formatIDR(rawValue)
+	} else if (props.format === 'percent') {
+		rawValue = rawValue.replace('.', '')
+		let numericValue = parseFloat(rawValue == '' ? 0 : rawValue) ?? 0
+		numericValue = Math.min(Math.max(numericValue, 0), 100)
+		console.log('Raw Value 11 : ', rawValue)
+		rawValue = numericValue
+		inputValue.value = `${numericValue}`
+	} else {
+		inputValue.value = rawValue
+	}
+	emit('update:modelValue', rawValue)
+}
 </script>

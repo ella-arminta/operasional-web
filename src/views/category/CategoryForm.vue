@@ -136,28 +136,116 @@
 					/>
 				</div>
 			</div>
-			<FormSectionHeader title="Sub Category Information" icon="info" />
-			<div class="mt-8">
-				<EditableCat
-					:initialRows="form.types"
-					:columns="typeColumns"
-					:required="mode === 'add'"
-					:readonly="mode === 'detail'"
-					:allActive="false"
-					:independent="mode !== 'add'"
-					title="Sub Category List"
-					@update:rows="handleRowsUpdate"
-					:addPath="'/inventory/type'"
-					:editPath="'/inventory/type'"
-					:deletePath="'/inventory/type'"
-				/>
+			<FormSectionHeader title="Sub Category List" icon="info" />
+			<div class="mt-2 flex flex-col space-y-4">
+				<template v-for="t in form.types" :key="t.id">
+					<div>
+						<div class="flex items-center justify-between">
+							<h1
+								v-if="t.id != null"
+								class="text-md text-pinkDark font-bold"
+							>
+								{{ t.code }} | {{ t.name }}
+							</h1>
+							<h1 v-else class="text-md text-pinkDark font-bold">
+								New Sub Category
+							</h1>
+							<button
+								v-if="mode !== 'detail'"
+								type="button"
+								class="material-icons text-pinkDark"
+								@click="removeType(t)"
+							>
+								delete
+							</button>
+						</div>
+						<hr
+							class="mt-1 border-t border-pinkOrange border-opacity-25"
+						/>
+						<div class="grid grid-cols-3 gap-6 mt-4">
+							<div class="space-y-3">
+								<!-- Name -->
+								<InputForm
+									v-model="t.name"
+									id="name"
+									label="Name"
+									placeholder="Name"
+									required
+									:error="formError.name"
+									:readonly="mode === 'detail'"
+								/>
+								<InputForm
+									v-model="t.percent_price_reduction"
+									id="percent_price_reduction"
+									label="Price Reduction (%)"
+									placeholder="Price Reduction (%)"
+									required
+									:error="formError.percent_price_reduction"
+									:readonly="mode === 'detail'"
+									format="percent"
+								/>
+								<InputForm
+									v-model="t.fixed_price_reduction"
+									id="fixed_price_reduction"
+									label="Price Reduction (Rp)"
+									placeholder="Price Reduction (Rp)"
+									required
+									:error="formError.fixed_price_reduction"
+									:readonly="mode === 'detail'"
+									format="currency"
+								/>
+							</div>
+							<div class="space-y-3">
+								<InputForm
+									v-model="t.percent_broken_reduction"
+									id="percent_broken_reduction"
+									label="Broken Reduction (%)"
+									placeholder="Broken Reduction (%)"
+									required
+									:error="formError.percent_broken_reduction"
+									:readonly="mode === 'detail'"
+									format="percent"
+								/>
+								<InputForm
+									v-model="t.fixed_broken_reduction"
+									id="fixed_broken_reduction"
+									label="Broken Reduction (Rp)"
+									placeholder="Broken Reduction (Rp)"
+									required
+									:error="formError.fixed_broken_reduction"
+									:readonly="mode === 'detail'"
+									format="currency"
+								/>
+							</div>
+							<div class="space-y-3">
+								<!-- Description -->
+								<TextareaForm
+									v-model="t.description"
+									id="description"
+									label="Description"
+									placeholder="Description"
+									:error="formError.description"
+									:readonly="mode === 'detail'"
+								/>
+							</div>
+						</div>
+					</div>
+				</template>
+				<button
+					type="button"
+					class="w-full bg-pinkDark text-white hover:bg-pinkOrange font-bold py-2 px-4 rounded-lg"
+					@click="addType"
+					v-if="mode !== 'detail'"
+				>
+					Add Sub Category
+				</button>
 			</div>
 		</form>
 	</div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, toRaw } from 'vue'
+import { ref, onMounted, computed, toRaw, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import Cookies from 'js-cookie'
@@ -171,7 +259,6 @@ import TextareaForm from '../../components/TextareaForm.vue'
 import FormSectionHeader from '../../components/FormSectionHeader.vue'
 import FormHeader from '../../components/FormHeader.vue'
 import Dropdown from '../../components/Dropdown.vue'
-import EditableCat from '../../components/EditableCat.vue'
 
 const props = defineProps({
 	mode: { type: String, required: true },
@@ -317,13 +404,42 @@ const submitCategory = async () => {
 		})
 	}
 }
-// Handle Form Data for Types
-const handleRowsUpdate = (newRows) => {
-	if (props.mode === 'edit') {
-		form.value.types = newRows
-		formCopy.value.types = newRows
+
+const addType = async () => {
+	form.value.types.push({
+		id: null,
+		category_id: id,
+		name: '',
+		percent_price_reduction: 0,
+		fixed_price_reduction: 0,
+		percent_broken_reduction: 0,
+		fixed_broken_reduction: 0,
+		description: '',
+	})
+}
+
+const removeType = async (type) => {
+	const index = form.value.types.indexOf(type)
+	if (type.id != null) {
+		try {
+			const response = await axiosInstance.delete(
+				`/inventory/type/${type.id}`
+			)
+			if (response.data) {
+				showAlert(
+					'success',
+					'Success!',
+					'Subcategory deleted successfully.'
+				)
+			}
+		} catch (error) {
+			console.error('Error deleting type:', error)
+			showAlert('error', 'Error!', 'Failed to delete subcategory.')
+		}
 	}
-	form.value.types = newRows
+	if (index > -1) {
+		form.value.types.splice(index, 1)
+	}
 }
 
 const submitType = async (category_id) => {
@@ -331,24 +447,32 @@ const submitType = async (category_id) => {
 		form.value.types.forEach((type) => {
 			type.category_id = category_id
 		})
-	}
+		try {
+			// Send bulk insert request
+			const response = await axiosInstance.post('/inventory/bulk-type', {
+				types: form.value.types,
+			})
 
-	try {
-		// Send bulk insert request
-		const response = await axiosInstance.post('/inventory/bulk-type', {
-			types: form.value.types,
-		})
-
-		if (response.data) {
-			showAlert(
-				'success',
-				'Success!',
-				'Subcategories created successfully.'
-			)
+			if (response.data) {
+				showAlert(
+					'success',
+					'Success!',
+					'Subcategories created successfully.'
+				)
+			}
+		} catch (error) {
+			console.error('Error submitting types:', error)
+			showAlert('error', 'Error!', 'Failed to create subcategories.')
 		}
-	} catch (error) {
-		console.error('Error submitting types:', error)
-		showAlert('error', 'Error!', 'Failed to create subcategories.')
+	} else {
+		try {
+			const response = await axiosInstance.put('/inventory/bulk-type', {
+				types: form.value.types,
+			})
+		} catch (error) {
+			console.error('Error submitting type:', error)
+			showAlert('error', 'Error!', 'Failed to create subcategory.')
+		}
 	}
 }
 
@@ -375,6 +499,8 @@ const submit = async () => {
 	if (data) {
 		if (props.mode === 'add') {
 			await submitType(data.id)
+		} else {
+			await submitType(id)
 		}
 	}
 	if (!Array.isArray(form.value.metal_type)) {
@@ -429,6 +555,7 @@ onMounted(async () => {
 			const response = await axiosInstance.get(
 				`/inventory/category/${id}`
 			)
+			console.log(response.data.data)
 			// Populate form with fetched data
 			form.value = { ...response.data.data }
 			form.value.company_id = [form.value.company_id]
@@ -438,6 +565,7 @@ onMounted(async () => {
 				category_id: id,
 			}))
 			formCopy.value = { ...form.value }
+			console.log(form.value.types)
 		} catch (error) {
 			console.error('Error fetching category:', error)
 			showAlert('error', 'Error!', 'Failed to fetch category data.')
@@ -457,4 +585,64 @@ onMounted(async () => {
 		]
 	}
 })
+
+// Track previous values for comparison
+let previousTypes = []
+
+watch(
+	() => form.value.types,
+	(newTypes) => {
+		newTypes.forEach((item, index) => {
+			console.log('Item ', index, ' :', item)
+
+			// Handle price reduction fields - detect which one changed
+			const prevItem = previousTypes[index] || {
+				fixed_price_reduction: '0',
+				percent_price_reduction: '0',
+				fixed_broken_reduction: '0',
+				percent_broken_reduction: '0',
+			}
+
+			// Check if fixed price reduction changed
+			if (item.fixed_price_reduction !== prevItem.fixed_price_reduction) {
+				if (parseInt(item.fixed_price_reduction) > 0) {
+					form.value.types[index].percent_price_reduction = '0'
+				}
+			}
+
+			// Check if percent price reduction changed
+			if (
+				item.percent_price_reduction !==
+				prevItem.percent_price_reduction
+			) {
+				if (parseInt(item.percent_price_reduction) > 0) {
+					form.value.types[index].fixed_price_reduction = '0'
+				}
+			}
+
+			// Check if fixed broken reduction changed
+			if (
+				item.fixed_broken_reduction !== prevItem.fixed_broken_reduction
+			) {
+				if (parseInt(item.fixed_broken_reduction) > 0) {
+					form.value.types[index].percent_broken_reduction = '0'
+				}
+			}
+
+			// Check if percent broken reduction changed
+			if (
+				item.percent_broken_reduction !==
+				prevItem.percent_broken_reduction
+			) {
+				if (parseInt(item.percent_broken_reduction) > 0) {
+					form.value.types[index].fixed_broken_reduction = '0'
+				}
+			}
+		})
+
+		// Update previous values for next comparison
+		previousTypes = JSON.parse(JSON.stringify(newTypes))
+	},
+	{ deep: true }
+)
 </script>

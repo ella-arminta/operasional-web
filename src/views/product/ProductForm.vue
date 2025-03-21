@@ -615,7 +615,7 @@ const fetchCategory = async () => {
 	try {
 		const response = await axiosInstance.get('/inventory/category', {
 			params: {
-				company_id: decryptData(Cookies.get('userdata')).company_id,
+				store_id: decryptData(Cookies.get('userdata')).store_id,
 			},
 		})
 		if (response.data) {
