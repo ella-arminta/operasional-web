@@ -227,16 +227,6 @@
 						:readonly="mode === 'detail'"
 						:error="formError.tax_purchase"
 					/>
-					<!-- PPh -->
-					<InputForm
-						v-model="form.income_tax"
-						id="income_tax"
-						type="number"
-						label="Pph (%)"
-						placeholder="Pph (%)"
-						:readonly="mode === 'detail'"
-						:error="formError.income_tax"
-					/>
 					<!-- Flexible Price -->
 					<ToggleForm
 						v-model="form.is_flex_price"
@@ -457,7 +447,6 @@ const form = ref({
 	defect_nominal: 0,
 	defect_percentage: 0,
 	tax_purchase: 0,
-	income_tax: 0,
 })
 const formCopy = ref({ ...form.value })
 const formError = ref({
@@ -480,7 +469,6 @@ const formError = ref({
 	defect_nominal: '',
 	defect_percentage: '',
 	tax_purchase: 0,
-	income_tax: 0,
 })
 
 // MapPicker
@@ -634,6 +622,8 @@ const excludedKeys = [
 	'defect_percentage',
 	'adjustment_price_trade',
 	'adjustment_price_kbl',
+	'tax_purchase',
+	'tax_percentage',
 ]
 
 const hasFullyFilled = computed(() => {

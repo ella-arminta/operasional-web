@@ -7,6 +7,7 @@ export default createStore({
 			visible: false,
 			type: 'info', // Can be 'info', 'success', 'error', or 'warning'
 			actions: [], // [{ label: 'Close', type: 'secondary', handler: () => {} }]
+			inputs: [], // Array untuk menyimpan input yang dibutuhkan
 		},
 		smallMenu: false,
 	},
