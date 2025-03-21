@@ -5,10 +5,10 @@
 		<div class="w-full bg-white h-auto rounded-lg shadow-sm py-3 px-4">
 			<form @submit.prevent="submit">
 				<FormHeader :title="mode === 'edit'
-						? 'Edit Product'
-						: mode === 'add'
-							? 'Add Product'
-							: 'Product Detail'
+					? 'Edit Product'
+					: mode === 'add'
+						? 'Add Product'
+						: 'Product Detail'
 					" :showResetButton="mode === 'edit' && hasUnsavedChanges.value
 						" :showSaveButton="mode !== 'detail'" @reset="resetForm" />
 				<FormSectionHeader title="Basic Product Information" icon="info" />
@@ -33,6 +33,8 @@
 								{{ formError.category_id }}
 							</p>
 						</div>
+					</div>
+					<div class="space-y-3">
 						<!-- Type -->
 						<div>
 							<label for="dropdown" class="block text-sm text-grey-900 font-medium mb-1">
@@ -48,54 +50,6 @@
 						<!-- Price -->
 						<InputForm v-model="form.price" id="price" label="Active Price" placeholder="Active Price"
 							required :error="formError.price" :readonly="true" />
-					</div>
-					<div class="space-y-3">
-						<!-- Images -->
-						<div>
-							<label for="image" class="block text-sm text-grey-900 font-medium mb-1">
-								Images<span class="text-pinkDark">*</span>
-							</label>
-
-							<!-- Pagination Buttons at the Top -->
-							<button v-if="startIndex > 0" type="button" @click="prevPage"
-								class="w-full mb-2 pt-1 px-4 bg-pinkGray text-pinkOrange border border-pinkOrange border-opacity-25 rounded-lg hover:bg-pinkDark hover:text-white transition duration-300 justify-center items-center">
-								<i class="material-icons">keyboard_double_arrow_up</i>
-							</button>
-
-							<!-- Transition Group for Animated Scrolling Effect -->
-							<TransitionGroup tag="div" name="scroll-transition" class="space-y-2">
-								<div v-for="(image, index) in paginatedImages" :key="startIndex + index"
-									class="rounded-lg shadow-sm bg-white">
-									<ImageUpload v-model="form.images[startIndex + index]
-										" :readonly="mode === 'detail'" :uploadFile="'/upload-product'" />
-								</div>
-							</TransitionGroup>
-
-							<!-- Pagination Buttons at the Bottom -->
-							<button v-if="
-								startIndex + pageSize < form.images.length
-							" type="button" @click="nextPage"
-								class="mt-2 w-full pt-1 px-4 bg-pinkGray text-pinkOrange border border-pinkOrange border-opacity-25 rounded-lg hover:bg-pinkDark hover:text-white transition duration-300 justify-center items-center">
-								<i class="material-icons">keyboard_double_arrow_down</i>
-							</button>
-
-							<!-- Add Image Button (only on last page) -->
-							<button v-if="mode !== 'detail' && isLastPage" @click="addImage" type="button"
-								class="w-full px-4 py-2 bg-pinkDark text-white rounded-lg hover:bg-pinkDarker transition duration-300 mt-2">
-								+ Add Image
-							</button>
-							<p v-if="formError.images" class="text-pinkDark text-xs italic transition duration-300">
-								{{ formError.images }}
-							</p>
-						</div>
-					</div>
-					<div class="space-y-3">
-						<div class="space-y-3">
-							<!-- Description -->
-							<TextareaForm v-model="form.description" id="description" label="Description"
-								placeholder="Description" :error="formError.description"
-								:readonly="mode === 'detail'" />
-						</div>
 						<!-- Tags -->
 						<div class="space-y-3">
 							<label for="tags" class="block text-sm text-grey-900 font-medium mb-1">
@@ -137,7 +91,13 @@
 
 						</div>
 					</div>
+					<div class="space-y-3">
+						<!-- Description -->
+						<TextareaForm v-model="form.description" id="description" label="Description"
+							placeholder="Description" :error="formError.description" :readonly="mode === 'detail'" />
+					</div>
 				</div>
+
 			</form>
 			<form @submit.prevent="generateCode" v-if="mode !== 'add'">
 				<FormSectionHeader title="Generate Product Code" icon="build" />
@@ -405,7 +365,6 @@ const form = ref({
 	category_id: [],
 	type_id: [],
 	price: '',
-	images: [''],
 	description: '',
 	tags: [],
 	store_id: '',
@@ -417,7 +376,6 @@ const formError = ref({
 	category_id: '',
 	type_id: '',
 	price: '',
-	images: '',
 	tags: '',
 	description: '',
 	product_codes: '',
@@ -516,48 +474,15 @@ const fetchPrice = async (type_id) => {
 	}
 }
 
-// Pagination state
-const pageSize = 2 // Show max 2 images at a time
 const startIndex = ref(0)
 
-// Compute paginated images
-const paginatedImages = computed(() =>
-	form.value.images.slice(startIndex.value, startIndex.value + pageSize)
-)
 
-// Function to add images
-const addImage = () => {
-	if (form.value.images.some((image) => image === '')) {
-		showAlert(
-			'warning',
-			'Warning!',
-			'Please fill the existing image form first.'
-		)
-		return
-	}
-	form.value.images.push('')
-	if (startIndex.value + pageSize < form.value.images.length) {
-		startIndex.value += 1
-	}
-}
-
-// Pagination controls
-const nextPage = async () => {
-	if (startIndex.value + pageSize - 1 < form.value.images.length) {
-		startIndex.value += pageSize - 1
-	}
-}
 
 const prevPage = async () => {
 	if (startIndex.value > 0) {
 		startIndex.value -= 1
 	}
 }
-
-// Check if last page
-const isLastPage = computed(() => {
-	return startIndex.value + pageSize >= form.value.images.length
-})
 
 const resetError = () => {
 	Object.keys(formError.value).forEach((key) => {

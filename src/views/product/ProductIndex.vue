@@ -97,7 +97,7 @@ const columns = [
 		},
 	},
 	{ data: 'description', title: 'Description', visible: false },
-	{ data: 'images', title: 'images', visible: false },
+	// { data: 'images', title: 'images', visible: false },
 	{
 		data: 'action',
 		title: 'Action',
