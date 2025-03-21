@@ -101,35 +101,14 @@
 			</form>
 			<form @submit.prevent="generateCode" v-if="mode !== 'add'">
 				<FormSectionHeader title="Generate Product Code" icon="build" />
-				<div class="grid grid-cols-3 gap-6 mt-4">
-					<div>
+				<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
+					<!-- Kolom 1: Weight & Kas/Bank -->
+					<div class="col-span-1">
 						<!-- Weight -->
 						<InputForm v-model="formCode.weight" type="number" id="weight" label="Weight"
 							placeholder="Weight" required />
-					</div>
-					<!-- Upload Image for Product Code -->
-					<div>
-						<label for="image" class="block text-sm text-grey-900 font-medium mb-1">
-							Upload Image<span class="text-pinkDark">*</span>
-						</label>
-						<ImageUpload v-model="formCode.image" :uploadFile="'/upload-product'"
-							:readonly="mode === 'detail'" />
-					</div>
-					<div>
-						<!-- Harga Beli (sebelum pajak) -->
-						<InputForm v-model="formCode.buy_price" type="number" id="buy_price"
-							label="Harga Beli (sebelum pajak)" placeholder="Harga Beli (sebelum pajak)" required />
-					</div>
-					<div>
-						<!-- PPN Beli -->
-						<InputForm v-model="formCode.tax_purchase" type="number" id="tax_purchase"
-							:label="'PPN Beli (' + taxPurchasePercentage + '%)'" :placeholder="'PPN Beli (' + taxPurchasePercentage + '%)'
-								" :editPath="'/master/store/edit/' + form.store_id" required />
-					</div>
-					<div>
-						<!-- Akun cash / bank -->
-						<!-- Label -->
-						<label for="account_id" class="block text-sm text-gray-900 font-medium">
+						<!-- Kas/Bank -->
+						<label for="account_id" class="block text-sm text-grey-900 font-medium mt-4">
 							Kas/Bank <span class="text-pinkDark">*</span>
 						</label>
 						<Dropdown :items="accounts" v-model="formCode.account_id" placeholder="Select an account"
@@ -137,15 +116,39 @@
 							:addRoute="'/master/account/add'" id="account_id" />
 					</div>
 
-					<div class="flex justify-end items-end">
-						<!-- Generate -->
-						<button type="button" @click="generateCode"
-							class="w-full px-4 py-2 border border-pinkDark bg-pinkDark text-white hover:bg-pinkOrange rounded-lg transition duration-300 ease-in-out hover:ring hover:ring-pinkOrange hover:ring-opacity-25">
-							Generate
-						</button>
+					<!-- Kolom 2: Image -->
+					<div class="col-span-1">
+						<label for="image" class="block text-sm text-grey-900 font-medium mb-1">
+							Upload Image<span class="text-pinkDark">*</span>
+						</label>
+						<ImageUpload v-model="formCode.image" :uploadFile="'/upload-product'"
+							:readonly="mode === 'detail'" />
+					</div>
+
+					<!-- Kolom 3: Harga Beli, PPN Beli, & Generate -->
+					<div class="col-span-1">
+						<!-- Harga Beli (sebelum pajak) -->
+						<InputForm v-model="formCode.buy_price" type="number" id="buy_price"
+							label="Harga Beli (sebelum pajak)" placeholder="Harga Beli (sebelum pajak)" required />
+						<!-- PPN Beli -->
+						<InputForm v-model="formCode.tax_purchase" type="number" id="tax_purchase" class="mt-4"
+							:label="'PPN Beli (' + taxPurchasePercentage + '%)'"
+							:placeholder="'PPN Beli (' + taxPurchasePercentage + '%)'"
+							:editPath="'/master/store/edit/' + form.store_id" required />
+
+						<!-- Generate Button -->
+						<div class="flex justify-end items-end mt-6">
+							<button type="button" @click="generateCode"
+								class="w-full px-4 py-2 border border-pinkDark bg-pinkDark text-white hover:bg-pinkOrange rounded-lg transition duration-300 ease-in-out hover:ring hover:ring-pinkOrange hover:ring-opacity-25">
+								Generate
+							</button>
+						</div>
 					</div>
 				</div>
 			</form>
+
+
+
 		</div>
 		<div class="w-full bg-white h-auto rounded-lg shadow-sm mt-4" v-if="mode !== 'add'">
 			<h1 class="text-xl text-pinkDark font-bold pt-3 px-4">
