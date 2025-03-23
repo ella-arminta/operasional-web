@@ -341,11 +341,6 @@ const resetError = () => {
 const resetForm = () => {
 	form.value = { ...formCopy.value }
 }
-const hasUnsavedChanges = computed(() => {
-	return Object.keys(form.value).some(
-		(key) => form.value[key] !== formCopy.value[key]
-	)
-})
 const excludedKeys = ['code', 'description']
 const hasFullyFilled = computed(() => {
 	return Object.keys(form.value)
@@ -477,14 +472,14 @@ const submit = async () => {
 		})
 		return
 	}
-	if (!hasUnsavedChanges.value && props.mode === 'edit') {
-		store.dispatch('triggerAlert', {
-			type: 'warning',
-			title: 'Warning!',
-			message: 'No changes detected.',
-		})
-		return
-	}
+	// if (!hasUnsavedChanges.value && props.mode === 'edit') {
+	// 	store.dispatch('triggerAlert', {
+	// 		type: 'warning',
+	// 		title: 'Warning!',
+	// 		message: 'No changes detected.',
+	// 	})
+	// 	return
+	// }
 	resetError()
 	const data = await submitCategory()
 	// After the Category is created than create the sub category [Type]

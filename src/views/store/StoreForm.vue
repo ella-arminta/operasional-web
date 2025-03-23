@@ -249,10 +249,20 @@
 						:readonly="mode === 'detail'"
 						:error="formError.poin_config"
 					/>
+					<!-- Grace Period -->
+					<InputForm
+						v-model="form.grace_period"
+						id="grace_period"
+						type="number"
+						label="Grace Period"
+						placeholder="Grace Period"
+						:readonly="mode === 'detail'"
+						:error="formError.grace_period"
+					/>
 				</div>
-				<div class="space-y-3">
-					<!-- Defect -->
-					<div>
+				<!-- <div class="space-y-3"> -->
+				<!-- Defect -->
+				<!-- <div>
 						<label
 							for="defect"
 							class="block text-sm text-grey-900 font-medium mb-1"
@@ -261,9 +271,9 @@
 						</label>
 						<div
 							class="space-y-3 px-3 py-3 rounded-lg border border-pinkOrange border-opacity-25"
-						>
-							<!-- Defect Nominal -->
-							<InputForm
+						> -->
+				<!-- Defect Nominal -->
+				<!-- <InputForm
 								v-model="form.defect_nominal"
 								id="defect_nominal"
 								type="number"
@@ -271,9 +281,9 @@
 								placeholder="Defect Nominal (Rp)"
 								:readonly="mode === 'detail'"
 								:error="formError.defect_nominal"
-							/>
-							<!-- Defect Percentage -->
-							<InputForm
+							/> -->
+				<!-- Defect Percentage -->
+				<!-- <InputForm
 								v-model="form.defect_percentage"
 								id="defect_percentage"
 								type="number"
@@ -281,11 +291,11 @@
 								placeholder="Defect Percentage (%)"
 								:readonly="mode === 'detail'"
 								:error="formError.defect_percentage"
-							/>
-						</div>
-					</div>
-					<!-- Discount Buy -->
-					<div>
+							/> -->
+				<!-- </div>
+					</div> -->
+				<!-- Discount Buy -->
+				<!-- <div>
 						<label
 							for="defect"
 							class="block text-sm text-grey-900 font-medium mb-1"
@@ -294,9 +304,9 @@
 						</label>
 						<div
 							class="space-y-3 px-3 py-3 rounded-lg border border-pinkOrange border-opacity-25"
-						>
-							<!-- Minimum Trade in (%) -->
-							<InputForm
+						> -->
+				<!-- Minimum Trade in (%) -->
+				<!-- <InputForm
 								v-model="form.discount_trade"
 								id="discount_trade"
 								type="number"
@@ -304,9 +314,9 @@
 								placeholder="Discount (%) in minimum Trade in"
 								:readonly="mode === 'detail'"
 								:error="formError.discount_trade"
-							/>
-							<!-- Defect Percentage -->
-							<InputForm
+							/> -->
+				<!-- Defect Percentage -->
+				<!-- <InputForm
 								v-model="form.discount_kbl"
 								id="discount_kbl"
 								type="number"
@@ -314,11 +324,11 @@
 								placeholder="Discount (%) in minimum KBL"
 								:readonly="mode === 'detail'"
 								:error="formError.discount_kbl"
-							/>
-						</div>
-					</div>
-					<!-- Adjustment Price TT/KBL -->
-					<div>
+							/> -->
+				<!-- </div>
+					</div> -->
+				<!-- Adjustment Price TT/KBL -->
+				<!-- <div>
 						<label
 							for="defect"
 							class="block text-sm text-grey-900 font-medium mb-1"
@@ -327,9 +337,9 @@
 						</label>
 						<div
 							class="space-y-3 px-3 py-3 rounded-lg border border-pinkOrange border-opacity-25"
-						>
-							<!-- Minimum Trade in (%) -->
-							<InputForm
+						> -->
+				<!-- Minimum Trade in (%) -->
+				<!-- <InputForm
 								v-model="form.adjustment_price_trade"
 								id="adjustment_price_trade"
 								type="number"
@@ -337,9 +347,9 @@
 								placeholder="Discount (%) in minimum Trade in"
 								:readonly="mode === 'detail'"
 								:error="formError.adjustment_price_trade"
-							/>
-							<!-- Defect Percentage -->
-							<InputForm
+							/> -->
+				<!-- Defect Percentage -->
+				<!-- <InputForm
 								v-model="form.adjustment_price_kbl"
 								id="adjustment_price_kbl"
 								type="number"
@@ -349,8 +359,8 @@
 								:error="formError.adjustment_price_kbl"
 							/>
 						</div>
-					</div>
-				</div>
+					</div> -->
+				<!-- </div> -->
 			</div>
 		</form>
 		<!-- Modal Mappicker -->
@@ -447,6 +457,7 @@ const form = ref({
 	defect_nominal: 0,
 	defect_percentage: 0,
 	tax_purchase: 0,
+	grace_period: 0,
 })
 const formCopy = ref({ ...form.value })
 const formError = ref({
@@ -468,7 +479,8 @@ const formError = ref({
 	tax_percentage: '',
 	defect_nominal: '',
 	defect_percentage: '',
-	tax_purchase: 0,
+	tax_purchase: '',
+	grace_period: '',
 })
 
 // MapPicker
@@ -624,6 +636,7 @@ const excludedKeys = [
 	'adjustment_price_kbl',
 	'tax_purchase',
 	'tax_percentage',
+	'grace_period',
 ]
 
 const hasFullyFilled = computed(() => {

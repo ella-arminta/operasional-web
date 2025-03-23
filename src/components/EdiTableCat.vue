@@ -88,7 +88,11 @@
 							<div
 								class="px-4 py-2 w-full h-full flex flex-col items-start"
 							>
-								<div>
+								<div
+									:class="
+										col.formatCurrency ? 'text-end' : ''
+									"
+								>
 									{{
 										col.formatCurrency
 											? formatCurrency(row[col.key])
@@ -580,11 +584,17 @@ const emit = defineEmits(['update:rows'])
 const validateAndParseInput = (event, rowIndex, key) => {
 	let value = event.target.value
 
-	// Allow only valid numeric characters (digits, '.', or ',')
-	value = value.replace(/[^0-9.]/g, '')
+	// Allow digits, '.', ',', and '-' (only at the start)
+	value = value.replace(/[^0-9.,-]/g, '')
+
+	// Ensure '-' is only at the beginning
+	value = value.replace(/(?!^)-/g, '')
 
 	// Replace multiple dots with a single dot
 	value = value.replace(/\.{2,}/g, '.')
+
+	// Replace multiple commas with a single comma
+	value = value.replace(/,{2,}/g, ',')
 
 	// Update the row value
 	rows.value[rowIndex][key] = parseFloat(value)
