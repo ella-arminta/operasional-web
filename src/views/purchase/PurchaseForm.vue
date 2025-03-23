@@ -97,17 +97,14 @@
 							{{ formError.customer_id }}
 						</p>
 					</div>
-					<!-- Use Barcode -- QR Code -- TODO: CHANGE INTO QR CODE ACTIVATION CAMERA LATER!! -->
 					<div v-if="mode === 'add' && selectedWay == 1">
-						<InputForm
-							v-model="form.customer_id"
-							id="customer_id"
-							label="Customer ID"
-							placeholder="Customer ID"
-							required
-							:error="formError.customer_id"
-							:readonly="mode !== 'add'"
-						/>
+						<button
+							type="button"
+							class="w-full bg-pinkDark text-white rounded-lg py-2 px-4 hover:bg-pinkOrange transition duration-300"
+							@click="scanningCust = true"
+						>
+							Scan QR Code
+						</button>
 					</div>
 				</div>
 				<div class="space-y-3">
@@ -278,6 +275,13 @@
 			</div>
 		</form>
 	</div>
+	<!-- For Customer -->
+	<QrScanner
+		:show="scanningCust"
+		@close="scanningCust = false"
+		@scanned="handleScanCustomer"
+	/>
+	<!-- For Product -->
 	<QrScanner
 		:show="scanning"
 		@close="scanning = false"
@@ -308,6 +312,7 @@ const store = useStore()
 const router = useRouter()
 const smallMenu = computed(() => store.getters.smallMenu)
 const id = router.currentRoute.value.params.id
+const scanningCust = ref(false)
 const scanning = ref(false)
 
 // Handle for download
@@ -404,8 +409,18 @@ const switchForm = (type) => {
 	selectedType.value = type
 }
 
+const handleScanCustomer = (result) => {
+	// Fetch Customer Data with that id
+	if (result == null) return
+	form.value.customer_id = result
+	store.dispatch('triggerAlert', {
+		type: 'success',
+		title: 'Success!',
+		message: 'Customer found.',
+	})
+}
+
 const handleScan = (result) => {
-	console.log('Scanned QR Code:', result)
 	itemSelected.value = result.split(';')[0]
 	handleInsert()
 }

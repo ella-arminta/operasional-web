@@ -22,24 +22,6 @@
 					title="Basic Product Information"
 					icon="info"
 				/>
-				<FormHeader
-					:title="
-						mode === 'edit'
-							? 'Edit Product'
-							: mode === 'add'
-								? 'Add Product'
-								: 'Product Detail'
-					"
-					:showResetButton="
-						mode === 'edit' && hasUnsavedChanges.value
-					"
-					:showSaveButton="mode !== 'detail'"
-					@reset="resetForm"
-				/>
-				<FormSectionHeader
-					title="Basic Product Information"
-					icon="info"
-				/>
 				<div class="grid grid-cols-3 gap-6 mt-4">
 					<div class="space-y-3">
 						<!-- Code -->
