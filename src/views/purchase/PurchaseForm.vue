@@ -176,70 +176,137 @@
 					</div>
 				</div>
 			</div>
-			<FormSectionHeader title="Add Product" icon="shop" />
-			<div class="grid grid-cols-2 gap-4 mb-3">
-				<div>
-					<button
-						type="button"
-						class="w-full rounded-lg py-2 px-4 transition duration-300"
-						@click="switchForm(1)"
-						:class="{
-							'bg-pinkGray text-pinkOrange ': selectedType == 2,
-							'bg-pinkDark text-white hover:bg-pinkOrange':
-								selectedType == 1,
-						}"
-					>
-						Item from the Store
-					</button>
+			<template v-if="mode !== 'detail'">
+				<FormSectionHeader title="Add Product" icon="shop" />
+				<div class="grid grid-cols-2 gap-4 mb-3">
+					<div>
+						<button
+							type="button"
+							class="w-full rounded-lg py-2 px-4 transition duration-300"
+							@click="switchForm(1)"
+							:class="{
+								'bg-pinkGray text-pinkOrange ':
+									selectedType == 2,
+								'bg-pinkDark text-white hover:bg-pinkOrange':
+									selectedType == 1,
+							}"
+						>
+							Item from the Store
+						</button>
+					</div>
+					<div>
+						<button
+							type="button"
+							class="w-full rounded-lg py-2 px-4 transition duration-300"
+							@click="switchForm(2)"
+							:class="{
+								'bg-pinkGray text-pinkOrange':
+									selectedType == 1,
+								'bg-pinkDark text-white hover:bg-pinkOrange':
+									selectedType == 2,
+							}"
+						>
+							Item Not from the Store
+						</button>
+					</div>
 				</div>
-				<div>
-					<button
-						type="button"
-						class="w-full rounded-lg py-2 px-4 transition duration-300"
-						@click="switchForm(2)"
-						:class="{
-							'bg-pinkGray text-pinkOrange': selectedType == 1,
-							'bg-pinkDark text-white hover:bg-pinkOrange':
-								selectedType == 2,
-						}"
-					>
-						Item Not from the Store
-					</button>
+				<div
+					v-if="selectedType == 1"
+					class="grid grid-cols-3 gap-6 mb-4 items-end"
+				>
+					<div>
+						<InputForm
+							v-model="itemSelected"
+							id="item"
+							label="Product Code"
+							placeholder="Product Code"
+							required
+							:readonly="mode === 'detail'"
+						/>
+					</div>
+					<div>
+						<button
+							type="button"
+							class="w-full bg-pinkDark text-white rounded-lg py-2 px-4 hover:bg-pinkOrange transition duration-300"
+							@click="handleInsert"
+						>
+							Add Manual
+						</button>
+					</div>
+					<div>
+						<button
+							type="button"
+							class="w-full bg-pinkDark text-white rounded-lg py-2 px-4 hover:bg-pinkOrange transition duration-300"
+							@click="scanning = true"
+						>
+							Scan QR Code
+						</button>
+					</div>
 				</div>
-			</div>
-			<div
-				v-if="mode !== 'detail' && selectedType == 1"
-				class="grid grid-cols-3 gap-6 mb-4 items-end"
-			>
-				<div>
-					<InputForm
-						v-model="itemSelected"
-						id="item"
-						label="Product Code"
-						placeholder="Product Code"
-						required
-						:readonly="mode === 'detail'"
-					/>
+				<div
+					v-if="selectedType == 2"
+					class="grid grid-cols-3 gap-6 mb-4 items-end"
+				>
+					<div>
+						<label
+							for="dropdown"
+							class="block text-sm text-grey-900 font-medium mb-1"
+						>
+							Category<span class="text-pinkDark">*</span>
+						</label>
+						<Dropdown
+							:items="categories"
+							v-model="categorySelected"
+							placeholder="Select a category"
+							:multiple="false"
+							:searchable="true"
+							:disabled="mode === 'detail'"
+							:addRoute="'/master/category'"
+						/>
+					</div>
+					<div>
+						<label
+							for="dropdown"
+							class="block text-sm text-grey-900 font-medium mb-1"
+						>
+							Type<span class="text-pinkDark">*</span>
+						</label>
+						<Dropdown
+							:items="subCategories"
+							v-model="formNonStore.type_id"
+							:placeholder="
+								categorySelected.length > 0
+									? 'Select a Sub Category'
+									: 'Select a category first'
+							"
+							:multiple="false"
+							:searchable="true"
+							:disabled="mode === 'detail'"
+							:addRoute="'/master/category'"
+						/>
+					</div>
+					<div>
+						<InputForm
+							v-model="formNonStore.weight"
+							id="weight"
+							label="Weight"
+							placeholder="Weight"
+							required
+							:readonly="mode === 'detail'"
+							type="number"
+						/>
+					</div>
+					<div class="col-start-3">
+						<button
+							type="button"
+							class="w-full bg-pinkDark text-white rounded-lg py-2 px-4 hover:bg-pinkOrange transition duration-300"
+							@click="handleNotFromStore"
+						>
+							Calculate
+						</button>
+					</div>
 				</div>
-				<div>
-					<button
-						type="button"
-						class="w-full bg-pinkDark text-white rounded-lg py-2 px-4 hover:bg-pinkOrange transition duration-300"
-						@click="handleInsert"
-					>
-						Add Manual
-					</button>
-				</div>
-				<div>
-					<button
-						type="button"
-						class="w-full bg-pinkDark text-white rounded-lg py-2 px-4 hover:bg-pinkOrange transition duration-300"
-						@click="scanning = true"
-					>
-						Scan QR Code
-					</button>
-				</div>
-			</div>
+			</template>
 			<FormSectionHeader
 				title="Transaction Details"
 				icon="shopping_cart"
@@ -425,7 +492,143 @@ const handleScan = (result) => {
 	handleInsert()
 }
 
-// Handle From insert Operation
+// Insert for item not from store
+const categories = ref([])
+const subCategories = ref([])
+const categorySelected = ref([])
+const formNonStore = ref({
+	type_id: [],
+	weight: 0,
+})
+const fetchCategory = async () => {
+	const response = await axiosInstance.get('/inventory/category')
+
+	if (response.data.success) {
+		categories.value = response.data.data.data.map((category) => ({
+			...category,
+			label: `${category.code}|${category.name}`,
+		}))
+	} else {
+		store.dispatch('triggerAlert', {
+			type: 'error',
+			title: 'Error!',
+			message: response.data.message,
+		})
+	}
+}
+const fetchType = async () => {
+	const response = await axiosInstance.get('/inventory/type', {
+		params: {
+			category_id: categorySelected.value[0],
+		},
+	})
+
+	if (response.data.success) {
+		subCategories.value = response.data.data.data.map((type) => ({
+			...type,
+			label: `${type.code}|${type.name}`,
+		}))
+	} else {
+		store.dispatch('triggerAlert', {
+			type: 'error',
+			title: 'Error!',
+			message: response.data.message,
+		})
+	}
+}
+watch(
+	() => categorySelected.value,
+	(newValue) => {
+		if (newValue.length > 0) {
+			fetchType()
+		}
+	}
+)
+const handleNotFromStore = async () => {
+	if (formNonStore.value.type_id.length == 0) {
+		store.dispatch('triggerAlert', {
+			type: 'error',
+			title: 'Error!',
+			message: 'Please select a sub-category first.',
+		})
+		return
+	}
+	if (formNonStore.value.weight == 0) {
+		store.dispatch('triggerAlert', {
+			type: 'error',
+			title: 'Error!',
+			message: 'Please fill in the weight first.',
+		})
+		return
+	}
+	const result = await store.dispatch('triggerConfirm', {
+		type: 'confirm',
+		title: 'Confirmation',
+		message: 'Is this item broken or not?',
+	})
+
+	// Handle for Product
+	try {
+		const response = await axiosInstance.get(
+			`/transaction/purchase-non-product`,
+			{
+				params: {
+					store: decryptData(Cookies.get('userdata')).store_id,
+					type_id: formNonStore.value.type_id[0],
+					weight: formNonStore.value.weight,
+					is_broken: result,
+				},
+			}
+		)
+		if (response.data.success) {
+			const data = {
+				detail_type: 'product',
+				id: null,
+				product_code_id: response.data.data.id,
+				type: response.data.data.type,
+				name: response.data.data.name,
+				price: parseFloat(response.data.data.price),
+				quantity: parseFloat(response.data.data.weight),
+				discount: 0,
+				uom: 'gram',
+				adjustment_price: parseFloat(
+					response.data.data.adjustment_price
+				),
+				total_price: 0,
+			}
+
+			// Insert if mode edit
+			if (props.mode === 'edit') {
+				data.weight = data.quantity
+				data.total_price = data.price * data.quantity
+				data.transaction_id = id
+				const response = await axiosInstance.post(
+					'/transaction/transaction-detail',
+					data
+				)
+				if (response.data.success) {
+					data.id = response.data.data.id
+				}
+			}
+
+			form.value.transaction_details = [
+				...form.value.transaction_details,
+				data,
+			]
+			itemSelected.value = null
+			operationSelected.value = []
+		}
+	} catch (error) {
+		store.dispatch('triggerAlert', {
+			type: 'error',
+			title: 'Error!',
+			message: error.response.data.message ?? 'Failed to insert item.',
+		})
+	}
+	console.log(form.value.transaction_details)
+}
+
+// Handle From insert item from store
 const handleInsert = async () => {
 	if (itemSelected.value == null) {
 		store.dispatch('triggerAlert', {
@@ -771,6 +974,7 @@ const fetchTransaction = async () => {
 }
 
 onMounted(async () => {
+	await fetchCategory()
 	await fetchCustomer()
 	if (props.mode === 'add') {
 		form.value.store_id = decryptData(Cookies.get('userdata')).store_id

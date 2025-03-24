@@ -194,9 +194,8 @@
 					</div>
 				</div>
 			</div>
-
-			<FormSectionHeader title="Add Product" icon="shop" />
-			<div class="mt-4">
+			<template v-if="mode !== 'detail'">
+				<FormSectionHeader title="Add Product" icon="shop" />
 				<div class="grid grid-cols-2 gap-4 mb-3">
 					<div>
 						<button
@@ -279,51 +278,48 @@
 						</button>
 					</div>
 				</div>
-				<FormSectionHeader
-					title="Transaction Details"
-					icon="shopping_cart"
-				/>
-				<EditableCat
-					:initialRows="form.transaction_details"
-					:columns="transactionDetailsColumns"
-					:required="false"
-					:readonly="
-						mode === 'detail' || form.payment_method[0] === 5
-					"
-					:allActive="false"
-					:independent="mode !== 'add'"
-					:addable="false"
-					title="Items Detail"
-					@update:rows="handleRowsUpdate"
-					:addPath="'/transaction/transaction-detail'"
-					:editPath="'/transaction/transaction-detail'"
-					:deletePath="'/transaction/transaction-detail'"
-					:noDataState="noDataState"
-				/>
-				<div class="grid grid-cols-5 gap-6 mt-8 place-items-end mr-4">
-					<div class="col-start-4 space-y-2">
-						<h5>Weight Total</h5>
-						<h5>Sub Total</h5>
-						<h5>Poin Earned</h5>
-						<h5>Voucher Discount</h5>
-						<h5>
-							Tax
-							<span class="text-sm text-pinkDark"
-								>({{ tax }}%)</span
-							>
-						</h5>
-						<h5>Total</h5>
-					</div>
-					<div
-						class="space-y-2 flex flex-col items-end text-pinkDark text-md"
-					>
-						<h5>{{ form.weight_total }} gram</h5>
-						<h5>{{ formatNumber(form.sub_total_price) }}</h5>
-						<h5>{{ form.poin_earned }}</h5>
-						<h5>-{{ formatNumber(form.voucher_discount) }}</h5>
-						<h5>{{ formatNumber(form.tax_price) }}</h5>
-						<h5>{{ formatNumber(form.total_price) }}</h5>
-					</div>
+			</template>
+
+			<FormSectionHeader
+				title="Transaction Details"
+				icon="shopping_cart"
+			/>
+			<EditableCat
+				:initialRows="form.transaction_details"
+				:columns="transactionDetailsColumns"
+				:required="false"
+				:readonly="mode === 'detail' || form.payment_method[0] === 5"
+				:allActive="false"
+				:independent="mode !== 'add'"
+				:addable="false"
+				title="Items Detail"
+				@update:rows="handleRowsUpdate"
+				:addPath="'/transaction/transaction-detail'"
+				:editPath="'/transaction/transaction-detail'"
+				:deletePath="'/transaction/transaction-detail'"
+				:noDataState="noDataState"
+			/>
+			<div class="grid grid-cols-5 gap-6 mt-8 place-items-end mr-4">
+				<div class="col-start-4 space-y-2">
+					<h5>Weight Total</h5>
+					<h5>Sub Total</h5>
+					<h5>Poin Earned</h5>
+					<h5>Voucher Discount</h5>
+					<h5>
+						Tax
+						<span class="text-sm text-pinkDark">({{ tax }}%)</span>
+					</h5>
+					<h5>Total</h5>
+				</div>
+				<div
+					class="space-y-2 flex flex-col items-end text-pinkDark text-md"
+				>
+					<h5>{{ form.weight_total }} gram</h5>
+					<h5>{{ formatNumber(form.sub_total_price) }}</h5>
+					<h5>{{ form.poin_earned }}</h5>
+					<h5>-{{ formatNumber(form.voucher_discount) }}</h5>
+					<h5>{{ formatNumber(form.tax_price) }}</h5>
+					<h5>{{ formatNumber(form.total_price) }}</h5>
 				</div>
 			</div>
 			<!-- Customer Reviews Section -->
