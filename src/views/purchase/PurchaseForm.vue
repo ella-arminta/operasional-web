@@ -311,7 +311,7 @@
 				title="Transaction Details"
 				icon="shopping_cart"
 			/>
-			<EditableCat
+			<EditableTrans
 				:initialRows="form.transaction_details"
 				:columns="transactionDetailsColumns"
 				:required="false"
@@ -368,7 +368,7 @@ import FormHeader from '../../components/FormHeader.vue'
 import InputForm from '../../components/InputForm.vue'
 import axiosInstance from '../../axios'
 import Dropdown from '../../components/Dropdown.vue'
-import EditableCat from '../../components/EditableCat.vue'
+import EditableTrans from '../../components/EditableTrans.vue'
 import QrScanner from '../../components/QrScanner.vue'
 
 // Declaration of props, store, router
@@ -595,12 +595,16 @@ const handleNotFromStore = async () => {
 					response.data.data.adjustment_price
 				),
 				total_price: 0,
+				is_broken: result,
+				transaction_type: 2,
+				status: 2,
 			}
 
 			// Insert if mode edit
 			if (props.mode === 'edit') {
 				data.weight = data.quantity
-				data.total_price = data.price * data.quantity
+				data.total_price =
+					data.price * data.quantity + data.adjustment_price
 				data.transaction_id = id
 				const response = await axiosInstance.post(
 					'/transaction/transaction-detail',
@@ -615,14 +619,18 @@ const handleNotFromStore = async () => {
 				...form.value.transaction_details,
 				data,
 			]
-			itemSelected.value = null
-			operationSelected.value = []
+			formNonStore.value = {
+				type_id: [],
+				weight: 0,
+			}
+			categorySelected.value = []
 		}
 	} catch (error) {
+		console.error(error)
 		store.dispatch('triggerAlert', {
 			type: 'error',
 			title: 'Error!',
-			message: error.response.data.message ?? 'Failed to insert item.',
+			message: error.response?.data.message ?? 'Failed to insert item.',
 		})
 	}
 	console.log(form.value.transaction_details)
@@ -669,16 +677,17 @@ const handleInsert = async () => {
 				adjustment_price: parseFloat(
 					response.data.data.adjustment_price
 				),
-				broken_adjustment_price: parseFloat(
-					response.data.data.broken_adjustment_price
-				),
+				is_broken: result,
 				total_price: 0,
+				transaction_type: 2,
+				status: 2,
 			}
 
 			// Insert if mode edit
 			if (props.mode === 'edit') {
 				data.weight = data.quantity
-				data.total_price = data.price * data.quantity
+				data.total_price =
+					data.price * data.quantity + data.adjustment_price
 				data.transaction_id = id
 				const response = await axiosInstance.post(
 					'/transaction/transaction-detail',
@@ -694,16 +703,15 @@ const handleInsert = async () => {
 				data,
 			]
 			itemSelected.value = null
-			operationSelected.value = []
 		}
 	} catch (error) {
+		console.error(error)
 		store.dispatch('triggerAlert', {
 			type: 'error',
 			title: 'Error!',
-			message: error.response.data.message ?? 'Failed to insert item.',
+			message: error.response?.data.message ?? 'Failed to insert item.',
 		})
 	}
-	console.log(form.value.transaction_details)
 }
 
 // Form Data
@@ -748,11 +756,13 @@ const formError = ref({
 // Handle Form Data for Types
 const handleRowsUpdate = (newRows) => {
 	if (props.mode === 'edit') {
+		console.log(newRows)
 		form.value.transaction_details = newRows
 		formCopy.value.transaction_details = newRows
-		console.log(newRows)
+	} else {
+		// // Track changed indices
+		form.value.transaction_details = newRows
 	}
-	form.value.transaction_details = newRows
 }
 
 // Data Customers
@@ -835,7 +845,6 @@ watch(
 		form.value.sub_total_price = total
 		form.value.total_price = total
 		form.value.weight_total = weight
-		console.log('newest', form.value)
 	}
 )
 

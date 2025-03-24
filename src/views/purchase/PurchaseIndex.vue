@@ -28,6 +28,9 @@
 					? '/transaction/transaction-dissaprove'
 					: ''
 			"
+			:options="{
+				scrollX: true,
+			}"
 		/>
 	</div>
 </template>
