@@ -107,6 +107,9 @@ onMounted(async () => {
 			:infoLabel="'General Ledger Detail'"
 			:export="true"
 			:totalFooter="true"
+			:options="{
+				scrollX: true,
+			}"
 		/>
 	</div>
 </template>

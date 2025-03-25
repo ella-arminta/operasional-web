@@ -62,6 +62,9 @@ const columns = [
       v-if="!isLoading"
       :columns="columns"
       :reload="true"
+      :options="{
+        scrollX: true,
+      }"
       ajaxPath="/finance/trans-account-setting"
     />
     <p v-else>Loading...</p> 

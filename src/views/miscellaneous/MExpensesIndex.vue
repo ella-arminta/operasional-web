@@ -93,6 +93,9 @@ onMounted(async () => {
 			:filters="filters"
 			:ajaxPath="ajaxPath"
 			:editPath="editPath"
+			:options="{
+				scrollX: true,
+			}"
 			:approvePath="'/finance/uang-keluar-masuk-approve'"
 			:disapprovePath="'/finance/uang-keluar-masuk-disapprove'"
 			:deletePath="'/finance/transaction'"

@@ -52,6 +52,9 @@ onMounted(async () => {
 			:filters="filters"
 			ajaxPath="/finance/journal"
 			:infoPath="'/finance/journal/detail'"
+			:options="{
+				scrollX: true,
+			}"
 		/>
 	</div>
 </template>
