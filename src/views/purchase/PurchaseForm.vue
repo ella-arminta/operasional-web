@@ -8,10 +8,10 @@
 			<FormHeader
 				:title="
 					mode === 'edit'
-						? 'Edit Sales Transaction'
+						? 'Edit Purchase Transaction'
 						: mode === 'add'
-							? 'Sales Transaction Form'
-							: 'Sales Transaction Detail'
+							? 'Purchase Transaction Form'
+							: 'Purchase Transaction Detail'
 				"
 				:showResetButton="false"
 				:showSaveButton="mode !== 'detail'"
@@ -141,28 +141,10 @@
 						class="space-y-3 px-3 py-3 rounded-lg border border-pinkOrange border-opacity-25"
 					>
 						<div>
-							<h4 class="text-md mb-0">Pembayaran</h4>
+							<h4 class="text-md mb-0">Total</h4>
 							<h1 class="text-pinkDark text-2xl mt-0 pt-0">
 								{{ formatNumber(form.total_price) }}
 							</h1>
-						</div>
-						<div>
-							<label
-								for="dropdown"
-								class="block text-sm text-grey-900 font-medium mb-1"
-								>Payment Method<span class="text-pinkDark"
-									>*</span
-								></label
-							>
-							<Dropdown
-								:items="paymentMethod"
-								v-model="form.payment_method"
-								placeholder="Select a payment method"
-								:multiple="false"
-								:searchable="false"
-								:disabled="mode === 'detail'"
-								:addRoute="''"
-							/>
 						</div>
 						<div>
 							<label
@@ -209,7 +191,7 @@
 									selectedType == 1,
 							}"
 						>
-							Add Product
+							Item from the Store
 						</button>
 					</div>
 					<div>
@@ -224,15 +206,15 @@
 									selectedType == 2,
 							}"
 						>
-							Add Operation
+							Item Not from the Store
 						</button>
 					</div>
 				</div>
 				<div
-					v-if="mode !== 'detail' && form.payment_method[0] != 5"
+					v-if="selectedType == 1"
 					class="grid grid-cols-3 gap-6 mb-4 items-end"
 				>
-					<div v-if="selectedType == 1">
+					<div>
 						<InputForm
 							v-model="itemSelected"
 							id="item"
@@ -242,30 +224,13 @@
 							:readonly="mode === 'detail'"
 						/>
 					</div>
-					<div v-if="selectedType == 2">
-						<label
-							for="dropdown"
-							class="block text-sm text-grey-900 font-medium mb-1"
-						>
-							Operation<span class="text-pinkDark">*</span>
-						</label>
-						<Dropdown
-							:items="operations"
-							v-model="operationSelected"
-							placeholder="Select an Operation"
-							:multiple="false"
-							:searchable="true"
-							:disabled="mode === 'detail'"
-							:addRoute="'/inventory/operation'"
-						/>
-					</div>
 					<div>
 						<button
 							type="button"
 							class="w-full bg-pinkDark text-white rounded-lg py-2 px-4 hover:bg-pinkOrange transition duration-300"
 							@click="handleInsert"
 						>
-							Add Item
+							Add Manual
 						</button>
 					</div>
 					<div>
@@ -278,13 +243,75 @@
 						</button>
 					</div>
 				</div>
+				<div
+					v-if="selectedType == 2"
+					class="grid grid-cols-3 gap-6 mb-4 items-end"
+				>
+					<div>
+						<label
+							for="dropdown"
+							class="block text-sm text-grey-900 font-medium mb-1"
+						>
+							Category<span class="text-pinkDark">*</span>
+						</label>
+						<Dropdown
+							:items="categories"
+							v-model="categorySelected"
+							placeholder="Select a category"
+							:multiple="false"
+							:searchable="true"
+							:disabled="mode === 'detail'"
+							:addRoute="'/master/category'"
+						/>
+					</div>
+					<div>
+						<label
+							for="dropdown"
+							class="block text-sm text-grey-900 font-medium mb-1"
+						>
+							Type<span class="text-pinkDark">*</span>
+						</label>
+						<Dropdown
+							:items="subCategories"
+							v-model="formNonStore.type_id"
+							:placeholder="
+								categorySelected.length > 0
+									? 'Select a Sub Category'
+									: 'Select a category first'
+							"
+							:multiple="false"
+							:searchable="true"
+							:disabled="mode === 'detail'"
+							:addRoute="'/master/category'"
+						/>
+					</div>
+					<div>
+						<InputForm
+							v-model="formNonStore.weight"
+							id="weight"
+							label="Weight"
+							placeholder="Weight"
+							required
+							:readonly="mode === 'detail'"
+							type="number"
+						/>
+					</div>
+					<div class="col-start-3">
+						<button
+							type="button"
+							class="w-full bg-pinkDark text-white rounded-lg py-2 px-4 hover:bg-pinkOrange transition duration-300"
+							@click="handleNotFromStore"
+						>
+							Calculate
+						</button>
+					</div>
+				</div>
 			</template>
-
 			<FormSectionHeader
 				title="Transaction Details"
 				icon="shopping_cart"
 			/>
-			<EditableCat
+			<EditableTrans
 				:initialRows="form.transaction_details"
 				:columns="transactionDetailsColumns"
 				:required="false"
@@ -303,12 +330,6 @@
 				<div class="col-start-4 space-y-2">
 					<h5>Weight Total</h5>
 					<h5>Sub Total</h5>
-					<h5>Poin Earned</h5>
-					<h5>Voucher Discount</h5>
-					<h5>
-						Tax
-						<span class="text-sm text-pinkDark">({{ tax }}%)</span>
-					</h5>
 					<h5>Total</h5>
 				</div>
 				<div
@@ -316,100 +337,18 @@
 				>
 					<h5>{{ form.weight_total }} gram</h5>
 					<h5>{{ formatNumber(form.sub_total_price) }}</h5>
-					<h5>{{ form.poin_earned }}</h5>
-					<h5>-{{ formatNumber(form.voucher_discount) }}</h5>
-					<h5>{{ formatNumber(form.tax_price) }}</h5>
 					<h5>{{ formatNumber(form.total_price) }}</h5>
 				</div>
 			</div>
-			<!-- Customer Reviews Section -->
-			<div v-if="mode !== 'add'" class="mt-6">
-				<FormSectionHeader title="Customer Reviews" icon="star" />
-
-				<div
-					v-if="
-						form.transaction_details.some(
-							(item) => item.TransactionReview
-						)
-					"
-				>
-					<div
-						v-for="item in form.transaction_details"
-						:key="item.id"
-						class="bg-white p-4 rounded-lg shadow-md border border-gray-200 mb-4"
-					>
-						<h5 class="font-semibold text-gray-800">
-							{{
-								item.product_code
-									? item.product_code.barcode
-									: 'Unknown Product'
-							}}
-						</h5>
-						<p class="text-gray-600 text-sm">
-							{{ item.name || 'Unnamed Product' }}
-						</p>
-
-						<!-- Display Review If Available -->
-						<div v-if="item.TransactionReview">
-							<span class="text-yellow-500 font-bold"
-								>⭐ {{ item.TransactionReview.rating }} /
-								5</span
-							>
-							<br />
-							<span class="text-gray-700 italic"
-								>"{{ item.TransactionReview.review }}"</span
-							>
-							<br />
-
-							<!-- Show admin reply (read-only) if reply_admin exists -->
-							<p
-								v-if="item.TransactionReview.reply_admin"
-								class="text-gray-700 text-sm mt-2"
-							>
-								<b class="text-gray-800">Admin Reply:</b>
-								{{ item.TransactionReview.reply_admin }}
-							</p>
-
-							<!-- Show input field for reply only if there's no reply_admin yet -->
-							<div v-else-if="mode === 'edit'" class="mt-2">
-								<label
-									class="text-gray-700 text-sm font-semibold"
-									>Admin Reply:</label
-								>
-								<input
-									v-model="item.adminReply"
-									type="text"
-									class="border rounded px-2 py-1 w-full mt-1 text-gray-800 focus:border-pinkDark focus:ring-pinkDark"
-									placeholder="Type your reply here..."
-								/>
-								<button
-									@click="submitAdminReply(item)"
-									class="mt-2 px-3 py-1 bg-pinkDark text-white text-sm rounded hover:bg-pinkOrange transition"
-								>
-									Submit Reply
-								</button>
-							</div>
-						</div>
-
-						<p v-else class="text-gray-500 italic">
-							No review available for this product.
-						</p>
-					</div>
-				</div>
-
-				<p v-else class="text-gray-500 text-sm italic">
-					No customer reviews found for this transaction.
-				</p>
-			</div>
 		</form>
 	</div>
-	<!-- Customer Scanner -->
+	<!-- For Customer -->
 	<QrScanner
 		:show="scanningCust"
 		@close="scanningCust = false"
 		@scanned="handleScanCustomer"
 	/>
-	<!-- Product Scanner -->
+	<!-- For Product -->
 	<QrScanner
 		:show="scanning"
 		@close="scanning = false"
@@ -429,7 +368,7 @@ import FormHeader from '../../components/FormHeader.vue'
 import InputForm from '../../components/InputForm.vue'
 import axiosInstance from '../../axios'
 import Dropdown from '../../components/Dropdown.vue'
-import EditableCat from '../../components/EditableCat.vue'
+import EditableTrans from '../../components/EditableTrans.vue'
 import QrScanner from '../../components/QrScanner.vue'
 
 // Declaration of props, store, router
@@ -440,84 +379,8 @@ const store = useStore()
 const router = useRouter()
 const smallMenu = computed(() => store.getters.smallMenu)
 const id = router.currentRoute.value.params.id
-const tax = ref(0)
 const scanningCust = ref(false)
 const scanning = ref(false)
-
-// columns for EditableCat
-const transactionDetailsColumns = [
-	{
-		key: 'name',
-		label: 'Name',
-		type: 'text',
-		readonly: true,
-		width: '10%',
-	},
-	{ key: 'type', label: 'Type', type: 'text', readonly: true, width: '10%' },
-	{
-		key: 'quantity',
-		label: 'Qty',
-		type: 'number',
-		width: '5%',
-	},
-	{ key: 'uom', label: 'Unit', type: 'text', readonly: true, width: '1%' },
-	{
-		key: 'price',
-		label: 'Price/unit',
-		type: 'number',
-		readonly: true,
-		formatCurrency: true,
-	},
-	{
-		key: 'adjustment_price',
-		label: 'Adj. Price',
-		type: 'number',
-		formatCurrency: true,
-	},
-	{
-		key: 'total_price',
-		label: 'Sub Total',
-		type: 'number',
-		readonly: true,
-		formatCurrency: true,
-	},
-]
-const noDataState = `<p class="text-center text-gray-500 w-full py-2 px-4">Add Transaction Details</p>`
-
-const type = [
-	{ id: 1, label: 'Product' },
-	{ id: 2, label: 'Operation' },
-]
-
-const status = [
-	{ id: 0, label: 'Pending' },
-	{ id: 1, label: 'Paid' },
-	{ id: 2, label: 'Done' },
-]
-
-const selectedType = ref(1)
-const operationSelected = ref([])
-const itemSelected = ref(null)
-
-const switchForm = (type) => {
-	selectedType.value = type
-}
-
-const handleScanCustomer = (result) => {
-	// Fetch Customer Data with that id
-	if (result == null) return
-	form.value.customer_id = result
-	store.dispatch('triggerAlert', {
-		type: 'success',
-		title: 'Success!',
-		message: 'Customer found.',
-	})
-}
-
-const handleScan = (result) => {
-	itemSelected.value = result.split(';')[0]
-	handleInsert()
-}
 
 // Handle for download
 const downloadNota = async () => {
@@ -560,103 +423,189 @@ const downloadNota = async () => {
 	}
 }
 
-// Handle From insert Operation
-const handleInsert = async () => {
-	if (selectedType.value == 1) {
-		// Handle for Product
-		try {
-			const response = await axiosInstance.get(
-				`/inventory/product-barcode/${itemSelected.value}`,
-				{
-					params: {
-						store: decryptData(Cookies.get('userdata')).store_id,
-					},
-				}
-			)
-			if (response.data.success) {
-				if (response.data.data.status != 0) {
-					store.dispatch('triggerAlert', {
-						type: 'error',
-						title: 'Error!',
-						message: 'Product is not available.',
-					})
-					return
-				}
+// columns for EditableCat
+const transactionDetailsColumns = [
+	{
+		key: 'name',
+		label: 'Name',
+		type: 'text',
+		readonly: true,
+		width: '10%',
+	},
+	{ key: 'type', label: 'Type', type: 'text', readonly: true, width: '10%' },
+	{
+		key: 'quantity',
+		label: 'Qty',
+		type: 'number',
+		width: '5%',
+	},
+	{ key: 'uom', label: 'Unit', type: 'text', readonly: true, width: '1%' },
+	{
+		key: 'price',
+		label: 'Price/unit',
+		type: 'number',
+		readonly: true,
+		formatCurrency: true,
+	},
+	{
+		key: 'adjustment_price',
+		label: 'Adj. Price',
+		type: 'number',
+		formatCurrency: true,
+	},
+	{
+		key: 'total_price',
+		label: 'Sub Total',
+		type: 'number',
+		readonly: true,
+		formatCurrency: true,
+	},
+]
+const noDataState = `<p class="text-center text-gray-500 w-full py-2 px-4">Add Transaction Details</p>`
 
-				const data = {
-					detail_type: 'product',
-					id: null,
-					product_code_id: response.data.data.id,
-					type: response.data.data.type,
-					name: response.data.data.name,
-					price: parseFloat(response.data.data.price),
-					quantity: parseFloat(response.data.data.weight),
-					discount: 0,
-					uom: 'gram',
-					adjustment_price: 0,
-					total_price: 0,
-				}
+const status = [
+	{ id: 0, label: 'Pending' },
+	{ id: 1, label: 'Paid' },
+	{ id: 2, label: 'Done' },
+]
 
-				// Insert if mode edit
-				if (props.mode === 'edit') {
-					data.weight = data.quantity
-					data.total_price = data.price * data.quantity
-					data.transaction_id = id
-					const response = await axiosInstance.post(
-						'/transaction/transaction-detail',
-						data
-					)
-					if (response.data.success) {
-						data.id = response.data.data.id
-					}
-				}
+const selectedType = ref(1)
+const itemSelected = ref(null)
 
-				form.value.transaction_details = [
-					...form.value.transaction_details,
-					data,
-				]
-				itemSelected.value = null
-				operationSelected.value = []
-			}
-		} catch (error) {
-			store.dispatch('triggerAlert', {
-				type: 'error',
-				title: 'Error!',
-				message:
-					error.response.data.message ?? 'Failed to insert item.',
-			})
+const switchForm = (type) => {
+	selectedType.value = type
+}
+
+const handleScanCustomer = (result) => {
+	// Fetch Customer Data with that id
+	if (result == null) return
+	form.value.customer_id = result
+	store.dispatch('triggerAlert', {
+		type: 'success',
+		title: 'Success!',
+		message: 'Customer found.',
+	})
+}
+
+const handleScan = (result) => {
+	itemSelected.value = result.split(';')[0]
+	handleInsert()
+}
+
+// Insert for item not from store
+const categories = ref([])
+const subCategories = ref([])
+const categorySelected = ref([])
+const formNonStore = ref({
+	type_id: [],
+	weight: 0,
+})
+const fetchCategory = async () => {
+	const response = await axiosInstance.get('/inventory/category')
+
+	if (response.data.success) {
+		categories.value = response.data.data.data.map((category) => ({
+			...category,
+			label: `${category.code}|${category.name}`,
+		}))
+	} else {
+		store.dispatch('triggerAlert', {
+			type: 'error',
+			title: 'Error!',
+			message: response.data.message,
+		})
+	}
+}
+const fetchType = async () => {
+	const response = await axiosInstance.get('/inventory/type', {
+		params: {
+			category_id: categorySelected.value[0],
+		},
+	})
+
+	if (response.data.success) {
+		subCategories.value = response.data.data.data.map((type) => ({
+			...type,
+			label: `${type.code}|${type.name}`,
+		}))
+	} else {
+		store.dispatch('triggerAlert', {
+			type: 'error',
+			title: 'Error!',
+			message: response.data.message,
+		})
+	}
+}
+watch(
+	() => categorySelected.value,
+	(newValue) => {
+		if (newValue.length > 0) {
+			fetchType()
 		}
-	} else if (selectedType.value == 2) {
-		console.log('selected', operationSelected.value)
-		operationSelected.value = itemSelected.value
-			? [itemSelected.value]
-			: operationSelected.value
-		try {
-			// Handle for Operation
-			console.log('select', operationSelected.value)
-			const operation = operations.value.find(
-				(operation) => operation.id == operationSelected.value
-			)
-			if (!operation) {
-				throw new Error('Operation not found')
+	}
+)
+const handleNotFromStore = async () => {
+	if (formNonStore.value.type_id.length == 0) {
+		store.dispatch('triggerAlert', {
+			type: 'error',
+			title: 'Error!',
+			message: 'Please select a sub-category first.',
+		})
+		return
+	}
+	if (formNonStore.value.weight == 0) {
+		store.dispatch('triggerAlert', {
+			type: 'error',
+			title: 'Error!',
+			message: 'Please fill in the weight first.',
+		})
+		return
+	}
+	const result = await store.dispatch('triggerConfirm', {
+		type: 'confirm',
+		title: 'Confirmation',
+		message: 'Is this item broken or not?',
+	})
+
+	// Handle for Product
+	try {
+		const response = await axiosInstance.get(
+			`/transaction/purchase-non-product`,
+			{
+				params: {
+					store: decryptData(Cookies.get('userdata')).store_id,
+					type_id: formNonStore.value.type_id[0],
+					weight: formNonStore.value.weight,
+					is_broken: result,
+				},
+			}
+		)
+		if (response.data.success) {
+			const data = {
+				detail_type: 'product',
+				id: null,
+				product_code_id: response.data.data.id,
+				type: response.data.data.type,
+				name: response.data.data.name,
+				price: parseFloat(response.data.data.price),
+				quantity: parseFloat(response.data.data.weight),
+				discount: 0,
+				uom: 'gram',
+				adjustment_price: parseFloat(
+					response.data.data.adjustment_price
+				),
+				total_price: 0,
+				is_broken: result,
+				transaction_type: 2,
+				status: 2,
 			}
 
-			var data = {
-				detail_type: 'operation',
-				id: null,
-				operation_id: operationSelected.value[0],
-				type: 'Operation',
-				name: operation.label,
-				price: parseFloat(operation.price),
-				quantity: 1,
-				uom: operation.uom,
-				adjustment_price: 0,
-				total_price: 0,
-			}
 			// Insert if mode edit
 			if (props.mode === 'edit') {
+				data.weight = data.quantity
+				data.total_price =
+					data.price * data.quantity + data.adjustment_price
 				data.transaction_id = id
-				data.unit = data.quantity
 				const response = await axiosInstance.post(
 					'/transaction/transaction-detail',
 					data
@@ -665,21 +614,104 @@ const handleInsert = async () => {
 					data.id = response.data.data.id
 				}
 			}
+
 			form.value.transaction_details = [
 				...form.value.transaction_details,
 				data,
 			]
-		} catch (error) {
-			store.dispatch('triggerAlert', {
-				type: 'error',
-				title: 'Error!',
-				message: error.response?.data?.message ?? error.message,
-			})
+			formNonStore.value = {
+				type_id: [],
+				weight: 0,
+			}
+			categorySelected.value = []
 		}
-		operationSelected.value = []
-		itemSelected.value = null
+	} catch (error) {
+		console.error(error)
+		store.dispatch('triggerAlert', {
+			type: 'error',
+			title: 'Error!',
+			message: error.response?.data.message ?? 'Failed to insert item.',
+		})
 	}
 	console.log(form.value.transaction_details)
+}
+
+// Handle From insert item from store
+const handleInsert = async () => {
+	if (itemSelected.value == null) {
+		store.dispatch('triggerAlert', {
+			type: 'error',
+			title: 'Error!',
+			message: 'Please add an item code first.',
+		})
+		return
+	}
+	const result = await store.dispatch('triggerConfirm', {
+		type: 'confirm',
+		title: 'Confirmation',
+		message: 'Is this item broken or not?',
+	})
+
+	// Handle for Product
+	try {
+		const response = await axiosInstance.get(
+			`/transaction/product-purchase/${itemSelected.value}`,
+			{
+				params: {
+					store: decryptData(Cookies.get('userdata')).store_id,
+					is_broken: result,
+				},
+			}
+		)
+		if (response.data.success) {
+			const data = {
+				detail_type: 'product',
+				id: null,
+				product_code_id: response.data.data.id,
+				type: response.data.data.type,
+				name: response.data.data.name,
+				price: parseFloat(response.data.data.price),
+				quantity: parseFloat(response.data.data.weight),
+				discount: 0,
+				uom: 'gram',
+				adjustment_price: parseFloat(
+					response.data.data.adjustment_price
+				),
+				is_broken: result,
+				total_price: 0,
+				transaction_type: 2,
+				status: 2,
+			}
+
+			// Insert if mode edit
+			if (props.mode === 'edit') {
+				data.weight = data.quantity
+				data.total_price =
+					data.price * data.quantity + data.adjustment_price
+				data.transaction_id = id
+				const response = await axiosInstance.post(
+					'/transaction/transaction-detail',
+					data
+				)
+				if (response.data.success) {
+					data.id = response.data.data.id
+				}
+			}
+
+			form.value.transaction_details = [
+				...form.value.transaction_details,
+				data,
+			]
+			itemSelected.value = null
+		}
+	} catch (error) {
+		console.error(error)
+		store.dispatch('triggerAlert', {
+			type: 'error',
+			title: 'Error!',
+			message: error.response?.data.message ?? 'Failed to insert item.',
+		})
+	}
 }
 
 // Form Data
@@ -693,8 +725,8 @@ const form = ref({
 	phone: '',
 	store_id: '',
 	employee_id: '',
-	payment_method: [1],
-	transaction_type: [1], //sales
+	payment_method: 1,
+	transaction_type: 2, //purchase
 	transaction_details: [],
 	weight_total: 0,
 	poin_earned: 0,
@@ -713,7 +745,7 @@ const formError = ref({
 	store_id: '',
 	employee_id: '',
 	payment_method: '',
-	transaction_type: '', //sales
+	transaction_type: '', //purchase
 	transaction_details: [],
 	weight_total: '',
 	sub_total_price: '',
@@ -724,11 +756,13 @@ const formError = ref({
 // Handle Form Data for Types
 const handleRowsUpdate = (newRows) => {
 	if (props.mode === 'edit') {
+		console.log(newRows)
 		form.value.transaction_details = newRows
 		formCopy.value.transaction_details = newRows
-		console.log(newRows)
+	} else {
+		// // Track changed indices
+		form.value.transaction_details = newRows
 	}
-	form.value.transaction_details = newRows
 }
 
 // Data Customers
@@ -779,74 +813,6 @@ watch(
 	}
 )
 
-const submitAdminReply = async (item) => {
-	if (!item.adminReply || item.adminReply.trim() === '') {
-		store.dispatch('triggerAlert', {
-			type: 'error',
-			title: 'Error!',
-			message: 'Reply cannot be empty.',
-		})
-		return
-	}
-
-	try {
-		const response = await axiosInstance.put(
-			`/transaction/review/${item.TransactionReview.id}`,
-			{
-				reply_admin: item.adminReply,
-			}
-		)
-
-		if (response.status === 201) {
-			store.dispatch('triggerAlert', {
-				type: 'success',
-				title: 'Success!',
-				message: 'Reply submitted successfully.',
-			})
-
-			// Update the UI
-			item.TransactionReview.reply_admin = item.adminReply
-			item.editingAdminReply = false // Hide input field
-		} else {
-			throw new Error(response.data.message)
-		}
-	} catch (error) {
-		store.dispatch('triggerAlert', {
-			type: 'error',
-			title: 'Error!',
-			message: error.response?.data?.message || 'Failed to submit reply.',
-		})
-	}
-}
-
-// Data Operations
-const operations = ref([])
-const fetchOperation = async () => {
-	const response = await axiosInstance.get('/inventory/operation')
-
-	if (response.data.success) {
-		operations.value = response.data.data.data.map((operation) => ({
-			...operation,
-			label: `${operation.code} - ${operation.name}`,
-		}))
-	} else {
-		store.dispatch('triggerAlert', {
-			type: 'error',
-			title: 'Error!',
-			message: response.data.message,
-		})
-	}
-}
-
-// Payment Method
-const paymentMethod = [
-	{ id: 1, label: 'Cash' },
-	{ id: 2, label: 'Transfer' },
-	{ id: 3, label: 'Credit Card' },
-	{ id: 4, label: 'Debit' },
-	{ id: 5, label: 'MidTrans' },
-]
-
 // Reset Form
 const resetForm = () => {}
 
@@ -865,7 +831,6 @@ watch(
 	() => form.value.transaction_details,
 	(newValue, oldValue) => {
 		if (props.mode === 'detail') return
-		const old_tax_price = parseFloat(formCopy.value.tax_price)
 		let total = 0
 		let weight = 0
 		newValue.forEach((item) => {
@@ -878,10 +843,8 @@ watch(
 			total += item.total_price
 		})
 		form.value.sub_total_price = total
-		form.value.tax_price = total * parseFloat(tax.value / 100)
-		form.value.total_price = total + parseFloat(form.value.tax_price)
+		form.value.total_price = total
 		form.value.weight_total = weight
-		console.log('newest', form.value)
 	}
 )
 
@@ -897,7 +860,7 @@ const validateForm = () => {
 		store_id: '',
 		employee_id: '',
 		payment_method: '',
-		transaction_type: '', //sales
+		transaction_type: '', //purchase
 		transaction_details: [],
 		weight_total: '',
 		sub_total_price: '',
@@ -934,14 +897,8 @@ const submit = async () => {
 		})
 		return
 	}
-	if (Array.isArray(form.value.payment_method)) {
-		form.value.payment_method = form.value.payment_method[0]
-	}
 	if (Array.isArray(form.value.status)) {
 		form.value.status = form.value.status[0]
-	}
-	if (Array.isArray(form.value.transaction_type)) {
-		form.value.transaction_type = form.value.transaction_type[0]
 	}
 	if (Array.isArray(form.value.customer_id)) {
 		form.value.customer_id = form.value.customer_id[0]
@@ -962,7 +919,7 @@ const submit = async () => {
 				title: 'Success!',
 				message: response.data.message,
 			})
-			router.push('/transaction/sales')
+			router.push('/transaction/purchase')
 		}
 	} catch (error) {
 		const errors = error.response.data.errors || []
@@ -970,8 +927,6 @@ const submit = async () => {
 			formError.value[err.field] = err.message
 		})
 		// Reset State array
-		form.value.transaction_type = [form.value.transaction_type]
-		form.value.payment_method = [form.value.payment_method]
 		form.value.customer_id = [form.value.customer_id]
 		form.value.status = [form.value.status]
 		store.dispatch('triggerAlert', {
@@ -982,42 +937,11 @@ const submit = async () => {
 	}
 }
 
-const fetchTax = async () => {
-	const store_id = form.value.store_id
-	const response = await axiosInstance.get(`/master/store/${store_id}`)
-
-	if (response.data.success) {
-		tax.value = parseFloat(response.data.data.tax_percentage)
-		form.value.tax_price = form.value.sub_total_price * (tax.value / 100)
-		if (form.value.voucher_own_id == null) {
-			form.value.total_price =
-				parseFloat(form.value.sub_total_price) +
-				parseFloat(form.value.tax_price)
-		}
-		console.log(tax.value)
-		console.log(form.value)
-	} else {
-		store.dispatch('triggerAlert', {
-			type: 'error',
-			title: 'Error!',
-			message: response.data.message,
-		})
-	}
-}
-
 const fetchTransaction = async () => {
 	const response = await axiosInstance.get(`/transaction/transaction/${id}`)
 
 	if (response.data.success) {
 		const data = response.data.data
-		console.log(data)
-
-		const voucherDiscount =
-			data.voucher_own_id !== null
-				? parseFloat(data.sub_total_price) +
-					parseFloat(data.tax_price) -
-					parseFloat(data.total_price)
-				: 0
 
 		form.value = {
 			...data,
@@ -1043,7 +967,6 @@ const fetchTransaction = async () => {
 				(acc, product) => acc + parseFloat(product.weight),
 				0
 			),
-			voucher_discount: voucherDiscount,
 		}
 
 		form.value.status = [form.value.status]
@@ -1060,7 +983,7 @@ const fetchTransaction = async () => {
 }
 
 onMounted(async () => {
-	await fetchOperation()
+	await fetchCategory()
 	await fetchCustomer()
 	if (props.mode === 'add') {
 		form.value.store_id = decryptData(Cookies.get('userdata')).store_id
@@ -1071,6 +994,5 @@ onMounted(async () => {
 		selectedWay.value = [2]
 		await fetchTransaction()
 	}
-	await fetchTax()
 })
 </script>

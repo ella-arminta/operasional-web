@@ -31,6 +31,34 @@ export default createStore({
 				}, 5000) // Hide the alert after 5 seconds
 			}
 		},
+		// Function to trigger a Yes/No confirmation and return the result
+		triggerConfirm({ commit }, payload) {
+			return new Promise((resolve) => {
+				commit('showAlert', {
+					...payload,
+					type: 'question',
+					actions: [
+						{
+							label: 'Yes',
+							type: 'primary',
+							handler: () => {
+								resolve(true)
+								commit('hideAlert')
+							},
+						},
+						{
+							label: 'No',
+							type: 'secondary',
+							handler: () => {
+								resolve(false)
+								commit('hideAlert')
+							},
+						},
+					],
+					resolve,
+				})
+			})
+		},
 		hideAlert({ commit }) {
 			commit('hideAlert')
 		},

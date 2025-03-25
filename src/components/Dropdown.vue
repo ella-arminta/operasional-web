@@ -39,7 +39,7 @@
 				</span>
 				<div
 					v-if="selectedItems.length === 0"
-					class="text-pinkOrange text-opacity-25"
+					class="text-pinkOrange text-opacity-75"
 				>
 					{{ placeholder }}
 				</div>

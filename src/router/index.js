@@ -330,6 +330,19 @@ const router = createRouter({
 								mode: route.params.mode,
 							}),
 						},
+						{
+							path: 'purchase',
+							component: () =>
+								import('../views/purchase/PurchaseIndex.vue'),
+						},
+						{
+							path: 'purchase/:mode/:id?',
+							component: () =>
+								import('../views/purchase/PurchaseForm.vue'),
+							props: (route) => ({
+								mode: route.params.mode,
+							}),
+						},
 					],
 				},
 				{
@@ -338,7 +351,9 @@ const router = createRouter({
 						{
 							path: 'dashboard',
 							component: () =>
-								import('../views/marketplace-dashboard/Dashboard.vue'),
+								import(
+									'../views/marketplace-dashboard/Dashboard.vue'
+								),
 						},
 						{
 							path: 'voucher',
@@ -437,7 +452,11 @@ router.beforeEach(async (to, from, next) => {
 		if (!token) throw new Error('Invalid token')
 
 		// If navigating to home or logout, allow directly
-		if (to.path === '/home' || to.path === '/logout' || to.path === '/marketplace/dashboard') {
+		if (
+			to.path === '/home' ||
+			to.path === '/logout' ||
+			to.path === '/marketplace/dashboard'
+		) {
 			next()
 			return
 		}

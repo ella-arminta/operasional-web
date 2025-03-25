@@ -423,7 +423,8 @@ const addLogic = async (index: number) => {
 
 	try {
 		data = { ...data, ...props.defData }
-		console.log(data)
+		data.total_price = data.price * data.qty + data.adjustment_price
+		console.log('Insert : ', data)
 		const response = await handleAxios(path, 'post', data)
 
 		if (response.data) {
@@ -453,8 +454,11 @@ const editLogic = async (index: number) => {
 	const path = `${props.editPath}/${id}`
 
 	try {
-		await handleAxios(path, 'put', data)
+		const res = await handleAxios(path, 'put', data)
 		showAlert('success', 'Success!', 'Data updated successfully.')
+		console.log('res:', res.data.data)
+		rows.value[index].adjustment_price =
+			res.data.data.updatedDetail.adjustment_price
 		return true
 	} catch (error) {
 		error.response.data.errors.forEach((err) => {

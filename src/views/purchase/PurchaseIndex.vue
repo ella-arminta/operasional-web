@@ -3,18 +3,20 @@
 		<PageTitle />
 		<TableData
 			:columns="columns"
-			:addPath="actions.includes('add') ? '/transaction/sales/add' : ''"
+			:addPath="
+				actions.includes('add') ? '/transaction/purchase/add' : ''
+			"
 			:export="false"
 			:reload="true"
-			:ajaxPath="'/transaction/sales'"
+			:ajaxPath="'/transaction/purchase'"
 			:editPath="
-				actions.includes('edit') ? '/transaction/sales/edit' : ''
+				actions.includes('edit') ? '/transaction/purchase/edit' : ''
 			"
 			:deletePath="
 				actions.includes('delete') ? '/transaction/transaction' : ''
 			"
 			:infoPath="
-				actions.includes('detail') ? '/transaction/sales/detail' : ''
+				actions.includes('detail') ? '/transaction/purchase/detail' : ''
 			"
 			:approvePath="
 				actions.includes('approve')
@@ -22,10 +24,13 @@
 					: ''
 			"
 			:disapprovePath="
-				actions.includes('disapprove')
-					? '/transaction/transaction-disapprove'
+				actions.includes('dissaprove')
+					? '/transaction/transaction-dissaprove'
 					: ''
 			"
+			:options="{
+				scrollX: true,
+			}"
 		/>
 	</div>
 </template>
