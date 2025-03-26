@@ -165,6 +165,7 @@ const itemColumns = Object.freeze([
 	{ key: 'type', label: 'Type', type: 'text', readonly: true },
 	{ key: 'weight', label: 'Weight', type: 'text', readonly: true },
 	{ key: 'price', label: 'Price', type: 'text', readonly: true },
+	{ key: 'buy_price', label: 'Buy Price', type: 'text', readonly: true },
 	{ key: 'description', type: 'text', label: 'Description' },
 ])
 
@@ -225,6 +226,7 @@ const addProduct = async () => {
 				type: product.type,
 				weight: product.weight,
 				price: product.price,
+				buy_price: product.buy_price,
 				description: product.description,
 			},
 		]

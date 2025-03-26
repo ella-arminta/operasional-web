@@ -102,6 +102,9 @@ onMounted(async () => {
 			:editPath="'/finance/recurring/edit'"
 			:deletePath="'/finance/recurring'"
 			:infoPath="'/finance/recurring/detail'"
+			:options="{
+				scrollX: true,
+			}"
 		/>
 	</div>
 </template>

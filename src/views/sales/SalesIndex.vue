@@ -22,8 +22,8 @@
 					: ''
 			"
 			:disapprovePath="
-				actions.includes('dissaprove')
-					? '/transaction/transaction-dissaprove'
+				actions.includes('disapprove')
+					? '/transaction/transaction-disapprove'
 					: ''
 			"
 			:options="{

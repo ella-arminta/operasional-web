@@ -80,6 +80,9 @@ onMounted(async () => {
 			:deletePath="'/finance/account'"
 			:infoPath="'/master/account/detail'"
 			:infoLabel="'Buku besar'"
+			:options="{
+				scrollX: true,
+			}"
 		/>
 	</div>
 </template>

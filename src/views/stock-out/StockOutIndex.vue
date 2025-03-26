@@ -1,11 +1,17 @@
 <template>
 	<div class="content min-h-screen" :class="{ 'full-width': smallMenu }">
-		<PageTitle />
+		<PageTitle 
+		title="Stock Out"
+		/>
 		<TableData
 			:columns="columns"
 			:addPath="actions.includes('add') ? '/inventory/stock-out/add' : ''"
 			:export="false"
 			:reload="true"
+			:options="{
+				scrollX: true,
+			}"
+			ref='tableDataRef'
 			:ajaxPath="'/inventory/stock-out'"
 			:editPath="
 				actions.includes('edit') ? '/inventory/stock-out/edit' : ''
@@ -28,6 +34,16 @@ import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../vuex/auth'
 import axiosInstance from '../../axios'
+
+const tableDataRef = ref(null);
+
+function handleReload() {
+    if (tableDataRef.value) {
+        tableDataRef.value.reloadData();
+    }
+}
+
+
 const store = useStore()
 const smallMenu = computed(() => store.getters.smallMenu)
 const columns = ref([
@@ -50,6 +66,13 @@ const columns = ref([
 	{
 		data: 'price',
 		title: 'Price',
+		render: (data) => {
+			return `<div class="text-end w-full">${formatCurrency(data)}</div>`
+		},
+	},
+	{
+		data: 'buy_price',
+		title: 'Buy Price',
 		render: (data) => {
 			return `<div class="text-end w-full">${formatCurrency(data)}</div>`
 		},
@@ -137,6 +160,7 @@ const approveRepair = (id: string) => {
 								title: 'Success',
 								message: 'Process completed successfully!'
 							})
+							handleReload()
 						})
 						.catch(error => {
 							store.dispatch('hideAlert') // Sembunyikan jika gagal

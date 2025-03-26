@@ -3,7 +3,9 @@ import { ref, onMounted, computed, render } from 'vue'
 import PageTitle from '../../components/PageTitle.vue'
 import TableData from '../../components/TableData.vue'
 import axiosInstance from '../../axios'
+import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
+import { useAuthStore } from '../../vuex/auth'
 
 const columns = [
 	{ data: 'code', title: 'No' },
@@ -53,6 +55,9 @@ const props = defineProps({
 })
 
 const filters = ref([])
+const router = useRouter()
+const authStore = useAuthStore()
+const actions = ref([])
 
 onMounted(async () => {
 	const accountData = await axiosInstance.get('/finance/account')
@@ -79,6 +84,11 @@ onMounted(async () => {
 			name: 'end_date',
 		},
 	]
+	const currentPath = router.currentRoute.value.path
+	const path = authStore.allowedPaths.find(
+		(item) => item.path === currentPath
+	)
+	actions.value = path ? path.action : []
 })
 </script>
 
@@ -93,8 +103,15 @@ onMounted(async () => {
 			:filters="filters"
 			:ajaxPath="ajaxPath"
 			:editPath="editPath"
+			:options="{
+				scrollX: true,
+			}"
 			:approvePath="'/finance/uang-keluar-masuk-approve'"
-			:disapprovePath="'/finance/uang-keluar-masuk-disapprove'"
+			:disapprovePath="
+				actions.includes('disapprove')
+					? '/finance/uang-keluar-masuk-disapprove'
+					: ''
+			"
 			:deletePath="'/finance/transaction'"
 			:infoPath="infoPath"
 		/>

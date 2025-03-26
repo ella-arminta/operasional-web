@@ -104,6 +104,9 @@ onMounted(async () => {
       :totalFooter="true"
       :export="true"
       :ajaxPath="`/finance/ledger`"
+      :options="{
+				scrollX: true,
+			}"
     />
   </div>
 </template>

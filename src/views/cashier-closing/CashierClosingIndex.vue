@@ -70,6 +70,9 @@ onMounted(async () => {
 			:editPath="editPath"
 			:deletePath="'/finance/transaction'"
 			:infoPath="infoPath"
+			:options="{
+				scrollX: true,
+			}"
 		/>
 	</div>
 </template>
