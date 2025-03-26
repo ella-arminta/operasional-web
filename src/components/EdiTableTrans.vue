@@ -496,8 +496,13 @@ const deleteLogic = async (index: number) => {
 		await handleAxios(path, 'delete')
 		showAlert('success', 'Success!', 'Data deleted successfully.')
 		rows.value.splice(index, 1)
-	} catch {
-		showAlert('error', 'Error!', 'Failed to delete data.')
+	} catch (error) {
+		console.log(error)
+		showAlert(
+			'error',
+			'Error!',
+			error.response?.data.message ?? 'Failed to delete data.'
+		)
 	}
 }
 
@@ -514,7 +519,6 @@ const handleAxios = async (
 
 		return response
 	} catch (error) {
-		console.error(`API Error [${method.toUpperCase()} ${path}]:`, error)
 		throw error
 	}
 }

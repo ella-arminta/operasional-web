@@ -511,7 +511,9 @@ const deleteData = (id: string) => {
 						store.dispatch('triggerAlert', {
 							type: 'error',
 							title: 'Error!',
-							message: 'Failed to delete data.',
+							message:
+								error.response?.data.message ??
+								'Failed to delete data.',
 							actions: [
 								{
 									label: 'close',
@@ -581,7 +583,7 @@ const toggleApprove = (id: string, status: number) => {
 						store.dispatch('triggerAlert', {
 							type: 'error',
 							title: 'Error!',
-							message: message,
+							message: error.response?.data?.message ?? message,
 							actions: [
 								{
 									label: 'close',

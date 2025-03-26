@@ -472,14 +472,6 @@ const submit = async () => {
 		})
 		return
 	}
-	// if (!hasUnsavedChanges.value && props.mode === 'edit') {
-	// 	store.dispatch('triggerAlert', {
-	// 		type: 'warning',
-	// 		title: 'Warning!',
-	// 		message: 'No changes detected.',
-	// 	})
-	// 	return
-	// }
 	resetError()
 	const data = await submitCategory()
 	// After the Category is created than create the sub category [Type]

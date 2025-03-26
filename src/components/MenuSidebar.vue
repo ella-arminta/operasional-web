@@ -155,6 +155,10 @@ const menuTree = ref([
 				label: 'Purchase',
 				path: '/transaction/purchase',
 			},
+			{
+				label: 'Trade',
+				path: '/transaction/trade',
+			},
 		],
 	},
 	{

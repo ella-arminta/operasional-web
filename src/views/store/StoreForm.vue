@@ -211,21 +211,23 @@
 					<InputForm
 						v-model="form.tax_percentage"
 						id="tax_percentage"
-						type="number"
+						type="decimal"
 						label="PPN Jual (%)"
 						placeholder="PPN Jual (%)"
 						:readonly="mode === 'detail'"
 						:error="formError.tax_percentage"
+						format="percent"
 					/>
 					<!-- PPN Beli -->
 					<InputForm
 						v-model="form.tax_purchase"
 						id="tax_purchase"
-						type="number"
+						type="decimal"
 						label="PPN Beli (%)"
 						placeholder="PPN Beli (%)"
 						:readonly="mode === 'detail'"
 						:error="formError.tax_purchase"
+						format="percent"
 					/>
 					<!-- Flexible Price -->
 					<ToggleForm
@@ -260,107 +262,72 @@
 						:error="formError.grace_period"
 					/>
 				</div>
-				<!-- <div class="space-y-3"> -->
-				<!-- Defect -->
-				<!-- <div>
+				<div class="space-y-3">
+					<div>
 						<label
-							for="defect"
+							for="trade_tt"
 							class="block text-sm text-grey-900 font-medium mb-1"
 						>
-							Defect Discount
+							Trade In Fee (Store > Customer)
 						</label>
 						<div
 							class="space-y-3 px-3 py-3 rounded-lg border border-pinkOrange border-opacity-25"
-						> -->
-				<!-- Defect Nominal -->
-				<!-- <InputForm
-								v-model="form.defect_nominal"
-								id="defect_nominal"
-								type="number"
-								label="Defect Nominal (Rp)"
-								placeholder="Defect Nominal (Rp)"
-								:readonly="mode === 'detail'"
-								:error="formError.defect_nominal"
-							/> -->
-				<!-- Defect Percentage -->
-				<!-- <InputForm
-								v-model="form.defect_percentage"
-								id="defect_percentage"
-								type="number"
-								label="Defect Percentage (%)"
-								placeholder="Defect Percentage (%)"
-								:readonly="mode === 'detail'"
-								:error="formError.defect_percentage"
-							/> -->
-				<!-- </div>
-					</div> -->
-				<!-- Discount Buy -->
-				<!-- <div>
-						<label
-							for="defect"
-							class="block text-sm text-grey-900 font-medium mb-1"
 						>
-							Potongan Harga beli minimum TT/KBL
-						</label>
-						<div
-							class="space-y-3 px-3 py-3 rounded-lg border border-pinkOrange border-opacity-25"
-						> -->
-				<!-- Minimum Trade in (%) -->
-				<!-- <InputForm
-								v-model="form.discount_trade"
-								id="discount_trade"
+							<InputForm
+								v-model="form.fixed_tt_adjustment"
+								id="fixed_tt_adjustment"
 								type="number"
-								label="Discount (%) in minimum Trade in"
-								placeholder="Discount (%) in minimum Trade in"
+								label="In Rupiah"
+								placeholder="In Rupiah"
 								:readonly="mode === 'detail'"
-								:error="formError.discount_trade"
-							/> -->
-				<!-- Defect Percentage -->
-				<!-- <InputForm
-								v-model="form.discount_kbl"
-								id="discount_kbl"
+								:error="formError.fixed_tt_adjustment"
+								format="currency"
+							/>
+							<InputForm
+								v-model="form.percent_tt_adjustment"
+								id="percent_tt_adjustment"
 								type="number"
-								label="Discount (%) in minimum KBL"
-								placeholder="Discount (%) in minimum KBL"
+								label="In Percentage"
+								placeholder="In Percentage"
 								:readonly="mode === 'detail'"
-								:error="formError.discount_kbl"
-							/> -->
-				<!-- </div>
-					</div> -->
-				<!-- Adjustment Price TT/KBL -->
-				<!-- <div>
-						<label
-							for="defect"
-							class="block text-sm text-grey-900 font-medium mb-1"
-						>
-							Price Adjustment TT/KBL
-						</label>
-						<div
-							class="space-y-3 px-3 py-3 rounded-lg border border-pinkOrange border-opacity-25"
-						> -->
-				<!-- Minimum Trade in (%) -->
-				<!-- <InputForm
-								v-model="form.adjustment_price_trade"
-								id="adjustment_price_trade"
-								type="number"
-								label="Discount (%) in minimum Trade in"
-								placeholder="Discount (%) in minimum Trade in"
-								:readonly="mode === 'detail'"
-								:error="formError.adjustment_price_trade"
-							/> -->
-				<!-- Defect Percentage -->
-				<!-- <InputForm
-								v-model="form.adjustment_price_kbl"
-								id="adjustment_price_kbl"
-								type="number"
-								label="Discount (%) in minimum KBL"
-								placeholder="Discount (%) in minimum KBL"
-								:readonly="mode === 'detail'"
-								:error="formError.adjustment_price_kbl"
+								:error="formError.percent_tt_adjustment"
+								format="percent"
 							/>
 						</div>
-					</div> -->
-				<!-- </div> -->
+					</div>
+					<div>
+						<label
+							for="kbl"
+							class="block text-sm text-grey-900 font-medium mb-1"
+						>
+							Trade In Fee (Store < Customer)
+						</label>
+						<div
+							class="space-y-3 px-3 py-3 rounded-lg border border-pinkOrange border-opacity-25"
+						>
+							<InputForm
+								v-model="form.fixed_kbl_adjustment"
+								id="fixed_kbl_adjustment"
+								type="number"
+								label="In Rupiah"
+								placeholder="In Rupiah"
+								:readonly="mode === 'detail'"
+								:error="formError.fixed_kbl_adjustment"
+								format="currency"
+							/>
+							<InputForm
+								v-model="form.percent_kbl_adjustment"
+								id="percent_kbl_adjustment"
+								type="number"
+								label="In Percentage"
+								placeholder="In Percentage"
+								:readonly="mode === 'detail'"
+								:error="formError.percent_kbl_adjustment"
+								format="percent"
+							/>
+						</div>
+					</div>
+				</div>
 			</div>
 		</form>
 		<!-- Modal Mappicker -->
@@ -414,7 +381,7 @@
 	</div>
 </template>
 <script setup lang="ts">
-import { ref, onMounted, computed, readonly } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import Cookies from 'js-cookie'
@@ -458,6 +425,10 @@ const form = ref({
 	defect_percentage: 0,
 	tax_purchase: 0,
 	grace_period: 0,
+	fixed_tt_adjustment: 0,
+	percent_tt_adjustment: 0,
+	fixed_kbl_adjustment: 0,
+	percent_kbl_adjustment: 0,
 })
 const formCopy = ref({ ...form.value })
 const formError = ref({
@@ -481,6 +452,10 @@ const formError = ref({
 	defect_percentage: '',
 	tax_purchase: '',
 	grace_period: '',
+	fixed_tt_adjustment: '',
+	percent_tt_adjustment: '',
+	fixed_kbl_adjustment: '',
+	percent_kbl_adjustment: '',
 })
 
 // MapPicker
@@ -632,11 +607,13 @@ const excludedKeys = [
 	'is_float_price',
 	'defect_nominal',
 	'defect_percentage',
-	'adjustment_price_trade',
-	'adjustment_price_kbl',
 	'tax_purchase',
 	'tax_percentage',
 	'grace_period',
+	'fixed_tt_adjustment',
+	'percent_tt_adjustment',
+	'fixed_kbl_adjustment',
+	'percent_kbl_adjustment',
 ]
 
 const hasFullyFilled = computed(() => {
@@ -650,6 +627,48 @@ const hasFullyFilled = computed(() => {
 				form.value[key] !== 0
 		)
 })
+
+// Only limit fixed_tt_adjustment or percent_tt_adjustment
+// to be filled, not both
+watch(
+	() => form.value.percent_tt_adjustment,
+	(newValue) => {
+		if (newValue > 0) {
+			form.value.percent_tt_adjustment = parseInt(newValue)
+			form.value.fixed_tt_adjustment = '0'
+		}
+	}
+)
+watch(
+	() => form.value.fixed_tt_adjustment,
+	(newValue) => {
+		if (newValue > 0) {
+			form.value.fixed_tt_adjustment = parseInt(newValue)
+			form.value.percent_tt_adjustment = '0'
+		}
+	}
+)
+
+// Only limit fixed_kbl_adjustment or percent_kbl_adjustment
+// to be filled, not both
+watch(
+	() => form.value.percent_kbl_adjustment,
+	(newValue) => {
+		if (newValue > 0) {
+			form.value.percent_kbl_adjustment = parseInt(newValue)
+			form.value.fixed_kbl_adjustment = '0'
+		}
+	}
+)
+watch(
+	() => form.value.fixed_kbl_adjustment,
+	(newValue) => {
+		if (newValue > 0) {
+			form.value.fixed_kbl_adjustment = parseInt(newValue)
+			form.value.percent_kbl_adjustment = '0'
+		}
+	}
+)
 
 const submit = async () => {
 	if (props.mode === 'detail') return

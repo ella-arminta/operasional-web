@@ -3,20 +3,18 @@
 		<PageTitle />
 		<TableData
 			:columns="columns"
-			:addPath="
-				actions.includes('add') ? '/transaction/purchase/add' : ''
-			"
+			:addPath="actions.includes('add') ? '/transaction/trade/add' : ''"
 			:export="false"
 			:reload="true"
-			:ajaxPath="'/transaction/purchase'"
+			:ajaxPath="'/transaction/trade'"
 			:editPath="
-				actions.includes('edit') ? '/transaction/purchase/edit' : ''
+				actions.includes('edit') ? '/transaction/trade/edit' : ''
 			"
 			:deletePath="
 				actions.includes('delete') ? '/transaction/transaction' : ''
 			"
 			:infoPath="
-				actions.includes('detail') ? '/transaction/purchase/detail' : ''
+				actions.includes('detail') ? '/transaction/trade/detail' : ''
 			"
 			:approvePath="
 				actions.includes('approve')
@@ -55,7 +53,7 @@ const columns = [
 		render: (data, type, row) => {
 			let weight = 0
 			data.map((data) => {
-				weight += parseFloat(data.weight) * -1
+				weight += parseFloat(data.weight)
 			})
 			return weight + ' gr'
 		},

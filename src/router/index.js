@@ -343,6 +343,19 @@ const router = createRouter({
 								mode: route.params.mode,
 							}),
 						},
+						{
+							path: 'trade',
+							component: () =>
+								import('../views/trade/TradeIndex.vue'),
+						},
+						{
+							path: 'trade/:mode/:id?',
+							component: () =>
+								import('../views/trade/TradeForm.vue'),
+							props: (route) => ({
+								mode: route.params.mode,
+							}),
+						},
 					],
 				},
 				{

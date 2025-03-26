@@ -327,17 +327,26 @@
 				:noDataState="noDataState"
 			/>
 			<div class="grid grid-cols-5 gap-6 mt-8 place-items-end mr-4">
-				<div class="col-start-4 space-y-2">
-					<h5>Weight Total</h5>
-					<h5>Sub Total</h5>
-					<h5>Total</h5>
-				</div>
-				<div
-					class="space-y-2 flex flex-col items-end text-pinkDark text-md"
-				>
-					<h5>{{ form.weight_total }} gram</h5>
-					<h5>{{ formatNumber(form.sub_total_price) }}</h5>
-					<h5>{{ formatNumber(form.total_price) }}</h5>
+				<div class="col-start-4 col-span-2 space-y-2">
+					<div class="h-6 grid grid-cols-2 w-full items-center">
+						<div class="text-start">Weight Total</div>
+						<div class="text-pinkDark text-md text-end">
+							{{ form.weight_total }} gram
+						</div>
+					</div>
+					<div class="h-6 grid grid-cols-2 w-full items-center">
+						<div class="text-start">SubTotal</div>
+						<div class="text-pinkDark text-md text-end">
+							{{ formatNumber(form.sub_total_price) }}
+						</div>
+					</div>
+					<hr />
+					<div class="h-6 grid grid-cols-2 w-full items-center">
+						<div class="text-start font-bold">Total</div>
+						<div class="text-pinkDark text-md text-end font-bold">
+							{{ formatNumber(form.total_price) }}
+						</div>
+					</div>
 				</div>
 			</div>
 		</form>
@@ -604,7 +613,7 @@ const handleNotFromStore = async () => {
 			if (props.mode === 'edit') {
 				data.weight = data.quantity
 				data.total_price =
-					data.price * data.quantity + data.adjustment_price
+					(data.price * data.quantity + data.adjustment_price) * -1
 				data.transaction_id = id
 				const response = await axiosInstance.post(
 					'/transaction/transaction-detail',
@@ -687,7 +696,7 @@ const handleInsert = async () => {
 			if (props.mode === 'edit') {
 				data.weight = data.quantity
 				data.total_price =
-					data.price * data.quantity + data.adjustment_price
+					(data.price * data.quantity + data.adjustment_price) * -1
 				data.transaction_id = id
 				const response = await axiosInstance.post(
 					'/transaction/transaction-detail',
@@ -731,6 +740,7 @@ const form = ref({
 	weight_total: 0,
 	poin_earned: 0,
 	sub_total_price: 0,
+	tax_percent: 0,
 	tax_price: 0,
 	total_price: 0,
 	status: [0],
@@ -835,10 +845,11 @@ watch(
 		let weight = 0
 		newValue.forEach((item) => {
 			item.total_price =
-				parseFloat(item.price) * parseFloat(item.quantity)
-			item.total_price += parseFloat(item.adjustment_price)
+				(parseFloat(item.price) * parseFloat(item.quantity) +
+					parseFloat(item.adjustment_price)) *
+				-1
 			if (item.detail_type != 'operation') {
-				weight += item.quantity
+				weight += item.quantity * -1
 			}
 			total += item.total_price
 		})
@@ -964,7 +975,7 @@ const fetchTransaction = async () => {
 				}),
 			],
 			weight_total: data.transaction_products.reduce(
-				(acc, product) => acc + parseFloat(product.weight),
+				(acc, product) => acc + parseFloat(product.weight) * -1,
 				0
 			),
 		}

@@ -61,7 +61,6 @@ const inputValue = ref(props.modelValue || '')
 watch(
 	() => props.modelValue,
 	(newValue) => {
-		console.log('change value', newValue)
 		inputValue.value = formatValue(newValue)
 	}
 )
@@ -71,8 +70,7 @@ const formatValue = (value) => {
 	if (!value) return ''
 	if (props.format === 'currency') return formatIDR(value)
 	if (props.format === 'date') return formatDate(value)
-	if (props.format === 'percent')
-		return `${Math.min(Math.max(parseFloat(value) || 0, 0), 100)}`
+	if (props.format === 'percent') return value
 	return value
 }
 
@@ -82,15 +80,34 @@ const onInput = (event) => {
 
 	if (props.format === 'currency') {
 		rawValue = rawValue.replace(/\D/g, '')
-		console.log('Raw Value : ', rawValue)
 		inputValue.value = formatIDR(rawValue)
 	} else if (props.format === 'percent') {
-		rawValue = rawValue.replace('.', '')
-		let numericValue = parseFloat(rawValue == '' ? 0 : rawValue) ?? 0
-		numericValue = Math.min(Math.max(numericValue, 0), 100)
-		console.log('Raw Value 11 : ', rawValue)
-		rawValue = numericValue
-		inputValue.value = `${numericValue}`
+		// ✅ Replace all `,` and `.` with a single `.`
+		rawValue = rawValue.replace(/[\,\.]+/g, '.')
+
+		// ✅ Ensure only one decimal point remains
+		const parts = rawValue.split('.')
+		if (parts.length > 2) {
+			rawValue = parts.shift() + '.' + parts.join('')
+		}
+
+		// ✅ If user is typing (e.g., "2."), allow it without conversion
+		if (rawValue.endsWith('.')) {
+			inputValue.value = rawValue
+			emit('update:modelValue', rawValue)
+			return
+		}
+
+		// ✅ Convert to float and enforce min/max (0-100)
+		let numericValue = parseFloat(rawValue)
+
+		if (!isNaN(numericValue)) {
+			numericValue = Math.min(Math.max(numericValue, 0), 100)
+			inputValue.value = numericValue.toString() // Keep it as a string for input
+			rawValue = numericValue.toString()
+		} else {
+			inputValue.value = rawValue
+		}
 	} else {
 		inputValue.value = rawValue
 	}

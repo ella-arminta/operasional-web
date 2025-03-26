@@ -27,6 +27,8 @@ import Alert from './components/Alert.vue'
 	--bg-white: #f9f9f9;
 	--pink-gray: #faf1ec;
 	--pink-orange: #c26872;
+	--blue-primary: #31394e;
+	--blue-secondary: #727fa1;
 }
 * {
 	margin: 0;
