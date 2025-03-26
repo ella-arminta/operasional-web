@@ -251,6 +251,7 @@
 								'PPN Beli (' + taxPurchasePercentage + '%)'
 							"
 							:editPath="'/master/store/edit/' + form.store_id"
+							:readonly="true"
 							required
 						/>
 

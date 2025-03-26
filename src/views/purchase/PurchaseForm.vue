@@ -164,6 +164,30 @@
 								:addRoute="''"
 							/>
 						</div>
+						<div v-if="form.status[0] == 1 || form.status[0] == 2">
+							<label
+								for="dropdown"
+								class="block text-sm text-grey-900 font-medium mb-1"
+								>Kas/Bank<span class="text-pinkDark"
+									>*</span
+								></label
+							>
+							<Dropdown
+								:items="accounts"
+								v-model="form.account_id"
+								placeholder="Select a account"
+								:multiple="false"
+								:searchable="true"
+								:disabled="mode === 'detail'"
+								:addRoute="''"
+							/>
+							<p
+								v-if="formError.account_id"
+								class="text-pinkDark text-xs italic transition duration-300"
+							>
+								{{ formError.account_id }}
+							</p>
+						</div>
 						<div v-if="mode !== 'add'">
 							<button
 								type="button"
@@ -468,6 +492,7 @@ const status = [
 	{ id: 1, label: 'Paid' },
 	{ id: 2, label: 'Done' },
 ]
+const accounts = ref([])
 
 const selectedType = ref(1)
 const itemSelected = ref(null)
@@ -734,6 +759,7 @@ const form = ref({
 	tax_price: 0,
 	total_price: 0,
 	status: [0],
+	account_id: [],
 })
 const formCopy = ref({ ...form.value })
 
@@ -751,6 +777,7 @@ const formError = ref({
 	sub_total_price: '',
 	tax_price: '',
 	total_price: '',
+	account_id: '',
 })
 
 // Handle Form Data for Types
@@ -866,6 +893,7 @@ const validateForm = () => {
 		sub_total_price: '',
 		tax_price: '',
 		total_price: '',
+		account_id: '',
 	}
 
 	if (!form.value.date) {
@@ -883,6 +911,12 @@ const validateForm = () => {
 	if (form.value.transaction_details.length == 0) {
 		formError.value.transaction_details = 'Transaction Details is required'
 		isValid = false
+	}
+	if (form.value.status == 1 || form.value.status == 2) {
+		if (Array.isArray(form.value.account_id) && form.value.account_id.length == 0) {
+			formError.value.account_id = 'Account is required'
+			isValid = false;
+		}
 	}
 
 	return isValid
@@ -903,7 +937,12 @@ const submit = async () => {
 	if (Array.isArray(form.value.customer_id)) {
 		form.value.customer_id = form.value.customer_id[0]
 	}
-	console.log(form.value)
+	if (Array.isArray(form.value.account_id)) {
+		form.value.account_id = form.value.account_id[0]
+	} else if (form.value.account_id == null || form.value.account_id == '') {
+		form.value.account_id = null
+	}
+	console.log('ini form value',form.value)
 	try {
 		const method = props.mode === 'edit' ? 'put' : 'post'
 		const url =
@@ -926,9 +965,11 @@ const submit = async () => {
 		errors.forEach((err) => {
 			formError.value[err.field] = err.message
 		})
+		console.log('ini form value',form.value);
 		// Reset State array
 		form.value.customer_id = [form.value.customer_id]
 		form.value.status = [form.value.status]
+		form.value.account_id = [form.value.account_id]
 		store.dispatch('triggerAlert', {
 			type: 'error',
 			title: 'Error!',
@@ -967,6 +1008,7 @@ const fetchTransaction = async () => {
 				(acc, product) => acc + parseFloat(product.weight),
 				0
 			),
+			account_id: data.account_id ? [data.account_id] : [],
 		}
 
 		form.value.status = [form.value.status]
@@ -982,9 +1024,32 @@ const fetchTransaction = async () => {
 	}
 }
 
+const fetchAccounts = async () => {
+	const fetchAccounts = await axiosInstance.get('/finance/account', {
+		params: {
+			company_id: decryptData(Cookies.get('userdata')).company_id,
+			account_type_id: 1
+		},
+	})
+	accounts.value = fetchAccounts.data.data.map((account) => ({
+		id: account.id,
+		label: `${account.code} - ${account.name}`,
+	}))
+}
+
+const fetchTransAccount = async () => {
+	const fetchTransAction = await axiosInstance.get('/finance/trans-account-setting-action/purchaseCust', {});
+	if (fetchTransAction.data.success && fetchTransAction.data.data.length > 0) {
+		form.value.account_id = [fetchTransAction.data.data[0].account_id]
+	}
+}
+
 onMounted(async () => {
 	await fetchCategory()
 	await fetchCustomer()
+	await fetchAccounts();
+	await fetchTransAccount();
+
 	if (props.mode === 'add') {
 		form.value.store_id = decryptData(Cookies.get('userdata')).store_id
 		form.value.employee_id = decryptData(Cookies.get('userdata')).id
