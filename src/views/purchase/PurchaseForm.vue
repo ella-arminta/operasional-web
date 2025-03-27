@@ -351,6 +351,17 @@
 				:noDataState="noDataState"
 			/>
 			<div class="grid grid-cols-5 gap-6 mt-8 place-items-end mr-4">
+				<div class="col-start-1 col-span-2 w-full">
+					<TextareaForm
+						v-model="form.comment"
+						id="comment"
+						label="Notes Transaksi"
+						placeholder="Notes Transaksi"
+						required
+						:error="formError.comment"
+						:readonly="mode === 'detail'"
+					/>
+				</div>
 				<div class="col-start-4 col-span-2 space-y-2">
 					<div class="h-6 grid grid-cols-2 w-full items-center">
 						<div class="text-start">Weight Total</div>
@@ -403,6 +414,7 @@ import axiosInstance from '../../axios'
 import Dropdown from '../../components/Dropdown.vue'
 import EditableTrans from '../../components/EditableTrans.vue'
 import QrScanner from '../../components/QrScanner.vue'
+import TextareaForm from '../../components/TextareaForm.vue'
 
 // Declaration of props, store, router
 const props = defineProps({
@@ -924,9 +936,12 @@ const validateForm = () => {
 		isValid = false
 	}
 	if (form.value.status == 1 || form.value.status == 2) {
-		if (Array.isArray(form.value.account_id) && form.value.account_id.length == 0) {
+		if (
+			Array.isArray(form.value.account_id) &&
+			form.value.account_id.length == 0
+		) {
 			formError.value.account_id = 'Account is required'
-			isValid = false;
+			isValid = false
 		}
 	}
 
@@ -953,7 +968,7 @@ const submit = async () => {
 	} else if (form.value.account_id == null || form.value.account_id == '') {
 		form.value.account_id = null
 	}
-	console.log('ini form value',form.value)
+	console.log('ini form value', form.value)
 	try {
 		const method = props.mode === 'edit' ? 'put' : 'post'
 		const url =
@@ -976,7 +991,7 @@ const submit = async () => {
 		errors.forEach((err) => {
 			formError.value[err.field] = err.message
 		})
-		console.log('ini form value',form.value);
+		console.log('ini form value', form.value)
 		// Reset State array
 		form.value.customer_id = [form.value.customer_id]
 		form.value.status = [form.value.status]
@@ -1039,7 +1054,7 @@ const fetchAccounts = async () => {
 	const fetchAccounts = await axiosInstance.get('/finance/account', {
 		params: {
 			company_id: decryptData(Cookies.get('userdata')).company_id,
-			account_type_id: 1
+			account_type_id: 1,
 		},
 	})
 	accounts.value = fetchAccounts.data.data.map((account) => ({
@@ -1049,8 +1064,14 @@ const fetchAccounts = async () => {
 }
 
 const fetchTransAccount = async () => {
-	const fetchTransAction = await axiosInstance.get('/finance/trans-account-setting-action/purchaseCust', {});
-	if (fetchTransAction.data.success && fetchTransAction.data.data.length > 0) {
+	const fetchTransAction = await axiosInstance.get(
+		'/finance/trans-account-setting-action/purchaseCust',
+		{}
+	)
+	if (
+		fetchTransAction.data.success &&
+		fetchTransAction.data.data.length > 0
+	) {
 		form.value.account_id = [fetchTransAction.data.data[0].account_id]
 	}
 }
@@ -1058,8 +1079,8 @@ const fetchTransAccount = async () => {
 onMounted(async () => {
 	await fetchCategory()
 	await fetchCustomer()
-	await fetchAccounts();
-	await fetchTransAccount();
+	await fetchAccounts()
+	await fetchTransAccount()
 
 	if (props.mode === 'add') {
 		form.value.store_id = decryptData(Cookies.get('userdata')).store_id

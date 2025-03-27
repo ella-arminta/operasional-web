@@ -300,6 +300,17 @@
 				:noDataState="noDataState"
 			/>
 			<div class="grid grid-cols-5 gap-6 mt-8 mr-4 mb-4">
+				<div class="col-start-1 col-span-2 w-full">
+					<TextareaForm
+						v-model="form.comment"
+						id="comment"
+						label="Notes Transaksi"
+						placeholder="Notes Transaksi"
+						required
+						:error="formError.comment"
+						:readonly="mode === 'detail'"
+					/>
+				</div>
 				<div class="col-start-4 col-span-2 space-y-2">
 					<div class="h-6 grid grid-cols-2 w-full items-center">
 						<div class="text-start">Weight Total</div>
@@ -466,7 +477,7 @@ import axiosInstance from '../../axios'
 import Dropdown from '../../components/Dropdown.vue'
 import EditableTrans from '../../components/EdiTableTrans.vue'
 import QrScanner from '../../components/QrScanner.vue'
-import { format } from 'crypto-js'
+import TextareaForm from '../../components/TextareaForm.vue'
 
 // Declaration of props, store, router
 const props = defineProps({
@@ -735,6 +746,7 @@ const form = ref({
 	tax_price: 0,
 	total_price: 0,
 	status: [0],
+	comment: '',
 })
 const formCopy = ref({ ...form.value })
 
@@ -752,6 +764,7 @@ const formError = ref({
 	sub_total_price: '',
 	tax_price: '',
 	total_price: '',
+	comment: '',
 })
 
 // Handle Form Data for Types
