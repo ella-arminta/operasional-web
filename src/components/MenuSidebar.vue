@@ -119,6 +119,10 @@ const menuTree = ref([
 				label: 'Operation',
 				path: '/inventory/operation',
 			},
+			{
+				label: 'Check Product',
+				path: '/inventory/check-product',
+			},
 		],
 	},
 	{
