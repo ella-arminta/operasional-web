@@ -183,6 +183,62 @@
 			</form>
 			<form @submit.prevent="generateCode" v-if="mode !== 'add'">
 				<FormSectionHeader title="Generate Product Code" icon="build" />
+				<!-- Choose Generate Code From Purchase / Trade / Supplier -->
+				<div class="grid grid-cols-2 gap-4 mb-3">
+					<div>
+						<button
+							type="button"
+							class="w-full rounded-lg py-2 px-4 transition duration-300"
+							@click="switchForm(1)"
+							:class="{
+								'bg-pinkGray text-pinkOrange ':
+									selectedType == 2,
+								'bg-pinkDark text-white hover:bg-pinkOrange':
+									selectedType == 1,
+							}"
+						>
+							Item from Supplier
+						</button>
+					</div>
+					<div>
+						<button
+							type="button"
+							class="w-full rounded-lg py-2 px-4 transition duration-300"
+							@click="switchForm(2)"
+							:class="{
+								'bg-pinkGray text-pinkOrange':
+									selectedType == 1,
+								'bg-pinkDark text-white hover:bg-pinkOrange':
+									selectedType == 2,
+							}"
+						>
+							Item from Customer Purchase / Trade
+						</button>
+					</div>
+				</div>
+				<div 
+					v-if="selectedType == 2"
+					class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+					<div class="col-span-1">
+						<!-- Transaction Purchase / Trade -->
+						<label
+							for="transref_id"
+							class="block text-sm text-grey-900 font-medium mt-4"
+						>
+							Purchase / Trade Reference <span class="text-pinkDark">*</span>
+						</label>
+						<Dropdown
+							:items="transrefs"
+							v-model="formCode.transref_id"
+							placeholder="Select a transaction reference"
+							:multiple="false"
+							:searchable="true"
+							:disabled="mode === 'detail'"
+							id="transref_id"
+						/>
+					</div>
+				</div>
+				<!-- Generate Code Details -->
 				<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
 					<!-- Kolom 1: Weight & Kas/Bank -->
 					<div class="col-span-1">
@@ -194,6 +250,7 @@
 							label="Weight"
 							placeholder="Weight"
 							required
+							:readonly="selectedType == 2"
 						/>
 						<!-- Kas/Bank -->
 						<label
@@ -208,7 +265,7 @@
 							placeholder="Select an account"
 							:multiple="false"
 							:searchable="true"
-							:disabled="mode === 'detail'"
+							:disabled="mode === 'detail' || (selectedType == 2 && account_id_disabled)"
 							:addRoute="'/master/account/add'"
 							id="account_id"
 						/>
@@ -238,6 +295,7 @@
 							id="buy_price"
 							label="Harga Beli (sebelum pajak)"
 							placeholder="Harga Beli (sebelum pajak)"
+							:readonly="selectedType == 2"
 							required
 						/>
 						<!-- PPN Beli -->
@@ -746,6 +804,7 @@ const formCode = ref({
 	tax_purchase: 0,
 	account_id: [''],
 	image: '',
+	transref_id: [],
 })
 
 // submit generate code
@@ -755,21 +814,33 @@ const generateCode = async () => {
 		if (formCode.value.account_id.length > 0) {
 			formCode.value.account_id = formCode.value.account_id[0]
 		}
+		if (formCode.value.transref_id.length > 0) {
+			formCode.value.transref_id = formCode.value.transref_id[0]
+		} else {
+			formCode.value.transref_id = null;
+		}
 		const response = await axiosInstance.post(
 			`/inventory/generate-product-code/${id}`,
 			formCode.value
 		)
+		// console.log('response generate product code frontend', response)
+		
 		if (response.data) {
+			if (selectedType.value == 2) {
+				fetchTransRef()
+			}
 			showAlert('success', 'Success!', response.data.message)
 			refTable.value?.reloadData()
 			formCode.value.weight = 0
 			formCode.value.buy_price = 0
 			formCode.value.tax_purchase = 0
 			formCode.value.account_id = []
+			formCode.value.transref_id = []
 			formCode.value.image = ''
 		}
 	} catch (error) {
 		formCode.value.account_id = [formCode.value.account_id]
+		formCode.value.transref_id = [formCode.value.transref_id]
 		console.log(error)
 		showAlert(
 			'error',
@@ -806,11 +877,82 @@ const showAlert = (
 		],
 	})
 }
+// Formatter
+const formatNumber = (value: number) => {
+	// value = Math.round(value)
+	if (!value) return 'Rp 0'
+	return new Intl.NumberFormat('id-ID', {
+		style: 'currency',
+		currency: 'IDR',
+	}).format(value)
+}
+
+// Generate Code if reference Purchase or Trade
+const selectedType = ref(1);
+const transrefs = ref([]);
+const axiosFetchTransRef = async (id = null) => {
+	const response = await axiosInstance.get('/transaction/transproduct-notset', {
+		params: {
+			type: encodeURIComponent(typeSelected.value.code + ' - ' + categorySelected.value.name),
+			...(id != null ? {id : id } : {}) // ⬅️ Hanya tambahkan jika id tidak null
+		},
+	});
+	return response;
+}
+const fetchTransRef = async () => {
+	transrefs.value = []
+	try {
+		const response = await axiosFetchTransRef();
+		if (response.data) {
+			const res = response.data.data.data
+			// console.log('response ',res);
+			for (let prod of res) {
+				// console.log('product value id', prod.id);
+				transrefs.value.push({
+					id: prod.id,
+					label: `${prod.transaction.code} | ${prod.weight} gr | ${formatNumber( Math.abs(prod.total_price))}`,
+				})
+			}
+		}
+	} catch (error) {
+		console.log(error);
+		showAlert('error', 'Error!', 'Failed to fetch transaction reference data.')
+		categories.value = []
+	}
+}
+const switchForm = async (selectedForm) => {
+	// selectedFomm 1 -> item from supplier
+	// selectedFomm 2 -> item from customer purchase / trade
+	selectedType.value = selectedForm;
+	if (selectedForm == 2) {
+		await fetchTransRef();
+	}
+}
+// watch transref_id changed deep true
+const account_id_disabled = ref(false);
+watch(
+	() => formCode.value.transref_id,
+	async (newVal) => {
+		const transRefData = await axiosFetchTransRef(formCode.value.transref_id[0])
+		const val = transRefData.data.data.data[0];
+		formCode.value.weight = parseFloat(Math.abs(val.weight));
+		formCode.value.account_id = [val.transaction.account_id];
+		if (val.transaction.account_id != null && val.transaction.account_id != '') {
+			account_id_disabled.value = true;
+		}else {
+			account_id_disabled.value = false;
+		}
+		formCode.value.buy_price = Math.abs(parseFloat(val.total_price));
+		formCode.value.tax_purchase = 0;
+	}
+)
 
 // Reload Child REF
 const refTable = ref('')
 const taxPurchasePercentage = ref(0)
 const accounts = ref([])
+const typeSelected = ref({});
+const categorySelected = ref({});
 onMounted(async () => {
 	await fetchCategory()
 	if (props.mode !== 'add' && id) {
@@ -819,7 +961,9 @@ onMounted(async () => {
 			// Populate form with fetched data
 			form.value = { ...response.data.data }
 			form.value.category_id = [form.value.type.category_id]
+			categorySelected.value = form.value.type.category;
 			form.value.type_id = [form.value.type_id]
+			typeSelected.value = form.value.type;
 			form.value.price = 0
 			formCopy.value = await JSON.parse(JSON.stringify(form.value))
 		} catch (error) {

@@ -621,6 +621,7 @@ const handleNotFromStore = async () => {
 				params: {
 					store: decryptData(Cookies.get('userdata')).store_id,
 					type_id: formNonStore.value.type_id[0],
+					category_id: categorySelected.value[0],
 					weight: formNonStore.value.weight,
 					is_broken: result,
 				},
