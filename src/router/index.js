@@ -159,6 +159,12 @@ const router = createRouter({
 								mode: route.params.mode,
 							}),
 						},
+						// Path for Check Product
+						{
+							path: 'check-product',
+							component: () =>
+								import('../views/product/CheckProduct.vue'),
+						},
 						// Path for Stock-Out
 						{
 							path: 'stock-out',
