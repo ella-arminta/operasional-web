@@ -891,13 +891,17 @@ const formatNumber = (value: number) => {
 const selectedType = ref(1);
 const transrefs = ref([]);
 const axiosFetchTransRef = async (id = null) => {
-	const response = await axiosInstance.get('/transaction/transproduct-notset', {
-		params: {
-			type: encodeURIComponent(typeSelected.value.code + ' - ' + categorySelected.value.name),
-			...(id != null ? {id : id } : {}) // ⬅️ Hanya tambahkan jika id tidak null
-		},
-	});
-	return response;
+	try {
+		const response = await axiosInstance.get('/transaction/transproduct-notset', {
+			params: {
+				type: encodeURIComponent(typeSelected.value.code + ' - ' + categorySelected.value.name),
+				...(id != null ? {id : id } : {}) // ⬅️ Hanya tambahkan jika id tidak null
+			},
+		});
+		return response;
+	} catch (error) {
+		console.error('Error fetching transaction reference:', error);
+	}
 }
 const fetchTransRef = async () => {
 	transrefs.value = []
@@ -933,17 +937,25 @@ const account_id_disabled = ref(false);
 watch(
 	() => formCode.value.transref_id,
 	async (newVal) => {
-		const transRefData = await axiosFetchTransRef(formCode.value.transref_id[0])
-		const val = transRefData.data.data.data[0];
-		formCode.value.weight = parseFloat(Math.abs(val.weight));
-		formCode.value.account_id = [val.transaction.account_id];
-		if (val.transaction.account_id != null && val.transaction.account_id != '') {
-			account_id_disabled.value = true;
-		}else {
+		if (Array.isArray(formCode.value.transref_id) && formCode.value.transref_id.length > 0) {
+			const transRefData = await axiosFetchTransRef(formCode.value.transref_id[0])
+			const val = transRefData.data.data.data[0];
+			formCode.value.weight = parseFloat(Math.abs(val.weight));
+			formCode.value.account_id = [val.transaction.account_id];
+			if (val.transaction.account_id != null && val.transaction.account_id != '') {
+				account_id_disabled.value = true;
+			}else {
+				account_id_disabled.value = false;
+			}
+			formCode.value.buy_price = Math.abs(parseFloat(val.total_price));
+			formCode.value.tax_purchase = 0;
+		} else {
 			account_id_disabled.value = false;
+			formCode.value.weight = 0;
+			formCode.value.account_id = [''];
+			formCode.value.buy_price = 0;
+			formCode.value.tax_purchase = 0;
 		}
-		formCode.value.buy_price = Math.abs(parseFloat(val.total_price));
-		formCode.value.tax_purchase = 0;
 	}
 )
 
