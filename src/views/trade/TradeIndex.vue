@@ -53,7 +53,7 @@ const columns = [
 		render: (data, type, row) => {
 			let weight = 0
 			data.map((data) => {
-				weight += parseFloat(data.weight)
+				weight += parseFloat(data.weight) * (data.transaction_type == 2 ? -1 : 1)
 			})
 			return weight + ' gr'
 		},
