@@ -78,6 +78,7 @@
 							:multiple="filter.multiple || false"
 							:disabled="filter.disabled || false"
 							v-model="filterValues[filter.name]"
+							class="border px-3 py-2 rounded-lg w-full"
 						/>
 					</div>
 					<!-- Filter type:"SelectRangeFinance" -->

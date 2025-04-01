@@ -65,32 +65,41 @@
 					class="w-[100%] md:w-[18.8%]"
 				>
 					<!-- Filter type:"select" -->
-					<div v-if="filter.type === 'select'">
+					<div
+						v-if="filter.type === 'select'"
+						class="border px-3 py-2 rounded-lg w-full"
+					>
 						<label :for="filter.name" class="block mb-1">{{
 							filter.label
 						}}</label>
-						<select
-							v-if="filter.type === 'select'"
-							:id="filter.name"
+						<Dropdown
+							:items="filter.options"
+							:multiple="filter.multiple || false"
+							:disabled="filter.disabled || false"
 							v-model="filterValues[filter.name]"
 							class="border px-3 py-2 rounded-lg w-full"
-						>
-							<option
-								v-for="option in filter.options"
-								:key="option.value"
-								:value="option.value"
-							>
-								{{ option.label }}
-							</option>
-						</select>
+						/>
 					</div>
 					<!-- Filter type:"SelectRangeFinance" -->
-					<div v-if="filter.type == 'selectRangeFinance'">
+					<div v-if="filter.type == 'selectRangeFinance'"
+						class="border px-3 py-2 rounded-lg w-full"
+					>
 						<label :for="filter.name" class="block mb-1">{{
 							filter.label
 						}}</label>
 						<DropdownFinance
 							@range-selected="handleRangeSelected"
+						/>
+					</div>
+					<!-- Filter for Date Range -->
+					<div v-if="filter.type === 'date'">
+						<!-- <label :for="filter.name" class="block mb-1">{{ filter.label }}</label> -->
+						<InputForm
+							:id="filter.name"
+							:label="filter.label"
+							type="date"
+							v-model="filterValues[filter.name]"
+							class="border px-3 py-2 rounded-lg w-full"
 						/>
 					</div>
 				</div>
@@ -252,6 +261,8 @@ import { decryptData } from '../utils/crypto'
 import { useStore } from 'vuex'
 import axiosInstance from '../axios'
 import DropdownFinance from './DropdownFinance.vue'
+import Dropdown from './Dropdown.vue'
+import InputForm from './InputForm.vue'
 import FileSaver from 'file-saver'
 import ExcelJS from 'exceljs'
 import { useRouter } from 'vue-router'
@@ -707,6 +718,15 @@ const exportTable = async () => {
 const checkAjaxHasQuery = () => {
 	return props.ajaxPath.includes('?')
 }
+// Emit filterValues value when change
+const emit = defineEmits(['filterValuesChanged']) // Define emit event
+watch(
+	filterValues,
+	() => {
+		emit('filterValuesChanged', filterValues.value)
+	},
+	{ deep: true }
+)
 </script>
 <style>
 @import 'datatables.net-dt';

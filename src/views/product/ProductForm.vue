@@ -989,7 +989,12 @@ onMounted(async () => {
 		`/master/store/${form.value.store_id}`
 	)
 	taxPurchasePercentage.value = parseFloat(store.data.data.tax_purchase)
-	const accresponse = await axiosInstance.get('/finance/account')
+	const accresponse = await axiosInstance.get('/finance/account', {
+		params: {
+			store_id: form.value.store_id,
+			account_type_id: 1,
+		},
+	})
 	accounts.value = accresponse.data.data.map((account) => ({
 		id: account.id,
 		label: `${account.code} - ${account.name}`,
