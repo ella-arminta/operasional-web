@@ -22,8 +22,8 @@
 					: ''
 			"
 			:disapprovePath="
-				actions.includes('dissaprove')
-					? '/transaction/transaction-dissaprove'
+				actions.includes('disapprove')
+					? '/transaction/transaction-disapprove'
 					: ''
 			"
 			:options="{
@@ -87,6 +87,20 @@ const columns = [
 		width: '10%',
 		searchable: false,
 		orderable: false,
+		render: (data, type, row) => {
+			console.log('purchase index', row);
+			const hasOutsideProduct = row.transaction_products?.some(
+				(item) => item.name === "Outside Product" && item.product_code !== null
+			);
+			if (hasOutsideProduct) {
+				data = data.replace(
+					/<div\s+[^>]*title="Disapprove"[^>]*>[\s\S]*?<\/div>/g,
+					""
+				);
+			}
+
+			return data;
+		},
 	},
 ]
 const formatPrice = (price) => {
