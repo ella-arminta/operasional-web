@@ -18,7 +18,13 @@ const columns = [
     },
     { data: 'code', title: 'Code' },
     { data: 'name', title: 'Name' },
-    { data: 'description', title: 'Description' },
+    { data: 'description', title: 'Description', render: (data,type,row) => {
+      if (row.trans_code != null && row.trans_code != '') {
+        return data + ' ' + row.trans_code;
+      } else {
+        return data;
+      }
+    } },
     { data: 'in', title: 'In' },
     { data: 'out', title: 'Out' },
     { data: 'balance', title: 'Balance', render: (data) => Number(data) },

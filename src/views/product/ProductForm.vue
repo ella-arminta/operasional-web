@@ -509,11 +509,12 @@ const columns = Object.freeze([
 	{
 		data: 'buy_price',
 		title: 'Harga beli',
-		render: (data) =>
-			`<div class="text-end">${new Intl.NumberFormat('id-ID', {
+		render: (data, type, row) => {
+			return `<div class="text-end">${new Intl.NumberFormat('id-ID', {
 				style: 'currency',
 				currency: 'IDR',
-			}).format(data)}</div>`,
+			}).format(parseFloat(data) + parseFloat(row.tax_purchase))}</div>`;
+		}
 	},
 	{
 		data: 'id',
@@ -827,7 +828,7 @@ const generateCode = async () => {
 		
 		if (response.data) {
 			if (selectedType.value == 2) {
-				fetchTransRef()
+				switchForm(1);
 			}
 			showAlert('success', 'Success!', response.data.message)
 			refTable.value?.reloadData()
@@ -928,6 +929,13 @@ const switchForm = async (selectedForm) => {
 	// selectedFomm 1 -> item from supplier
 	// selectedFomm 2 -> item from customer purchase / trade
 	selectedType.value = selectedForm;
+	// reset formCode
+	formCode.value.weight = 0;
+	formCode.value.buy_price = 0;
+	formCode.value.tax_purchase = 0;
+	formCode.value.account_id = [];
+	formCode.value.transref_id = [];
+	formCode.value.image = '';
 	if (selectedForm == 2) {
 		await fetchTransRef();
 	}
@@ -1005,8 +1013,12 @@ onMounted(async () => {
 watch(
 	() => formCode.value.buy_price,
 	(newVal) => {
-		formCode.value.tax_purchase =
-			(newVal * taxPurchasePercentage.value) / 100
+		if (formCode.value.transref_id != null && formCode.value.transref_id != '') {
+			formCode.value.tax_purchase = 0;
+		} else {
+			formCode.value.tax_purchase =
+				(newVal * taxPurchasePercentage.value) / 100
+		}
 	},
 	{ deep: true }
 )

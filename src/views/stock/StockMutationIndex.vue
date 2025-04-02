@@ -8,8 +8,6 @@ import { formatIDR } from '../../utils/common'
 
 const columns = [
 	{ data: 'no', title: 'No' },
-	{ data: 'product_code', title: 'Code', name:'product_code' },
-	{ data: 'product_name', title: 'Name', name: 'product_name' },
 	{ data: 'category_name', title: 'Category', name: 'category_name' },
 	{ data: 'initial_stock', title: 'Initial Stock', name: 'initial_stock' },
 	{ data: 'initial_stock_gram', title: 'Initial Stock (gram)', name: 'initial_stock_gram' },
