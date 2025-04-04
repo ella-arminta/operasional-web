@@ -146,6 +146,24 @@
 								{{ formatNumber(form.total_price) }}
 							</h1>
 						</div>
+						<div v-if="form.total_price > 0"> <!-- if tukar tambah  -->
+							<label
+								for="dropdown"
+								class="block text-sm text-grey-900 font-medium mb-1"
+								>Payment Method<span class="text-pinkDark"
+									>*</span
+								></label
+							>
+							<Dropdown
+								:items="paymentMethod"
+								v-model="form.payment_method"
+								placeholder="Select a payment method"
+								:multiple="false"
+								:searchable="false"
+								:disabled="mode === 'detail'"
+								:addRoute="''"
+							/>
+						</div>
 						<div>
 							<label
 								for="dropdown"
@@ -163,6 +181,30 @@
 								:disabled="mode === 'detail'"
 								:addRoute="''"
 							/>
+						</div>
+						<div v-if="(form.status[0] == 1 || form.status[0] == 2) && form.total_price < 0"> <!-- if tukar kurang  -->
+							<label
+								for="dropdown"
+								class="block text-sm text-grey-900 font-medium mb-1"
+								>Kas/Bank<span class="text-pinkDark"
+									>*</span
+								></label
+							>
+							<Dropdown
+								:items="accounts"
+								v-model="form.account_id"
+								placeholder="Select a account"
+								:multiple="false"
+								:searchable="true"
+								:disabled="mode === 'detail'"
+								:addRoute="''"
+							/>
+							<p
+								v-if="formError.account_id"
+								class="text-pinkDark text-xs italic transition duration-300"
+							>
+								{{ formError.account_id }}
+							</p>
 						</div>
 						<div v-if="mode !== 'add'">
 							<button
@@ -454,7 +496,8 @@
 							{{ formatNumber(form.voucher_discount) }}
 						</div>
 					</div>
-					<div class="h-6 grid grid-cols-2 w-full items-center">
+					<!-- Cuman waktu tukar tambah -->
+					<div class="h-6 grid grid-cols-2 w-full items-center" v-if="form.sub_total_price > 0">
 						<div class="text-start">Tax Percentage</div>
 						<div class="text-end text-pinkDark">
 							<input
@@ -469,7 +512,8 @@
 							/>%
 						</div>
 					</div>
-					<div class="h-6 grid grid-cols-2 w-full items-center">
+					<!-- Cuman waktu tukar tambah -->
+					<div class="h-6 grid grid-cols-2 w-full items-center" v-if="form.sub_total_price > 0">
 						<div class="text-start">
 							Tax Value <span>({{ tax }}%)</span>
 						</div>
@@ -562,7 +606,7 @@ const form = ref({
 	phone: '',
 	store_id: '',
 	employee_id: '',
-	payment_method: 1,
+	payment_method: [1],
 	transaction_type: 3, //Trades
 	transaction_details: [],
 	weight_total: 0,
@@ -573,6 +617,7 @@ const form = ref({
 	total_price: 0,
 	adjustment_price: 0,
 	status: [0],
+	account_id: [],
 })
 const formCopy = ref({ ...form.value })
 
@@ -592,6 +637,7 @@ const formError = ref({
 	tax_price: '',
 	adjustment_price: '',
 	total_price: '',
+	account_id: '',
 })
 
 // Handle Fro Transaction CONFIG
@@ -785,6 +831,15 @@ const status = [
 	{ id: 1, label: 'Paid' },
 	{ id: 2, label: 'Done' },
 ]
+// Payment Method
+const paymentMethod = [
+	{ id: 1, label: 'Cash' },
+	{ id: 2, label: 'Transfer' },
+	{ id: 3, label: 'Credit Card' },
+	{ id: 4, label: 'Debit' },
+	{ id: 5, label: 'MidTrans' },
+]
+const accounts = ref([])
 
 const selectedTypeSales = ref(1)
 const selectedTypePurchase = ref(1)
@@ -1324,6 +1379,7 @@ const validateForm = () => {
 		sub_total_price: '',
 		tax_price: '',
 		total_price: '',
+		account_id: '',
 	}
 
 	if (!form.value.date) {
@@ -1334,9 +1390,18 @@ const validateForm = () => {
 		formError.value.customer_id = 'Customer is required'
 		isValid = false
 	}
-	if (!form.value.payment_method) {
+	if (!form.value.payment_method && form.value.total_price > 0) { // if tukar tambah
 		formError.value.payment_method = 'Payment Method is required'
 		isValid = false
+	}
+	if ((form.value.status == 1 || form.value.status == 2) && form.value.total_price < 0) { // if tukar kurang
+		if (
+			Array.isArray(form.value.account_id) &&
+			form.value.account_id.length == 0
+		) {
+			formError.value.account_id = 'Account is required'
+			isValid = false
+		}
 	}
 	if (form.value.transaction_details.length == 0) {
 		formError.value.transaction_details = 'Transaction Details is required'
@@ -1355,11 +1420,19 @@ const submit = async () => {
 		})
 		return
 	}
+	if (Array.isArray(form.value.payment_method)) {
+		form.value.payment_method = form.value.payment_method[0]
+	}
 	if (Array.isArray(form.value.status)) {
 		form.value.status = form.value.status[0]
 	}
 	if (Array.isArray(form.value.customer_id)) {
 		form.value.customer_id = form.value.customer_id[0]
+	}
+	if (Array.isArray(form.value.account_id)) {
+		form.value.account_id = form.value.account_id[0]
+	} else if (form.value.account_id == null || form.value.account_id == '') {
+		form.value.account_id = null
 	}
 	form.value.tax_percent = tax.value
 	console.log(form.value)
@@ -1386,8 +1459,10 @@ const submit = async () => {
 			formError.value[err.field] = err.message
 		})
 		// Reset State array
+		form.value.payment_method = [form.value.payment_method]
 		form.value.customer_id = [form.value.customer_id]
 		form.value.status = [form.value.status]
+		form.value.account_id = [form.value.account_id]
 		store.dispatch('triggerAlert', {
 			type: 'error',
 			title: 'Error!',
@@ -1430,6 +1505,7 @@ const fetchTransaction = async () => {
 						(product.transaction_type == 1 ? 1 : -1),
 				0
 			),
+			account_id: data.account_id ? [data.account_id] : [],
 			adjustment_price: parseFloat(data.adjustment_price),
 		}
 
@@ -1447,10 +1523,40 @@ const fetchTransaction = async () => {
 	}
 }
 
+const fetchAccounts = async () => {
+	const fetchAccounts = await axiosInstance.get('/finance/account', {
+		params: {
+			company_id: decryptData(Cookies.get('userdata')).company_id,
+			account_type_id: 1,
+		},
+	})
+	accounts.value = fetchAccounts.data.data.map((account) => ({
+		id: account.id,
+		label: `${account.code} - ${account.name}`,
+	}))
+}
+
+
+const fetchTransAccount = async () => {
+	const fetchTransAction = await axiosInstance.get(
+		'/finance/trans-account-setting-action/purchaseCust',
+		{}
+	)
+	if (
+		fetchTransAction.data.success &&
+		fetchTransAction.data.data.length > 0
+	) {
+		form.value.account_id = [fetchTransAction.data.data[0].account_id]
+	}
+}
+
 onMounted(async () => {
 	await fetchOperation()
 	await fetchCategory()
 	await fetchCustomer()
+	await fetchAccounts()
+	await fetchTransAccount()
+
 	if (props.mode === 'add') {
 		form.value.store_id = decryptData(Cookies.get('userdata')).store_id
 		form.value.employee_id = decryptData(Cookies.get('userdata')).id

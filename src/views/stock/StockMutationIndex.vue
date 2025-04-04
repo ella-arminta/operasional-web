@@ -8,8 +8,6 @@ import { formatIDR } from '../../utils/common'
 
 const columns = [
 	{ data: 'no', title: 'No' },
-	{ data: 'product_code', title: 'Code', name:'product_code' },
-	{ data: 'product_name', title: 'Name', name: 'product_name' },
 	{ data: 'category_name', title: 'Category', name: 'category_name' },
 	{ data: 'initial_stock', title: 'Initial Stock', name: 'initial_stock' },
 	{ data: 'initial_stock_gram', title: 'Initial Stock (gram)', name: 'initial_stock_gram' },
@@ -54,7 +52,7 @@ onMounted(async () => {
 		id: store.id,
 	}))
 	const categoryData = await axiosInstance.get('/inventory/category')
-	var categoriesFormated = categoryData.data.data.map((category) => ({
+	var categoriesFormated = categoryData.data.data.data.map((category) => ({
 		label: category.name,
 		id: category.id,
 	}))
@@ -102,11 +100,11 @@ const setValuePrev = (data) => {
 };
 const refetchData = async (type, data) => {
   const endpoints = {
-    store: { url: '/master/store', params: [], filterIndex: 1, label: 'All Store' },
-    category: { url: '/inventory/category', params: ['store_id'], filterIndex: 2, label: 'All Category' },
+    store: { url: '/master/store', params: [], filterIndex: 1, label: 'All Store', deeper:false },
+    category: { url: '/inventory/category', params: ['store_id'], filterIndex: 2, label: 'All Category', deeper:true },
   };
 
-  const { url, params, filterIndex, label } = endpoints[type];
+  const { url, params, filterIndex, label, deeper } = endpoints[type];
   const queryParams = new URLSearchParams();
 
   params.forEach(param => {
@@ -118,10 +116,18 @@ const refetchData = async (type, data) => {
   const fullUrl = queryParams.toString() ? `${url}?${queryParams.toString()}` : url;
   const response = await axiosInstance.get(fullUrl);
 
-  const formattedData = response.data.data.map(item => ({
-    label: item.name,
-    id: item.id,
-  }));
+  let formattedData;
+  if (deeper) {
+	formattedData = response.data.data.data.map(item => ({
+		label: item.name,
+		id: item.id,
+	}));
+  } else {
+	formattedData = response.data.data.map(item => ({
+		label: item.name,
+		id: item.id,
+	}));
+  }
 
   filters.value[filterIndex].options = [{ label, value: '' }, ...formattedData];
   setValuePrev(data);

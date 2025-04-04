@@ -108,7 +108,7 @@ const router = createRouter({
 						},
 						// Path for Account Setting
 						{
-							path: 'account-setting',
+							path: 'page-account-setting',
 							component: () =>
 								import('../views/account/AccountSetting.vue'),
 						},

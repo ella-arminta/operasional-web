@@ -9,5 +9,5 @@ export const formatDate = (dateString) => {
 
 export function formatIDR(value) {
     if (!value) return '0';
-    return parseInt(value).toLocaleString('id-ID');
+    return parseFloat(value).toLocaleString('id-ID');
 }

@@ -71,21 +71,21 @@ onMounted(async () => {
   })
 
   filters.value = [
+  {
+      type: 'selectRangeFinance',
+      label: 'Date Range',
+      name: 'range',
+    },
     {
       type: 'select',
       label: 'Account',
       name: 'account_id',
-      multiple: false,
+      multiple: true,
       options: [
         { label: 'All Account', id: '' },
         ...accountOptions
       ],
       value: id !== null ? id : '',
-    },
-    {
-      type: 'selectRangeFinance',
-      label: 'Date Range',
-      name: 'range',
     },
   ];
 });

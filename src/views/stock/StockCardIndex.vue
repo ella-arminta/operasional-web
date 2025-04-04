@@ -4,6 +4,7 @@ import PageTitle from '../../components/PageTitle.vue';
 import TableData from '../../components/TableData.vue';
 import axiosInstance from '../../axios';
 import { useStore } from 'vuex';
+import { formatIDR } from '../../utils/common'
 
 const columns = [
     { 
@@ -17,10 +18,30 @@ const columns = [
     },
     { data: 'code', title: 'Code' },
     { data: 'name', title: 'Name' },
-    { data: 'description', title: 'Description' },
+    { data: 'description', title: 'Description', render: (data,type,row) => {
+      if (row.trans_code != null && row.trans_code != '') {
+        return data + ' ' + row.trans_code;
+      } else {
+        return data;
+      }
+    } },
     { data: 'in', title: 'In' },
     { data: 'out', title: 'Out' },
-    { data: 'balance', title: 'Balance', render: (data) => Number(data) }
+    { data: 'balance', title: 'Balance', render: (data) => Number(data) },
+    { data: 'weight_in', title: 'In (gr)' },
+    { data: 'weight_out', title: 'Out (gr)' },
+    { data: 'balance_weight', title: 'Balance (gr)', render: (data) => Number(data) },
+    { data: 'avg_price_per_weight', title: 'Unit Price (per gram)', name: 'avg_price_per_weight', render:function(data) {
+      return 'Rp. '+ formatIDR(data);
+    } },
+    {
+      data: '', title: 'Stock Value (Rp)', render: function(data, type, row) {
+        if (!row || typeof row.balance_weight === 'undefined' || typeof row.avg_price_per_weight === 'undefined') {
+          return '-';
+        }
+        return 'Rp. '+formatIDR(row.balance_weight * row.avg_price_per_weight);
+      }
+    }
 ];
 const store = useStore();
 const smallMenu = computed(() => store.getters.smallMenu);
@@ -32,17 +53,17 @@ const filters = ref([]);
 
 onMounted(async () => {
 	const categoryData = await axiosInstance.get('/inventory/category');
-	var categoryFormat = categoryData.data.data.map((cat) => ({
+	var categoryFormat = categoryData.data.data.data.map((cat) => ({
 		label: cat.name,
 		id: cat.id,
 	}))
 	var prodData = await axiosInstance.get('/inventory/product');
-	var prodFormat = prodData.data.data.map((prod) => ({
+	var prodFormat = prodData.data.data.data.map((prod) => ({
 		label: prod.name,
 		id: prod.id,
 	}))
 	var typeData = await axiosInstance.get('/inventory/type');
-	var typeFormat = typeData.data.data.map((type) => ({
+	var typeFormat = typeData.data.data.data.map((type) => ({
 		label: type.name,
 		id: type.id,
 	}))
@@ -119,13 +140,13 @@ const setValuePrev = (data) => {
 
 const refetchData = async (type, data) => {
   const endpoints = {
-    store: { url: '/master/store', params: ['company_id'], filterIndex: 2, label: 'All Store' },
-    type: { url: '/inventory/type', params: ['company_id', 'store_id', 'category_id'], filterIndex: 4, label: 'All Type' },
-    product: { url: '/inventory/product', params: ['category_id', 'type_id', 'company_id', 'store_id'], filterIndex: 5, label: 'All Product' },
-    category: { url: '/inventory/category', params: ['company_id', 'store_id'], filterIndex: 3, label: 'All Category' },
+    store: { url: '/master/store', params: ['company_id'], filterIndex: 2, label: 'All Store', deeper: false },
+    type: { url: '/inventory/type', params: ['company_id', 'store_id', 'category_id'], filterIndex: 4, label: 'All Type', deeper: true },
+    product: { url: '/inventory/product', params: ['category_id', 'type_id', 'company_id', 'store_id'], filterIndex: 5, label: 'All Product', deeper: true },
+    category: { url: '/inventory/category', params: ['company_id', 'store_id'], filterIndex: 3, label: 'All Category', deeper: true },
   };
 
-  const { url, params, filterIndex, label } = endpoints[type];
+  const { url, params, filterIndex, label, deeper } = endpoints[type];
   const queryParams = new URLSearchParams();
 
   params.forEach(param => {
@@ -137,10 +158,22 @@ const refetchData = async (type, data) => {
   const fullUrl = queryParams.toString() ? `${url}?${queryParams.toString()}` : url;
   const response = await axiosInstance.get(fullUrl);
 
-  const formattedData = response.data.data.map(item => ({
-    label: item.name,
-    id: item.id,
-  }));
+  let formattedData;
+  try {
+    if (deeper) {
+      formattedData = response.data.data.data.map(item => ({
+        label: item.name,
+        id: item.id,
+      }));
+    } else {
+      formattedData = response.data.data.map(item => ({
+        label: item.name,
+        id: item.id,
+      }));
+    }
+  } catch (error) {
+    console.error('Error formatting data:' + url , error);
+  }
 
   filters.value[filterIndex].options = [{ label, value: '' }, ...formattedData];
   setValuePrev(data);

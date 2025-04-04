@@ -191,6 +191,7 @@ onMounted(async () => {
 			)
 			form.value = { ...response.data.data }
 			form.value.store_id = [form.value.store_id]
+			form.value.account_id = [form.value.account_id]
 			formCopy.value = { ...form.value }
 		} catch (error) {
 			store.dispatch('triggerAlert', {
