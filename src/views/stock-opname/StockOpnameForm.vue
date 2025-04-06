@@ -193,19 +193,14 @@
 <script setup lang="ts">
 import { useStore } from 'vuex'
 import PageTitle from '../../components/PageTitle.vue'
-import { computed, onMounted, ref, render, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAuthStore } from '../../vuex/auth'
 import FormHeader from '../../components/FormHeader.vue'
 import FormSectionHeader from '../../components/FormSectionHeader.vue'
 import InputForm from '../../components/InputForm.vue'
 import Dropdown from '../../components/Dropdown.vue'
-import EditableCat from '../../components/EditableCat.vue'
 import QrScanner from '../../components/QrScanner.vue'
 import axiosInstance from '../../axios'
-import { decryptData } from '../../utils/crypto'
-import Cookies from 'js-cookie'
-import { get } from '@vueuse/core/index.js'
 const store = useStore()
 const router = useRouter()
 const smallMenu = computed(() => store.getters.smallMenu)
