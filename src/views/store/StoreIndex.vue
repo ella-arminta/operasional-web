@@ -71,7 +71,13 @@ onMounted(async () => {
 			label: 'Company',
 			name: 'company_id',
 			type: 'select',
-			options: companyFormated,
+			options: [
+				{
+					label: 'All Company',
+					value: '',
+				},
+				...companyFormated,
+			],
 		},
 	]
 })

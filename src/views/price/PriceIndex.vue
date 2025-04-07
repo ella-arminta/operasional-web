@@ -111,7 +111,7 @@ onMounted(async () => {
 			type: 'select',
 			name: 'category_id',
 			label: 'Category',
-			options: [{ label: 'All Company', value: '' }, ...categoryData],
+			options: [{ label: 'All Category', value: '' }, ...categoryData],
 		},
 	]
 })
