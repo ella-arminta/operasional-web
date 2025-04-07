@@ -53,24 +53,26 @@
 		<!-- Filters -->
 		<div
 			v-if="props.filters && props.filters.length > 0"
-			class="transition-all duration-300"
+			class="transition-all duration-300 mt-3 rounded-lg"
 			:class="{
-				'max-h-0 overflow-hidden': !isFiltersOpen,
-				'max-h-[500px]': isFiltersOpen,
+				'max-h-0 overflow-hidden border-none': !isFiltersOpen,
+				'max-h-90 border border-pinkLight': isFiltersOpen,
 			}"
 		>
-			<div class="m-3 flex flex-wrap justify-center gap-3 md:gap-6">
+			<div
+				class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 justify-center gap-2 px-1 py-2"
+			>
 				<div
 					v-for="filter in props.filters"
 					:key="filter.name"
-					class="w-[100%] md:w-[18.8%]"
+					class="w-full"
 				>
 					<!-- Filter type:"select" -->
 					<div
 						v-if="filter.type === 'select'"
-						class="border px-3 py-2 rounded-lg w-full"
+						class="borde-none px-3 rounded-lg w-full"
 					>
-						<label :for="filter.name" class="block mb-1">{{
+						<label :for="filter.name" class="block">{{
 							filter.label
 						}}</label>
 						<Dropdown
@@ -78,15 +80,15 @@
 							:multiple="filter.multiple || false"
 							:disabled="filter.disabled || false"
 							v-model="filterValues[filter.name]"
-							class="border px-3 py-2 rounded-lg w-full"
+							class="border-none py-2 rounded-lg w-full"
 						/>
 					</div>
 					<!-- Filter type:"SelectRangeFinance" -->
 					<div
 						v-if="filter.type == 'selectRangeFinance'"
-						class="border px-3 py-2 rounded-lg w-full"
+						class="border-none px-3 rounded-lg w-full"
 					>
-						<label :for="filter.name" class="block mb-1">{{
+						<label :for="filter.name" class="block mb-2">{{
 							filter.label
 						}}</label>
 						<DropdownFinance
@@ -101,7 +103,7 @@
 							:label="filter.label"
 							type="date"
 							v-model="filterValues[filter.name]"
-							class="border px-3 py-2 rounded-lg w-full"
+							class="border-none px-3 py-2 rounded-lg w-full"
 						/>
 					</div>
 				</div>
@@ -394,7 +396,7 @@ DataTable.use(Buttons)
 DataTable.use(ColumnVisibility)
 DataTable.use(FixedColumns)
 // Declaration
-const isFiltersOpen = ref(true)
+const isFiltersOpen = ref(false)
 const table = ref()
 let dt
 const bearerToken = decryptData(Cookies.get('token')) || ''

@@ -31,6 +31,7 @@
 			:options="{
 				scrollX: true,
 			}"
+			:filters="filters"
 		/>
 	</div>
 </template>
@@ -90,20 +91,21 @@ const columns = [
 		searchable: false,
 		orderable: false,
 		render: (data, type, row) => {
-			console.log('purchase index', row);
+			console.log('purchase index', row)
 			const hasOutsideProduct = row.transaction_products?.some(
-				(item) => item.name === "Outside Product" && item.product_code !== null
-			);
+				(item) =>
+					item.name === 'Outside Product' &&
+					item.product_code !== null
+			)
 			if (hasOutsideProduct) {
 				data = data.replace(
 					/<div\s+[^>]*title="Disapprove"[^>]*>[\s\S]*?<\/div>/g,
-					""
-				);
+					''
+				)
 			}
 
-			return data;
+			return data
 		},
-
 	},
 ]
 const formatPrice = (price) => {
@@ -120,6 +122,7 @@ const formatDate = (date) => {
 		day: '2-digit',
 	}).format(new Date(date))
 }
+const filters = ref([])
 
 // META-ACTIONS RBAC
 const router = useRouter()
@@ -131,5 +134,32 @@ onMounted(() => {
 		(item) => item.path === currentPath
 	)
 	actions.value = path ? path.action : []
+
+	filters.value = [
+		{
+			type: 'selectRangeFinance',
+			label: 'Date Range',
+			name: 'date_range',
+		},
+		{
+			type: 'select',
+			label: 'Approval Status',
+			name: 'approve',
+			options: [
+				{
+					value: '',
+					label: 'All',
+				},
+				{
+					id: '0',
+					label: 'Pending',
+				},
+				{
+					id: '1',
+					label: 'Approved',
+				},
+			],
+		},
+	]
 })
 </script>

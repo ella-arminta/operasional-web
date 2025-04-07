@@ -11,6 +11,7 @@
 				actions.includes('delete') ? '/inventory/bulk-price' : ''
 			"
 			:infoPath="actions.includes('detail') ? '/master/price/detail' : ''"
+			:filters="filters"
 		/>
 	</div>
 </template>
@@ -22,6 +23,7 @@ import TableData from '../../components/TableData.vue'
 import { computed, onMounted, ref, render } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../vuex/auth'
+import axiosInstance from '../../axios'
 const store = useStore()
 const smallMenu = computed(() => store.getters.smallMenu)
 const columns = [
@@ -78,15 +80,39 @@ const formatPrice = (price) => {
 	}).format(price)
 }
 
+const filters = ref([])
+
 // META-ACTIONS RBAC
 const router = useRouter()
 const authStore = useAuthStore()
 const actions = ref([])
-onMounted(() => {
+onMounted(async () => {
 	const currentPath = router.currentRoute.value.path
 	const path = authStore.allowedPaths.find(
 		(item) => item.path === currentPath
 	)
 	actions.value = path ? path.action : []
+
+	// Fetch for filters
+	const category = await axiosInstance.get('/inventory/category')
+	const categoryData = category.data.data.data.map((item) => {
+		return {
+			id: item.id,
+			label: `${item.code} - ${item.name}`,
+		}
+	})
+	filters.value = [
+		{
+			type: 'selectRangeFinance',
+			label: 'Date Range',
+			name: 'date_range',
+		},
+		{
+			type: 'select',
+			name: 'category_id',
+			label: 'Category',
+			options: [{ label: 'All Company', value: '' }, ...categoryData],
+		},
+	]
 })
 </script>

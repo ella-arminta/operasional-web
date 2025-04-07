@@ -1,8 +1,6 @@
 <template>
 	<div class="content min-h-screen" :class="{ 'full-width': smallMenu }">
-		<PageTitle 
-		title="Stock Out"
-		/>
+		<PageTitle title="Stock Out" />
 		<TableData
 			:columns="columns"
 			:addPath="actions.includes('add') ? '/inventory/stock-out/add' : ''"
@@ -11,7 +9,7 @@
 			:options="{
 				scrollX: true,
 			}"
-			ref='tableDataRef'
+			ref="tableDataRef"
 			:ajaxPath="'/inventory/stock-out'"
 			:editPath="
 				actions.includes('edit') ? '/inventory/stock-out/edit' : ''
@@ -22,6 +20,7 @@
 			:infoPath="
 				actions.includes('detail') ? '/inventory/stock-out/detail' : ''
 			"
+			:filters="filters"
 		/>
 	</div>
 </template>
@@ -35,14 +34,13 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../vuex/auth'
 import axiosInstance from '../../axios'
 
-const tableDataRef = ref(null);
+const tableDataRef = ref(null)
 
 function handleReload() {
-    if (tableDataRef.value) {
-        tableDataRef.value.reloadData();
-    }
+	if (tableDataRef.value) {
+		tableDataRef.value.reloadData()
+	}
 }
-
 
 const store = useStore()
 const smallMenu = computed(() => store.getters.smallMenu)
@@ -88,8 +86,10 @@ const columns = ref([
 		width: '10%',
 		searchable: false,
 		orderable: false,
-		render: function(data, type, row) {
-			var htmldata =`<div style="display:flex;justify-content: space-around;align-items:center;">`  +data;
+		render: function (data, type, row) {
+			var htmldata =
+				`<div style="display:flex;justify-content: space-around;align-items:center;">` +
+				data
 			if (row.taken_out_reason == 1) {
 				htmldata += `<div
 								class="w-8 h-8 bg-pinkLight text-white flex justify-center items-center rounded-full cursor-pointer hover:bg-pinkDark transition duration-300 ease-in-out approve-repair"
@@ -98,11 +98,11 @@ const columns = ref([
 								data-title="Approve"
 							>
 								<i class="material-icons text-sm">check</i>
-							</div>`;
+							</div>`
 			}
-			htmldata += '</div>';
-			return htmldata;
-		}
+			htmldata += '</div>'
+			return htmldata
+		},
 	},
 ])
 const formatCurrency = (value) => {
@@ -135,11 +135,17 @@ const approveRepair = (id: string) => {
 	store.dispatch('triggerAlert', {
 		type: 'info',
 		title: 'Done Repair',
-		message: 'Apakah emas telah selesai diperbaiki dan ingin dikembalikan ke barang siap jual?',
+		message:
+			'Apakah emas telah selesai diperbaiki dan ingin dikembalikan ke barang siap jual?',
 		inputs: [
-			{ label: "Berat terbaru (gram)", model: "weight", type: "number" },
-			{ label: "Biaya Perbaikan (Rp)", model: "expense", type: "number" },
-			{ label: "Kas/Bank", model: "account_id", type: "select", ajaxOptions: "/finance/account?account_type_id=1" },
+			{ label: 'Berat terbaru (gram)', model: 'weight', type: 'number' },
+			{ label: 'Biaya Perbaikan (Rp)', model: 'expense', type: 'number' },
+			{
+				label: 'Kas/Bank',
+				model: 'account_id',
+				type: 'select',
+				ajaxOptions: '/finance/account?account_type_id=1',
+			},
 		],
 		actions: [
 			{
@@ -151,23 +157,27 @@ const approveRepair = (id: string) => {
 				label: 'proceed',
 				type: 'primary',
 				handler: async (data) => {
-					store.dispatch('triggerAlert', { type: 'loading', title: 'Processing...' })
-					axiosInstance.post('/inventory/stock-repaired', {...data, id})
-						.then(response => {
+					store.dispatch('triggerAlert', {
+						type: 'loading',
+						title: 'Processing...',
+					})
+					axiosInstance
+						.post('/inventory/stock-repaired', { ...data, id })
+						.then((response) => {
 							store.dispatch('hideAlert') // Sembunyikan saat berhasil
 							store.dispatch('triggerAlert', {
 								type: 'success',
 								title: 'Success',
-								message: 'Process completed successfully!'
+								message: 'Process completed successfully!',
 							})
 							handleReload()
 						})
-						.catch(error => {
+						.catch((error) => {
 							store.dispatch('hideAlert') // Sembunyikan jika gagal
 							store.dispatch('triggerAlert', {
 								type: 'error',
 								title: 'Error',
-								message: 'Something went wrong.'
+								message: 'Something went wrong.',
 							})
 						})
 				},
@@ -175,16 +185,40 @@ const approveRepair = (id: string) => {
 		],
 	})
 }
+const filters = ref([])
 
 // META-ACTIONS RBAC
 const router = useRouter()
 const authStore = useAuthStore()
 const actions = ref([])
-onMounted(() => {
+onMounted(async () => {
 	const currentPath = router.currentRoute.value.path
 	const path = authStore.allowedPaths.find(
 		(item) => item.path === currentPath
 	)
 	actions.value = path ? path.action : []
+
+	// Set filters
+	const category = await axiosInstance.get('/inventory/category')
+	const categoryFormated = category.data.data.data.map((category) => ({
+		label: category.name,
+		id: category.id,
+	}))
+	filters.value = [
+		{
+			type: 'selectRangeFinance',
+			label: 'Date Range',
+			name: 'date_range',
+		},
+		{
+			type: 'select',
+			label: 'Category',
+			name: 'category_id',
+			options: [
+				{ label: 'All Category', value: '' },
+				...categoryFormated,
+			],
+		},
+	]
 })
 </script>

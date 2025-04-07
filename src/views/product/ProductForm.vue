@@ -216,16 +216,18 @@
 						</button>
 					</div>
 				</div>
-				<div 
+				<div
 					v-if="selectedType == 2"
-					class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+					class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4"
+				>
 					<div class="col-span-1">
 						<!-- Transaction Purchase / Trade -->
 						<label
 							for="transref_id"
 							class="block text-sm text-grey-900 font-medium mt-4"
 						>
-							Purchase / Trade Reference <span class="text-pinkDark">*</span>
+							Purchase / Trade Reference
+							<span class="text-pinkDark">*</span>
 						</label>
 						<Dropdown
 							:items="transrefs"
@@ -233,7 +235,7 @@
 							placeholder="Select a transaction reference"
 							:multiple="false"
 							:searchable="true"
-							:disabled="mode === 'detail'"
+							:disabled="false"
 							id="transref_id"
 						/>
 					</div>
@@ -265,7 +267,10 @@
 							placeholder="Select an account"
 							:multiple="false"
 							:searchable="true"
-							:disabled="mode === 'detail' || (selectedType == 2 && account_id_disabled)"
+							:disabled="
+								mode === 'detail' ||
+								(selectedType == 2 && account_id_disabled)
+							"
 							:addRoute="'/master/account/add'"
 							id="account_id"
 						/>
@@ -346,6 +351,9 @@
 				:infoPath="''"
 				:defData="{
 					transaction_id: id,
+				}"
+				:options="{
+					scrollX: true,
 				}"
 			/>
 			<!-- Modal for Image Preview -->
@@ -513,8 +521,8 @@ const columns = Object.freeze([
 			return `<div class="text-end">${new Intl.NumberFormat('id-ID', {
 				style: 'currency',
 				currency: 'IDR',
-			}).format(parseFloat(data) + parseFloat(row.tax_purchase))}</div>`;
-		}
+			}).format(parseFloat(data) + parseFloat(row.tax_purchase))}</div>`
+		},
 	},
 	{
 		data: 'id',
@@ -818,17 +826,17 @@ const generateCode = async () => {
 		if (formCode.value.transref_id.length > 0) {
 			formCode.value.transref_id = formCode.value.transref_id[0]
 		} else {
-			formCode.value.transref_id = null;
+			formCode.value.transref_id = null
 		}
 		const response = await axiosInstance.post(
 			`/inventory/generate-product-code/${id}`,
 			formCode.value
 		)
 		// console.log('response generate product code frontend', response)
-		
+
 		if (response.data) {
 			if (selectedType.value == 2) {
-				switchForm(1);
+				switchForm(1)
 			}
 			showAlert('success', 'Success!', response.data.message)
 			refTable.value?.reloadData()
@@ -889,25 +897,32 @@ const formatNumber = (value: number) => {
 }
 
 // Generate Code if reference Purchase or Trade
-const selectedType = ref(1);
-const transrefs = ref([]);
+const selectedType = ref(1)
+const transrefs = ref([])
 const axiosFetchTransRef = async (id = null) => {
 	try {
-		const response = await axiosInstance.get('/transaction/transproduct-notset', {
-			params: {
-				type: encodeURIComponent(typeSelected.value.code + ' - ' + categorySelected.value.name),
-				...(id != null ? {id : id } : {}) // ⬅️ Hanya tambahkan jika id tidak null
-			},
-		});
-		return response;
+		const response = await axiosInstance.get(
+			'/transaction/transproduct-notset',
+			{
+				params: {
+					type: encodeURIComponent(
+						typeSelected.value.code +
+							' - ' +
+							categorySelected.value.name
+					),
+					...(id != null ? { id: id } : {}), // ⬅️ Hanya tambahkan jika id tidak null
+				},
+			}
+		)
+		return response
 	} catch (error) {
-		console.error('Error fetching transaction reference:', error);
+		console.error('Error fetching transaction reference:', error)
 	}
 }
 const fetchTransRef = async () => {
 	transrefs.value = []
 	try {
-		const response = await axiosFetchTransRef();
+		const response = await axiosFetchTransRef()
 		if (response.data) {
 			const res = response.data.data.data
 			// console.log('response ',res);
@@ -915,54 +930,66 @@ const fetchTransRef = async () => {
 				// console.log('product value id', prod.id);
 				transrefs.value.push({
 					id: prod.id,
-					label: `${prod.transaction.code} | ${prod.weight} gr | ${formatNumber( Math.abs(prod.total_price))}`,
+					label: `${prod.transaction.code} | ${prod.weight} gr | ${formatNumber(Math.abs(prod.total_price))}`,
 				})
 			}
 		}
 	} catch (error) {
-		console.log(error);
-		showAlert('error', 'Error!', 'Failed to fetch transaction reference data.')
+		console.log(error)
+		showAlert(
+			'error',
+			'Error!',
+			'Failed to fetch transaction reference data.'
+		)
 		categories.value = []
 	}
 }
 const switchForm = async (selectedForm) => {
 	// selectedFomm 1 -> item from supplier
 	// selectedFomm 2 -> item from customer purchase / trade
-	selectedType.value = selectedForm;
+	selectedType.value = selectedForm
 	// reset formCode
-	formCode.value.weight = 0;
-	formCode.value.buy_price = 0;
-	formCode.value.tax_purchase = 0;
-	formCode.value.account_id = [];
-	formCode.value.transref_id = [];
-	formCode.value.image = '';
+	formCode.value.weight = 0
+	formCode.value.buy_price = 0
+	formCode.value.tax_purchase = 0
+	formCode.value.account_id = []
+	formCode.value.transref_id = []
+	formCode.value.image = ''
 	if (selectedForm == 2) {
-		await fetchTransRef();
+		await fetchTransRef()
 	}
 }
 // watch transref_id changed deep true
-const account_id_disabled = ref(false);
+const account_id_disabled = ref(false)
 watch(
 	() => formCode.value.transref_id,
 	async (newVal) => {
-		if (Array.isArray(formCode.value.transref_id) && formCode.value.transref_id.length > 0) {
-			const transRefData = await axiosFetchTransRef(formCode.value.transref_id[0])
-			const val = transRefData.data.data.data[0];
-			formCode.value.weight = parseFloat(Math.abs(val.weight));
-			formCode.value.account_id = [val.transaction.account_id];
-			if (val.transaction.account_id != null && val.transaction.account_id != '') {
-				account_id_disabled.value = true;
-			}else {
-				account_id_disabled.value = false;
+		if (
+			Array.isArray(formCode.value.transref_id) &&
+			formCode.value.transref_id.length > 0
+		) {
+			const transRefData = await axiosFetchTransRef(
+				formCode.value.transref_id[0]
+			)
+			const val = transRefData.data.data.data[0]
+			formCode.value.weight = parseFloat(Math.abs(val.weight))
+			formCode.value.account_id = [val.transaction.account_id]
+			if (
+				val.transaction.account_id != null &&
+				val.transaction.account_id != ''
+			) {
+				account_id_disabled.value = true
+			} else {
+				account_id_disabled.value = false
 			}
-			formCode.value.buy_price = Math.abs(parseFloat(val.total_price));
-			formCode.value.tax_purchase = 0;
+			formCode.value.buy_price = Math.abs(parseFloat(val.total_price))
+			formCode.value.tax_purchase = 0
 		} else {
-			account_id_disabled.value = false;
-			formCode.value.weight = 0;
-			formCode.value.account_id = [''];
-			formCode.value.buy_price = 0;
-			formCode.value.tax_purchase = 0;
+			account_id_disabled.value = false
+			formCode.value.weight = 0
+			formCode.value.account_id = ['']
+			formCode.value.buy_price = 0
+			formCode.value.tax_purchase = 0
 		}
 	}
 )
@@ -971,8 +998,8 @@ watch(
 const refTable = ref('')
 const taxPurchasePercentage = ref(0)
 const accounts = ref([])
-const typeSelected = ref({});
-const categorySelected = ref({});
+const typeSelected = ref({})
+const categorySelected = ref({})
 onMounted(async () => {
 	await fetchCategory()
 	if (props.mode !== 'add' && id) {
@@ -981,9 +1008,9 @@ onMounted(async () => {
 			// Populate form with fetched data
 			form.value = { ...response.data.data }
 			form.value.category_id = [form.value.type.category_id]
-			categorySelected.value = form.value.type.category;
+			categorySelected.value = form.value.type.category
 			form.value.type_id = [form.value.type_id]
-			typeSelected.value = form.value.type;
+			typeSelected.value = form.value.type
 			form.value.price = 0
 			formCopy.value = await JSON.parse(JSON.stringify(form.value))
 		} catch (error) {
@@ -1013,8 +1040,11 @@ onMounted(async () => {
 watch(
 	() => formCode.value.buy_price,
 	(newVal) => {
-		if (formCode.value.transref_id != null && formCode.value.transref_id != '') {
-			formCode.value.tax_purchase = 0;
+		if (
+			formCode.value.transref_id != null &&
+			formCode.value.transref_id != ''
+		) {
+			formCode.value.tax_purchase = 0
 		} else {
 			formCode.value.tax_purchase =
 				(newVal * taxPurchasePercentage.value) / 100

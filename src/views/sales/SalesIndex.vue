@@ -29,6 +29,7 @@
 			:options="{
 				scrollX: true,
 			}"
+			:filters="filters"
 		/>
 	</div>
 </template>
@@ -103,6 +104,7 @@ const formatDate = (date) => {
 		day: '2-digit',
 	}).format(new Date(date))
 }
+const filters = ref([])
 
 // META-ACTIONS RBAC
 const router = useRouter()
@@ -114,5 +116,32 @@ onMounted(() => {
 		(item) => item.path === currentPath
 	)
 	actions.value = path ? path.action : []
+
+	filters.value = [
+		{
+			type: 'selectRangeFinance',
+			label: 'Date Range',
+			name: 'date_range',
+		},
+		{
+			type: 'select',
+			label: 'Approval Status',
+			name: 'approve',
+			options: [
+				{
+					value: '',
+					label: 'All',
+				},
+				{
+					id: '0',
+					label: 'Pending',
+				},
+				{
+					id: '1',
+					label: 'Approved',
+				},
+			],
+		},
+	]
 })
 </script>

@@ -30,6 +30,10 @@
 					? '/inventory/stock-opname-disapprove'
 					: ''
 			"
+			:filters="filters"
+			:options="{
+				scrollX: true,
+			}"
 		/>
 	</div>
 </template>
@@ -41,6 +45,7 @@ import TableData from '../../components/TableData.vue'
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../vuex/auth'
+import axiosInstance from '../../axios'
 const store = useStore()
 const smallMenu = computed(() => store.getters.smallMenu)
 const columns = ref([
@@ -80,17 +85,40 @@ const formatDate = (date) => {
 	if (!date) return ''
 	return new Date(date).toISOString().split('T')[0] // Extract only the date part
 }
+const filters = ref([])
 
 // META-ACTIONS RBAC
 const router = useRouter()
 const authStore = useAuthStore()
 const actions = ref([])
-onMounted(() => {
+onMounted(async () => {
 	const currentPath = router.currentRoute.value.path
 	const path = authStore.allowedPaths.find(
 		(item) => item.path === currentPath
 	)
-	console.log(path)
 	actions.value = path ? path.action : []
+
+	// Set filters
+	const category = await axiosInstance.get('/inventory/category')
+	const categoryFormated = category.data.data.data.map((category) => ({
+		label: category.name,
+		id: category.id,
+	}))
+	filters.value = [
+		{
+			type: 'selectRangeFinance',
+			label: 'Date Range',
+			name: 'date_range',
+		},
+		{
+			type: 'select',
+			label: 'Category',
+			name: 'category_id',
+			options: [
+				{ label: 'All Category', value: '' },
+				...categoryFormated,
+			],
+		},
+	]
 })
 </script>
