@@ -146,7 +146,8 @@
 								{{ formatNumber(form.total_price) }}
 							</h1>
 						</div>
-						<div v-if="form.total_price > 0"> <!-- if tukar tambah  -->
+						<div v-if="form.total_price > 0">
+							<!-- if tukar tambah  -->
 							<label
 								for="dropdown"
 								class="block text-sm text-grey-900 font-medium mb-1"
@@ -182,7 +183,13 @@
 								:addRoute="''"
 							/>
 						</div>
-						<div v-if="(form.status[0] == 1 || form.status[0] == 2) && form.total_price < 0"> <!-- if tukar kurang  -->
+						<div
+							v-if="
+								(form.status[0] == 1 || form.status[0] == 2) &&
+								form.total_price < 0
+							"
+						>
+							<!-- if tukar kurang  -->
 							<label
 								for="dropdown"
 								class="block text-sm text-grey-900 font-medium mb-1"
@@ -497,7 +504,10 @@
 						</div>
 					</div>
 					<!-- Cuman waktu tukar tambah -->
-					<div class="h-6 grid grid-cols-2 w-full items-center" v-if="form.sub_total_price > 0">
+					<div
+						class="h-6 grid grid-cols-2 w-full items-center"
+						v-if="form.sub_total_price > 0"
+					>
 						<div class="text-start">Tax Percentage</div>
 						<div class="text-end text-pinkDark">
 							<input
@@ -513,7 +523,10 @@
 						</div>
 					</div>
 					<!-- Cuman waktu tukar tambah -->
-					<div class="h-6 grid grid-cols-2 w-full items-center" v-if="form.sub_total_price > 0">
+					<div
+						class="h-6 grid grid-cols-2 w-full items-center"
+						v-if="form.sub_total_price > 0"
+					>
 						<div class="text-start">
 							Tax Value <span>({{ tax }}%)</span>
 						</div>
@@ -1390,11 +1403,16 @@ const validateForm = () => {
 		formError.value.customer_id = 'Customer is required'
 		isValid = false
 	}
-	if (!form.value.payment_method && form.value.total_price > 0) { // if tukar tambah
+	if (!form.value.payment_method && form.value.total_price > 0) {
+		// if tukar tambah
 		formError.value.payment_method = 'Payment Method is required'
 		isValid = false
 	}
-	if ((form.value.status == 1 || form.value.status == 2) && form.value.total_price < 0) { // if tukar kurang
+	if (
+		(form.value.status == 1 || form.value.status == 2) &&
+		form.value.total_price < 0
+	) {
+		// if tukar kurang
 		if (
 			Array.isArray(form.value.account_id) &&
 			form.value.account_id.length == 0
@@ -1524,29 +1542,51 @@ const fetchTransaction = async () => {
 }
 
 const fetchAccounts = async () => {
-	const fetchAccounts = await axiosInstance.get('/finance/account', {
-		params: {
-			company_id: decryptData(Cookies.get('userdata')).company_id,
-			account_type_id: 1,
-		},
-	})
-	accounts.value = fetchAccounts.data.data.map((account) => ({
-		id: account.id,
-		label: `${account.code} - ${account.name}`,
-	}))
+	try {
+		const fetchAccounts = await axiosInstance.get('/finance/account', {
+			params: {
+				company_id: decryptData(Cookies.get('userdata')).company_id,
+				account_type_id: 1,
+			},
+		})
+		accounts.value = fetchAccounts.data.data.map((account) => ({
+			id: account.id,
+			label: `${account.code} - ${account.name}`,
+		}))
+	} catch (e) {
+		store.dispatch('triggerAlert', {
+			type: 'error',
+			title: 'Error!',
+			message:
+				e.response.data.message != '' && e.response.data.message != null
+					? e.response.data.message
+					: 'Failed to fetch accounts.',
+		})
+	}
 }
 
-
 const fetchTransAccount = async () => {
-	const fetchTransAction = await axiosInstance.get(
-		'/finance/trans-account-setting-action/purchaseCust',
-		{}
-	)
-	if (
-		fetchTransAction.data.success &&
-		fetchTransAction.data.data.length > 0
-	) {
-		form.value.account_id = [fetchTransAction.data.data[0].account_id]
+	try {
+		const fetchTransAction = await axiosInstance.get(
+			'/finance/trans-account-setting-action/purchaseCust',
+			{}
+		)
+		if (
+			fetchTransAction.data.success &&
+			fetchTransAction.data.data.length > 0
+		) {
+			form.value.account_id = [fetchTransAction.data.data[0].account_id]
+		}
+	} catch (error) {
+		store.dispatch('triggerAlert', {
+			type: 'error',
+			title: 'Error!',
+			message:
+				error.response.data.message != '' &&
+				error.response.data.message != null
+					? error.response.data.message
+					: 'Failed to fetch accounts.',
+		})
 	}
 }
 
