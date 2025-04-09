@@ -322,8 +322,8 @@ onMounted(async () => {
 
 	// set form recurring
 	formRecurring.value = {
-		recurringType: 'DAY',
-		interval: 1,
+		recurringType: ['DAY'],
+		interval: 7,
 		daysOfWeek: [],
 		dayOfMonth: null,
 		monthOfYear: null,

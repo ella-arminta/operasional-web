@@ -95,14 +95,23 @@ const iconClass = computed(() => {
 
 watch(alert, async (newAlert) => {
 	inputData.value = newAlert.inputs?.reduce((acc, input) => {
-		acc[input.model] = '';
+		console.log('selectedModel:', input.selectedModel);
+		if (input.selectedModel) {
+			acc[input.model] = input.selectedModel;
+		} else {
+			acc[input.model] = '';
+		}
 		return acc;
 	}, {}) || {};
 
 	if (newAlert.inputs) {
 		for (const input of newAlert.inputs) {
 			if (input.type === 'select') {
-				inputData.value[input.model] = [];
+				if (input.selectedModel) {
+					inputData.value[input.model] = input.selectedModel;
+				} else {
+					inputData.value[input.model] = [];
+				}
 				dropdownOptions.value[input.model] = [];
 				try {
 					if (input.ajaxOptions) {
@@ -148,22 +157,6 @@ onMounted(() => {
 				} catch (error) {
 					console.error('Error fetching dropdown options:', error);
 				}
-			}
-		});
-	}
-
-	// Watch any field specified in watchModel
-	if (alert.value.inputs) {
-		alert.value.inputs.forEach((input) => {
-			if (input.watchModel && Array.isArray(input.watchModel)) {
-				input.watchModel.forEach((field) => {
-					watch(
-						() => inputData.value[field],
-						() => {
-							renderKey.value++; // Force re-render when the field changes
-						}
-					);
-				});
 			}
 		});
 	}

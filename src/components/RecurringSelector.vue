@@ -190,8 +190,8 @@ function showModal() {
     type: 'info',
     title: 'Set Recurrence Schedule',
     inputs: [
-      { label: 'Start Date', model: 'startDate', type: 'date' },
-      { label: 'End Date', model: 'endDate', type: 'date' },
+      { label: 'Start Date', model: 'startDate', type: 'date', selectedModel: localRecurring.value.startDate },
+      { label: 'End Date', model: 'endDate', type: 'date', selectedModel: localRecurring.value.endDate },
       {
         label: 'Recurrence Type',
         model: 'recurringType',
@@ -202,6 +202,7 @@ function showModal() {
           { value: 'MONTH', text: 'Monthly' },
           { value: 'YEAR', text: 'Yearly' },
         ],
+        selectedModel: localRecurring.value.recurringType,
       },
       // Daily
       {
@@ -209,7 +210,8 @@ function showModal() {
         model: 'interval',
         type: 'number',
         condition: (data) => data.recurringType.includes('DAY'),
-        watchModel: ['recurringType']
+        watchModel: ['recurringType'],
+        selectedModel: localRecurring.value.interval,
       },
       // Weekly
       {
@@ -217,6 +219,7 @@ function showModal() {
         model: 'interval',
         type: 'number',
         condition: (data) => data.recurringType.includes('WEEK'),
+        selectedModel: localRecurring.value.interval,
       },
       {
         label: 'Select Days',
@@ -233,6 +236,7 @@ function showModal() {
           { value: 6, text: 'Sat' },
         ],
         condition: (data) => data.recurringType.includes('WEEK'),
+        selectedModel: localRecurring.value.daysOfWeek,
       },
       // Monthly
       {
@@ -240,12 +244,14 @@ function showModal() {
         model: 'interval',
         type: 'number',
         condition: (data) => data.recurringType.includes('MONTH'),
+        selectedModel: localRecurring.value.interval,
       },
       {
         label: 'On day of the month',
         model: 'dayOfMonth',
         type: 'number',
         condition: (data) => data.recurringType.includes('MONTH'),
+        selectedModel: localRecurring.value.dayOfMonth,
       },
       // Yearly
       {
@@ -268,12 +274,14 @@ function showModal() {
           { value: 12, text: 'December' },
         ],
         condition: (data) => data.recurringType.includes('YEAR'),
+        selectedModel: localRecurring.value.monthOfYear,
       },
       {
         label: 'Day of the month',
         model: 'dayOfYear',
         type: 'number',
         condition: (data) => data.recurringType.includes('YEAR'),
+        selectedModel: localRecurring.value.dayOfYear,
       },
     ],
     actions: [
