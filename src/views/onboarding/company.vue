@@ -36,23 +36,32 @@
 
 		<!-- content -->
 		<div class="grid grid-cols-1 md:grid-cols-2 w-full">
-			<div class="md:flex flex-col mt-10 hidden">
-				<h2
-					class="text-xl lg:text-2xl font-bold text-pinkDark text-center mt-6"
-				>
-					Create Your First Company!
-				</h2>
+			<div
+				class="md:flex flex-col mt-10 hidden h-full overflow-hidden justify-between"
+			>
+				<div class="py-8">
+					<h2
+						class="text-xl lg:text-2xl font-bold text-pinkDark text-center mt-6"
+					>
+						Create Your First Company!
+					</h2>
 
-				<p
-					class="text-md lg:text-lg text-pinkDark text-start mt-6 px-8"
+					<p
+						class="text-md lg:text-lg text-pinkDark text-start mt-6 px-8"
+					>
+						The Company Here will be your first step into joining
+						our community. You can create a company that will be
+						used to manage your stores. You can also create multiple
+						companies under one account.
+					</p>
+				</div>
+
+				<router-link
+					to="/logout"
+					class="text-md lg:text-lg text-pinkDark text-start pl-8 underline"
 				>
-					The Company Here will be your first step into joining our
-					community. You can create a company that will be used to
-					manage your stores. You can create multiple stores under one
-					company. You can also create multiple companies under one
-					account. This is useful if you have multiple companies that
-					you want to manage under one account.
-				</p>
+					Logout</router-link
+				>
 			</div>
 
 			<form class="w-full" @submit.prevent="submit">

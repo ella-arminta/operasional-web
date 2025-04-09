@@ -98,6 +98,27 @@ export default {
 						{ expires: 5 / 24 }
 					) // 5 hours
 
+					if (
+						response.data.company_id === null ||
+						response.data.store_id === null
+					) {
+						store.dispatch('triggerAlert', {
+							type: 'warning',
+							title: 'Warning!',
+							message: 'You have not created a company yet.',
+						})
+						if (response.data.is_owner) {
+							router.push('/onboarding/company')
+							return
+						} else {
+							router.push('/onboarding/employee')
+							return
+						}
+					} else {
+						router.push('/home')
+						return
+					}
+
 					// await fetch permissions
 					await authStore.fetchPermissions()
 					store.dispatch('triggerAlert', {
@@ -112,7 +133,6 @@ export default {
 							},
 						],
 					})
-
 					router.push('/home')
 				}
 			} catch (error) {

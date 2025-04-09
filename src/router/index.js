@@ -42,6 +42,10 @@ const router = createRouter({
 					path: 'store',
 					component: () => import('../views/onboarding/store.vue'),
 				},
+				{
+					path: 'employee',
+					component: () => import('../views/onboarding/employee.vue'),
+				},
 			],
 		},
 		{
@@ -468,8 +472,9 @@ const loa = ['add', 'edit', 'delete', 'detail', 'approve', 'disapprove']
 
 router.beforeEach(async (to, from, next) => {
 	const userdata = await decryptData(Cookies.get('userdata'))
+	// For Onboarding State Owner
 	if (
-		!['/', '/onboarding/company'].includes(to.path) &&
+		!['/', '/onboarding/company', '/logout'].includes(to.path) &&
 		userdata.company_id == null &&
 		userdata.is_owner
 	) {
@@ -477,8 +482,19 @@ router.beforeEach(async (to, from, next) => {
 		return
 	}
 
-	// If navigating to login, allow directly
+	// For Onboarding State Employee wait to be assigned
+	if (
+		!['/', '/onboarding/employee', '/logout'].includes(to.path) &&
+		userdata.company_id == null &&
+		userdata.store_id == null &&
+		!userdata.is_owner
+	) {
+		next('/onboarding/employee')
+		return
+	}
+
 	if (to.path === '/') {
+		// If navigating to login, allow directly
 		next()
 		return
 	}

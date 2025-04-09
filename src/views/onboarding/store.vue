@@ -38,21 +38,32 @@
 		<div
 			class="grid grid-cols-1 md:grid-cols-2 w-full h-3/4 overflow-hidden"
 		>
-			<div class="md:flex flex-col mt-10 hidden">
-				<h2
-					class="text-xl lg:text-2xl font-bold text-pinkDark text-center mt-6"
-				>
-					Setup your first Store!
-				</h2>
+			<div
+				class="md:flex flex-col hidden h-full overflow-hidden justify-between"
+			>
+				<div class="py-8">
+					<h2
+						class="text-xl lg:text-2xl font-bold text-pinkDark text-center mt-6"
+					>
+						Setup your First Store!
+					</h2>
 
-				<p
-					class="text-md lg:text-lg text-pinkDark text-start mt-6 px-8"
+					<p
+						class="text-md lg:text-lg text-pinkDark text-start mt-6 px-8"
+					>
+						You can create a store that will be used to manage your
+						resource/business. You can create multiple stores under
+						one company. All operational activities will be recorded
+						in store.
+					</p>
+				</div>
+
+				<router-link
+					to="/logout"
+					class="text-md lg:text-lg text-pinkDark text-start pl-8 underline"
 				>
-					You can create a store that will be used to manage your
-					resource/business. You can create multiple stores under one
-					company. All operational activities will be recorded in
-					store.
-				</p>
+					Logout</router-link
+				>
 			</div>
 			<!-- Form -->
 			<div class="flex flex-col h-full max-h-full overflow-hidden">
