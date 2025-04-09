@@ -498,7 +498,7 @@ onMounted(async () => {
 			},
 		})
 		if (response.data) {
-			const ownedCompanies = response.data.data
+			const ownedCompanies = response.data.data.data
 			companies.value = ownedCompanies.map((company) => ({
 				id: company.id,
 				label: company.name,
