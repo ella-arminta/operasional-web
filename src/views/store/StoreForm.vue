@@ -494,7 +494,7 @@ onMounted(async () => {
 			},
 		})
 		if (response.data) {
-			const ownedCompanies = response.data.data
+			const ownedCompanies = response.data.data.data
 			companies.value = ownedCompanies.map((company) => ({
 				id: company.id,
 				label: company.name,
@@ -699,6 +699,10 @@ const submit = async () => {
 		if (Array.isArray(form.value.company_id)) {
 			form.value.company_id = form.value.company_id[0]
 		}
+		form.value.fixed_kbl_adjustment= Number(form.value.fixed_kbl_adjustment);
+		form.value.fixed_tt_adjustment= Number(form.value.fixed_tt_adjustment);
+		form.value.defect_nominal= Number(form.value.defect_nominal);
+		form.value.defect_percentage= Number(form.value.defect_percentage);
 
 		const response = await axiosInstance[method](endpoint, form.value)
 

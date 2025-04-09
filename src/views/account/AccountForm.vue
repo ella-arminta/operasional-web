@@ -203,7 +203,7 @@ const smallMenu = computed(() => store.getters.smallMenu)
 
 onMounted(async () => {
 	const companyData = await axiosInstance.get('/master/company')
-	companyItems.value = companyData.data.data.map(
+	companyItems.value = companyData.data.data.data.map(
 		(company) => (
 			{
 				label: company.name,
@@ -212,7 +212,7 @@ onMounted(async () => {
 		)
 	)
 	const storeData = await axiosInstance.get('/master/store')
-	storeItems.value = storeData.data.data.map((store) => ({
+	storeItems.value = storeData.data.data.data.map((store) => ({
 		label: store.name,
 		id: store.id,
 	}))

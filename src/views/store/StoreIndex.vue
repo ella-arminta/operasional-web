@@ -61,7 +61,8 @@ onMounted(async () => {
 
 	// Set filters
 	const company = await axiosInstance.get('/master/company')
-	const companyFormated = company.data.data.map((company) => ({
+	console.log(company.data.data.data);
+	const companyFormated = company.data.data.data.map((company) => ({
 		label: company.name,
 		id: company.id,
 	}))
