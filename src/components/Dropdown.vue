@@ -55,9 +55,10 @@
 
 		<!-- Dropdown Menu -->
 		<div
+			ref="dropdownMenu"
 			v-show="isOpen && !disabled"
 			:class="props.position"
-			class="z-10 bg-white border border-pinkOrange border-opacity-25 shadow-lg rounded-lg w-full max-h-60 overflow-y-auto bg-pinkGray"
+			class="z-10 bg-white border border-pinkOrange border-opacity-25 shadow-lg rounded-lg w-full overflow-y-auto bg-pinkGray"
 		>
 			<ul>
 				<li v-if="searchable" class="px-4 py-2 border-b bg-pinkGray">
@@ -111,14 +112,14 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
-import { defineProps, defineEmits } from 'vue'
+import { defineProps, defineEmits,nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
 const props = defineProps({
 	items: {
-		type: Array as () => Array<{ id: number | string; label: string }>,
+		type: Array as () => Array<{ id: number | string; label: string; }>,
 		required: true,
 	},
 	multiple: {
@@ -184,6 +185,11 @@ watch(
 const toggleDropdown = () => {
 	if (!props.disabled) {
 		isOpen.value = !isOpen.value
+		if (isOpen.value) {
+			nextTick(() => {
+				adjustDropdownHeight()
+			})
+		}
 	}
 }
 
@@ -235,11 +241,13 @@ const emitValue = () => {
 // Add the listener when the component is mounted
 onMounted(() => {
 	document.addEventListener('click', handleClickOutside)
+	window.addEventListener('resize', adjustDropdownHeight)
 })
 
 // Remove the listener when the component is unmounted
 onUnmounted(() => {
 	document.removeEventListener('click', handleClickOutside)
+	window.removeEventListener('resize', adjustDropdownHeight)
 })
 
 // Handle the click event
@@ -247,5 +255,21 @@ const handleClickOutside = (e) => {
 	if (dropdown.value && !dropdown.value.contains(e.target)) {
 		closeDropdown()
 	}
+}
+
+// handle dropdown not overflow screen
+const dropdownMenu = ref(null)
+const adjustDropdownHeight = () => {
+	if (!dropdownMenu.value || !dropdown.value) return
+
+	// Get dropdown's position on screen
+	const dropdownRect = dropdown.value.getBoundingClientRect()
+	const dropdownTop = dropdownRect.bottom
+
+	// Calculate available space
+	const spaceBelow = window.innerHeight - dropdownTop - 10 // padding bottom
+
+	// Apply max-height
+	dropdownMenu.value.style.maxHeight = `${spaceBelow}px`
 }
 </script>

@@ -1,7 +1,7 @@
 <template>
 	<div
 		v-if="alert.visible"
-		class="fixed inset-0 flex items-center justify-center bg-slate-400/5 z-index transition duration-300 ease-in-out"
+		class="fixed inset-0 flex items-center justify-center bg-slate-400/5 z-index transition duration-300 ease-in-out max-h-screen"
 	>
 		<div class="bg-white rounded-lg shadow-lg w-96 p-6 relative">
 			<!-- Alert Icon -->
@@ -27,18 +27,19 @@
 
 			<!-- Alert Inputs -->
 			<div v-if="alert.inputs?.length">
-				<div v-for="(input, index) in alert.inputs" :key="index" class="mb-3">
-					<label class="block text-sm font-medium text-gray-700">{{ input.label }}</label>
+				<div v-for="(input, index) in alert.inputs" :key="index" class="mb-3" :v-if="checkInputCondition(input)">
+					<label class="block text-sm font-medium text-gray-700" v-if="checkInputCondition(input)">{{ input.label }}</label>
 					<input
-						v-if="input.type !== 'select'"
+						v-if="input.type !== 'select' && checkInputCondition(input)"
 						v-model="inputData[input.model]"
 						:type="input.type || 'text'"
 						class="w-full border p-2 rounded"
 					/>
 
 					<Dropdown
-						v-if="input.type === 'select'"
+						v-if="input.type === 'select' && checkInputCondition(input)"
 						:items="dropdownOptions[input.model]"
+						:multiple="input.multiple || false"
 						v-model="inputData[input.model]"
 					/>
 				</div>
@@ -94,21 +95,38 @@ const iconClass = computed(() => {
 
 watch(alert, async (newAlert) => {
 	inputData.value = newAlert.inputs?.reduce((acc, input) => {
-		acc[input.model] = '';
+		console.log('selectedModel:', input.selectedModel);
+		if (input.selectedModel) {
+			acc[input.model] = input.selectedModel;
+		} else {
+			acc[input.model] = '';
+		}
 		return acc;
 	}, {}) || {};
 
 	if (newAlert.inputs) {
 		for (const input of newAlert.inputs) {
 			if (input.type === 'select') {
-				inputData.value[input.model] = [];
+				if (input.selectedModel) {
+					inputData.value[input.model] = input.selectedModel;
+				} else {
+					inputData.value[input.model] = [];
+				}
 				dropdownOptions.value[input.model] = [];
 				try {
-					const response = await axiosInstance.get(input.ajaxOptions);
-					dropdownOptions.value[input.model] = response.data.data.map(option => ({
-						id: option.id,
-						label: option.name,
-					}));
+					if (input.ajaxOptions) {
+						const response = await axiosInstance.get(input.ajaxOptions);
+						dropdownOptions.value[input.model] = response.data.data.map(option => ({
+							id: option.id,
+							label: option.name,
+						}));
+					} else if (input.options) {
+						dropdownOptions.value[input.model] = input.options.map(option => ({
+							id: option.value,
+							label: option.text,
+						}));
+					}
+					
 				} catch (error) {
 					console.error('Error fetching dropdown options:', error);
 				}
@@ -124,11 +142,18 @@ onMounted(() => {
 				inputData.value[input.model] = [];
 				dropdownOptions.value[input.model] = [];
 				try {
-					const response = await axiosInstance.get(input.ajaxOptions);
-					dropdownOptions.value[input.model] = response.data.data.map(option => ({
-						id: option.id,
-						label: option.name,
-					}));
+					if (input.ajaxOptions) {
+						const response = await axiosInstance.get(input.ajaxOptions);
+						dropdownOptions.value[input.model] = response.data.data.map(option => ({
+							id: option.id,
+							label: option.name,
+						}));
+					} else if (input.options) {
+						dropdownOptions.value[input.model] = input.options.map(option => ({
+							id: option.value,
+							label: option.text,
+						}));
+					}
 				} catch (error) {
 					console.error('Error fetching dropdown options:', error);
 				}
@@ -156,6 +181,19 @@ const handleAction = (action) => {
 	} else {
 		action.handler();
 	}
+};
+const checkInputCondition = (input) => {
+	if (!input.condition) return true;
+
+	// console.log('condition function:', input.condition.toString());
+	// console.log('inputData.value:', inputData.value);
+
+	const result = typeof input.condition === 'function'
+		? input.condition(inputData.value)
+		: !!input.condition;
+
+	// console.log('Condition result:', result);
+	return result;
 };
 </script>
 

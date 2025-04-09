@@ -44,7 +44,7 @@
                             class="bg-transparent rounded px-2 py-1 w-full h-full focus:outline-none"
                             @input="handleInput($event, col, rowIndex)" 
                             />
-                        <Dropdown v-else-if="col.type === 'dropdown'" v-model="rows[rowIndex][col.key]" :items="col.items" :position="'sticky'" />
+                        <Dropdown v-else-if="col.type === 'dropdown'" v-model="rows[rowIndex][col.key]" :items="col.items" :position="'sticky !h-[200px]'" />
                     </td>
                     <td class="px-4 py-2 text-center"
                     :class="{

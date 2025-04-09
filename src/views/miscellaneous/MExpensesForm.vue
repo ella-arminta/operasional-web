@@ -167,14 +167,11 @@
 								Recurring Period
 								<span class="text-pinkDark">*</span>
 							</label>
-							<Dropdown
-								v-if="form.recurring"
-								:items="recurringPeriod"
-								v-model="form.recurring_period_code"
-								placeholder="Select Recurring Period"
-								:multiple="false"
-								:searchable="false"
-								:disabled="mode === 'detail'"
+							<!-- <RecurringSelector v-if="form.recurring" @update="handleRecurring" /> -->
+							<RecurringSelector
+								v-show="form.recurring"
+								v-model="formRecurring"
+  								ref="recurringFormRef"
 							/>
 						</div>
 					</div>
@@ -198,6 +195,7 @@ import FormSectionHeader from '../../components/FormSectionHeader.vue'
 import EdiTable from '../../components/EdiTable.vue'
 import TextareaForm from '../../components/TextareaForm.vue'
 import CheckboxForm from '../../components/form/CheckboxForm.vue'
+import RecurringSelector from '../../components/RecurringSelector.vue'
 const smallMenu = computed(() => store.getters.smallMenu)
 
 const props = defineProps({
@@ -248,7 +246,6 @@ const formError = ref({
 	recurring: '',
 	recurring_period_code: '',
 })
-const recurringPeriod = ref({})
 
 const router = useRouter()
 const store = useStore()
@@ -323,12 +320,17 @@ onMounted(async () => {
 		formattedDate.value = formatDate(new Date().toISOString().split('T')[0])
 	}
 
-	// GET ALL RECURRING PERIOD
-	var recper = await axiosInstance.get('/finance/recurring-period')
-	recurringPeriod.value = recper.data.data.map((rec) => ({
-		label: rec.name,
-		id: rec.code,
-	}))
+	// set form recurring
+	formRecurring.value = {
+		recurringType: ['DAY'],
+		interval: 7,
+		daysOfWeek: [],
+		dayOfMonth: null,
+		monthOfYear: null,
+		dayOfYear: null,
+		startDate: '2023-10-01',
+		endDate: '2023-10-31',
+	}
 })
 
 const mountUpdatedData = async () => {
@@ -484,4 +486,19 @@ const submit = async () => {
 		}
 	}
 }
+
+const formRecurring = ref({
+	recurringType: '',
+	interval: 1,
+	daysOfWeek: [],
+	dayOfMonth: null,
+	monthOfYear: null,
+	dayOfYear: null,
+	startDate: null,
+	endDate: null,
+})
+const recurringFormRef = ref()
+watch(() => formRecurring, (newVal) => {
+  console.log('[Parent] formRecurring updated from child:', formRecurring.value)
+}, { deep: true })
 </script>
