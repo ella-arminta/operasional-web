@@ -55,6 +55,15 @@ body {
 	}
 }
 
+.onboarding-layout {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	min-height: 100vh;
+	width: 100%;
+	background-color: var(--blue-secondary);
+}
+
 .content {
 	width: 75%;
 	margin: 5% 5%;
