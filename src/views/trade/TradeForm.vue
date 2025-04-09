@@ -504,10 +504,7 @@
 						</div>
 					</div>
 					<!-- Cuman waktu tukar tambah -->
-					<div
-						class="h-6 grid grid-cols-2 w-full items-center"
-						v-if="form.sub_total_price > 0"
-					>
+					<div class="h-6 grid grid-cols-2 w-full items-center">
 						<div class="text-start">Tax Percentage</div>
 						<div class="text-end text-pinkDark">
 							<input
@@ -523,10 +520,7 @@
 						</div>
 					</div>
 					<!-- Cuman waktu tukar tambah -->
-					<div
-						class="h-6 grid grid-cols-2 w-full items-center"
-						v-if="form.sub_total_price > 0"
-					>
+					<div class="h-6 grid grid-cols-2 w-full items-center">
 						<div class="text-start">
 							Tax Value <span>({{ tax }}%)</span>
 						</div>
@@ -541,7 +535,7 @@
 								v-model="form.adjustment_price"
 								type="text"
 								class="border-b-2 border-pinkDark border-opacity-50 text-pinkDark text-md w-3/4 focus:border-b-2 focus:border-pinkDark focus:outline-none text-end bg-white"
-								placeholder="Tax Percentage"
+								placeholder="Trade In Fee"
 								:disabled="mode === 'detail'"
 								:class="{
 									'border-none': mode === 'detail',
@@ -594,7 +588,7 @@ import Dropdown from '../../components/Dropdown.vue'
 import EditableTrans from '../../components/EditableTrans.vue'
 import QrScanner from '../../components/QrScanner.vue'
 import TextareaForm from '../../components/TextareaForm.vue'
-import { formatIDR } from '../../utils/common'
+import { formatIDR, unformatCurrency } from '../../utils/common'
 
 // Declaration of props, store, router
 const props = defineProps({
@@ -709,6 +703,34 @@ watch(
 		}
 	}
 )
+
+// Watching Adjustment Price
+watch(
+	() => form.value.adjustment_price,
+	(newValue) => {
+		// Ensure it's a string
+		let strValue = newValue.toString()
+
+		strValue = strValue.replace(/[^0-9\,\.]+/g, '') // Remove non-numeric characters
+		strValue = strValue.replace('/[\,\.]+/g', '.')
+
+		// Allow only numbers and a single dot (prevent multiple dots)
+		const parts = strValue.split('.')
+		if (parts.length > 2) {
+			strValue = parts.shift() + '.' + parts.join('')
+		}
+
+		// ✅ If the user is still typing (e.g., "2."), don't convert yet
+		if (strValue.endsWith('.')) {
+			form.value.adjustment_price = strValue
+			return
+		}
+
+		form.value.adjustment_price = parseFloat(strValue)
+		calculateTax()
+	}
+)
+
 // Function to Calculate the Tax and Total by SubTotal [only for SALES]
 const calculateTax = () => {
 	let sub_total_sales = form.value.transaction_details
