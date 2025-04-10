@@ -4,23 +4,27 @@ import PageTitle from '../../components/PageTitle.vue'
 import TableData from '../../components/TableData.vue'
 import axiosInstance from '../../axios'
 import { useStore } from 'vuex'
+import { formatDate } from '../../utils/common'
 
 const columns = [
 	{ data: 'no', title: 'No' },
 	{ data: 'store.name', title: 'Store' },
-	{ data: 'recurring_period.name', title: 'Period' },
+	{ data: 'recurringType', title: 'Recurring Period', render: function(data, type, row, meta) {
+		const interval = row.interval != 1 ? row.interval : '';
+		return `Every ${interval} ${data}(s)`
+	} },
 	{ data: 'trans_type.name', title: 'Type' },
 	{ data: 'description', title: 'Description' },
 	{
-		data: 'trans_start_date',
+		data: 'startDate',
 		title: 'Start Date',
-		render: (data) => new Date(data).toLocaleDateString(),
+		render: (data) => formatDate(data),
 	},
 	{
-		data: 'trans_last_date',
-		title: 'Last Date',
+		data: 'endDate',
+		title: 'End Date',
 		render: (data) =>
-			data != null ? new Date(data).toLocaleDateString() : '-',
+			data != null ? formatDate(data) : '-',
 	},
 	// TODO LIST ACTIVE NOT ACTIVE
 	{
@@ -40,15 +44,16 @@ const filters = ref([])
 onMounted(async () => {
 	// ALL STORE
 	const storeData = await axiosInstance.get('/master/store')
-	var storesFormated = storeData.data.data.map((store) => ({
+	var storesFormated = storeData.data.data.data.map((store) => ({
 		label: store.name,
 		id: store.id,
 	}))
 	// ALL PERIOD
 	const periodData = await axiosInstance.get('/finance/recurring-period')
+	console.log('this is periodData',periodData);
 	var periodFormated = periodData.data.data.map((period) => ({
-		label: period.name,
-		id: period.code,
+		label: period,
+		id: period,
 	}))
 	// ALL TRANSACTION TYPE
 	const transTypeData = await axiosInstance.get('/finance/trans-type')
@@ -66,25 +71,25 @@ onMounted(async () => {
 		},
 		{
 			type: 'select',
-			label: 'Period',
-			name: 'recurring_period_code',
+			label: 'Recurring Period',
+			name: 'recurringType',
 			options: [{ label: 'All Period', id: '' }, ...periodFormated],
 		},
 		{
 			type: 'select',
 			label: 'Type',
 			name: 'trans_type_id',
-			options: [{ label: 'All Type', id: '' }, ...transTypeFormated],
+			options: [{ label: 'All Type', id: null }, ...transTypeFormated],
 		},
 		{
 			type: 'date',
 			label: 'Start Date',
-			name: 'start_date',
+			name: 'startDate',
 		},
 		{
 			type: 'date',
 			label: 'End Date',
-			name: 'end_date',
+			name: 'endDate',
 		},
 	]
 })

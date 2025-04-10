@@ -167,7 +167,6 @@
 								Recurring Period
 								<span class="text-pinkDark">*</span>
 							</label>
-							<!-- <RecurringSelector v-if="form.recurring" @update="handleRecurring" /> -->
 							<RecurringSelector
 								v-show="form.recurring"
 								v-model="formRecurring"
@@ -233,7 +232,6 @@ const form = ref({
 	accounts: [],
 	trans_type_id: props.trans_type_id,
 	recurring: false,
-	recurring_period_code: '',
 })
 const formCopy = ref({ ...form.value })
 const formError = ref({
@@ -244,7 +242,6 @@ const formError = ref({
 	trans_date: '',
 	accounts: '',
 	recurring: '',
-	recurring_period_code: '',
 })
 
 const router = useRouter()
@@ -320,17 +317,6 @@ onMounted(async () => {
 		formattedDate.value = formatDate(new Date().toISOString().split('T')[0])
 	}
 
-	// set form recurring
-	formRecurring.value = {
-		recurringType: ['DAY'],
-		interval: 7,
-		daysOfWeek: [],
-		dayOfMonth: null,
-		monthOfYear: null,
-		dayOfYear: null,
-		startDate: '2023-10-01',
-		endDate: '2023-10-31',
-	}
 })
 
 const mountUpdatedData = async () => {
@@ -411,6 +397,12 @@ const submit = async () => {
 	if (props.mode === 'detail') return
 	if (!hasUnsavedChanges.value && props.mode === 'edit') return
 	try {
+		if (form.value.recurring) {
+			if(!recurringFormRef.value.validate()) {
+				return;
+			}
+		}
+		console.log('HAIFJKDS FSKLDF')
 		const endpoint =
 			props.mode === 'edit'
 				? `/finance/uang-keluar-masuk/${id}`
@@ -423,11 +415,24 @@ const submit = async () => {
 				: null
 			return account
 		})
-		if (form.value.recurring_period_code != '') {
-			form.value.recurring_period_code =
-				form.value.recurring_period_code[0]
+		var submittedForm = form.value;
+
+		console.log('submitted recurring', form.value.recurring)
+		if (form.value.recurring) {
+			formRecurring.value.recurringType = formRecurring.value.recurringType[0]
+			formRecurring.value.dayOfMonth = formRecurring.value.dayOfMonthCustom == 'custom' ? formRecurring.value.dayOfMonth :
+				( formRecurring.value.dayOfMonthCustom.length > 0 ? formRecurring.value.dayOfMonthCustom[0] : null )
+			formRecurring.value.dayOfYear = formRecurring.value.dayOfYearCustom == 'custom' ? formRecurring.value.dayOfYear :
+				( formRecurring.value.dayOfYearCustom.length > 0 ? formRecurring.value.dayOfYearCustom[0] : null )
+			console.log('value dayofyear dan custom', formRecurring.value.dayOfYearCustom)
+				
+			submittedForm = {
+				...form.value,
+				...formRecurring.value,
+			}
 		}
-		const response = await axiosInstance[method](endpoint, form.value)
+		
+		const response = await axiosInstance[method](endpoint, submittedForm)
 		console.log('submit response', response)
 		if (response.data.success) {
 			const action = props.mode === 'edit' ? 'Updated' : 'Created'
@@ -456,7 +461,9 @@ const submit = async () => {
 			account.account_id = [account.account_id]
 			return account
 		})
-		form.value.recurring_period_code = [form.value.recurring_period_code]
+		if (form.value.recurring) {
+			formRecurring.value.recurringType = [formRecurring.value.recurringType]
+		}
 		if (
 			error.response &&
 			error.response.data.statusCode.toString().startsWith('4')
@@ -492,8 +499,10 @@ const formRecurring = ref({
 	interval: 1,
 	daysOfWeek: [],
 	dayOfMonth: null,
+	dayOfMonthCustom: null,
 	monthOfYear: null,
 	dayOfYear: null,
+	dayOfYearCustom: null,
 	startDate: null,
 	endDate: null,
 })
