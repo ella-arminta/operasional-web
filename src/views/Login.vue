@@ -1,27 +1,46 @@
 <template>
 	<div class="app flex justify-center items-center min-h-screen bg-pinkGray">
 		<div class="w-full max-w-sm bg-white p-8 rounded-lg shadow-md">
-
 			<!-- Logo -->
 			<div class="flex justify-center mb-6">
 				<img src="/logo.png" alt="Logamas Logo" class="w-auto" />
 			</div>
 			<form @submit.prevent="submit" class="space-y-4">
 				<div class="mb-4">
-					<label for="email" class="block text-sm font-medium text-grey-900">Email</label>
-					<input v-model="data.email" id="email" type="email" placeholder="Enter your email"
-						class="mt-2 block w-full px-4 py-2 border border-pinkOrange rounded-lg focus:ring-2 focus:ring-pinkOrange focus:outline-none" />
+					<label
+						for="email"
+						class="block text-sm font-medium text-grey-900"
+						>Email</label
+					>
+					<input
+						v-model="data.email"
+						id="email"
+						type="email"
+						placeholder="Enter your email"
+						class="mt-2 block w-full px-4 py-2 border border-pinkOrange rounded-lg focus:ring-2 focus:ring-pinkOrange focus:outline-none"
+					/>
 				</div>
 
 				<div class="mb-6">
-					<label for="password" class="block text-sm font-medium text-grey-900">Password</label>
-					<input v-model="data.password" id="password" type="password" placeholder="Enter your password"
-						class="mt-2 block w-full px-4 py-2 border border-pinkOrange rounded-lg focus:ring-2 focus:ring-pinkOrange focus:outline-none" />
+					<label
+						for="password"
+						class="block text-sm font-medium text-grey-900"
+						>Password</label
+					>
+					<input
+						v-model="data.password"
+						id="password"
+						type="password"
+						placeholder="Enter your password"
+						class="mt-2 block w-full px-4 py-2 border border-pinkOrange rounded-lg focus:ring-2 focus:ring-pinkOrange focus:outline-none"
+					/>
 				</div>
 
 				<div class="flex justify-between items-center">
-					<button type="submit"
-						class="w-full bg-pinkDark hover:bg-pinkDarker text-white font-semibold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-pinkOrange">
+					<button
+						type="submit"
+						class="w-full bg-pinkDark hover:bg-pinkDarker text-white font-semibold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-pinkOrange"
+					>
 						Sign In
 					</button>
 				</div>
@@ -68,12 +87,37 @@ export default {
 						encryptData({
 							id: response.data.data.id,
 							email: response.data.data.email,
-							company_id: response.data.data.company_id,
-							store_id: response.data.data.store_id,
+							company_id: response.data.data.company_id
+								? response.data.data.company_id
+								: null,
+							store_id: response.data.data.store_id
+								? response.data.data.store_id
+								: null,
 							is_owner: response.data.data.is_owner,
 						}),
 						{ expires: 5 / 24 }
 					) // 5 hours
+
+					if (
+						response.data.company_id === null ||
+						response.data.store_id === null
+					) {
+						store.dispatch('triggerAlert', {
+							type: 'warning',
+							title: 'Warning!',
+							message: 'You have not created a company yet.',
+						})
+						if (response.data.is_owner) {
+							router.push('/onboarding/company')
+							return
+						} else {
+							router.push('/onboarding/employee')
+							return
+						}
+					} else {
+						router.push('/home')
+						return
+					}
 
 					// await fetch permissions
 					await authStore.fetchPermissions()
@@ -89,7 +133,6 @@ export default {
 							},
 						],
 					})
-
 					router.push('/home')
 				}
 			} catch (error) {

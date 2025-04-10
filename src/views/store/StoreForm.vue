@@ -421,8 +421,6 @@ const form = ref({
 	is_flex_price: false,
 	is_float_price: false,
 	tax_percentage: 0,
-	defect_nominal: 0,
-	defect_percentage: 0,
 	tax_purchase: 0,
 	grace_period: 0,
 	fixed_tt_adjustment: 0,
@@ -448,8 +446,6 @@ const formError = ref({
 	is_flex_price: '',
 	is_float_price: '',
 	tax_percentage: '',
-	defect_nominal: '',
-	defect_percentage: '',
 	tax_purchase: '',
 	grace_period: '',
 	fixed_tt_adjustment: '',
@@ -498,7 +494,7 @@ onMounted(async () => {
 			},
 		})
 		if (response.data) {
-			const ownedCompanies = response.data.data
+			const ownedCompanies = response.data.data.data
 			companies.value = ownedCompanies.map((company) => ({
 				id: company.id,
 				label: company.name,
@@ -605,8 +601,6 @@ const excludedKeys = [
 	'is_active',
 	'is_flex_price',
 	'is_float_price',
-	'defect_nominal',
-	'defect_percentage',
 	'tax_purchase',
 	'tax_percentage',
 	'grace_period',
@@ -705,6 +699,10 @@ const submit = async () => {
 		if (Array.isArray(form.value.company_id)) {
 			form.value.company_id = form.value.company_id[0]
 		}
+		form.value.fixed_kbl_adjustment= Number(form.value.fixed_kbl_adjustment);
+		form.value.fixed_tt_adjustment= Number(form.value.fixed_tt_adjustment);
+		form.value.defect_nominal= Number(form.value.defect_nominal);
+		form.value.defect_percentage= Number(form.value.defect_percentage);
 
 		const response = await axiosInstance[method](endpoint, form.value)
 

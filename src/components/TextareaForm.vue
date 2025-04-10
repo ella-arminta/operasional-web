@@ -1,5 +1,5 @@
 <template>
-	<div class="space-y-1">
+	<div class="space-y-1 w-full">
 		<!-- Label -->
 		<label :for="id" class="block text-sm text-gray-900 font-medium">
 			{{ label }} <span v-if="required" class="text-pinkDark">*</span>

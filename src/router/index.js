@@ -7,6 +7,7 @@ import Cookies from 'js-cookie'
 import { decryptData } from '../utils/crypto'
 import { useAuthStore } from '../vuex/auth'
 import store from '../vuex/alert'
+import OnboardingLayout from '../layouts/onboardingLayout.vue'
 
 const router = createRouter({
 	history: createWebHistory(),
@@ -30,8 +31,22 @@ const router = createRouter({
 			],
 		},
 		{
-			path: '/about',
-			component: () => import('../views/About.vue'),
+			path: '/onboarding',
+			component: OnboardingLayout,
+			children: [
+				{
+					path: 'company',
+					component: () => import('../views/onboarding/company.vue'),
+				},
+				{
+					path: 'store',
+					component: () => import('../views/onboarding/store.vue'),
+				},
+				{
+					path: 'employee',
+					component: () => import('../views/onboarding/employee.vue'),
+				},
+			],
 		},
 		{
 			path: '/',
@@ -456,6 +471,34 @@ const router = createRouter({
 const loa = ['add', 'edit', 'delete', 'detail', 'approve', 'disapprove']
 
 router.beforeEach(async (to, from, next) => {
+	const userdata = await decryptData(Cookies.get('userdata'))
+	// For Onboarding State Owner
+	if (
+		!['/', '/onboarding/company', '/logout'].includes(to.path) &&
+		userdata.company_id == null &&
+		userdata.is_owner
+	) {
+		next('/onboarding/company')
+		return
+	}
+
+	// For Onboarding State Employee wait to be assigned
+	if (
+		!['/', '/onboarding/employee', '/logout'].includes(to.path) &&
+		userdata.company_id == null &&
+		userdata.store_id == null &&
+		!userdata.is_owner
+	) {
+		next('/onboarding/employee')
+		return
+	}
+
+	if (to.path === '/') {
+		// If navigating to login, allow directly
+		next()
+		return
+	}
+
 	if (to.path === '/faq') {
 		next()
 		return

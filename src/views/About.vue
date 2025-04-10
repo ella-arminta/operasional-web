@@ -1,15 +1,5 @@
 <template>
-	<!-- Example of QR Scanner -->
-	<div>
-		<button @click="scanning = true">Scan QR Code</button>
-
-		<!-- QR Scanner Component -->
-		<QrScanner
-			:show="scanning"
-			@close="scanning = false"
-			@scanned="handleScan"
-		/>
-	</div>
+	<div className></div>
 </template>
 
 <script setup lang="ts">
