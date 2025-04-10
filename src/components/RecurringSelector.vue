@@ -1,6 +1,6 @@
 <template>
   <div>
-    <button @click="showModal()" type="button" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+    <button @click="showModal()" type="button" class="px-4 py-2 bg-pinkDark text-white rounded-md hover:bg-pinkOrange">
       {{ buttonText }}
     </button>
 
@@ -10,7 +10,7 @@
 </template>
 
 <script setup>
-import { readonly, ref, watch } from 'vue';
+import { onMounted, readonly, ref, watch } from 'vue';
 import { useStore } from 'vuex'
 
 const store = useStore()
@@ -22,7 +22,11 @@ const localRecurring = ref({ ...props.modelValue })
 watch(() => props.modelValue, (newVal) => { // Watch for parent changes and sync
   console.log('[Child] modelValue updated from parent:', newVal)
   localRecurring.value = { ...newVal }
+  buttonText.value = getSummary(localRecurring.value);
 }, { deep: true })
+defineExpose({
+  validate: validateData
+})
 
 
 // const emit = defineEmits(['update']);
@@ -37,8 +41,9 @@ const months = [
 const buttonText = ref('Set Recurrence');
 
 function save() {
-  validateData()
-
+  if (!validateData()) return
+  
+  resetRecurringData()
   const result = {
     recurringType: localRecurring.value.recurringType,
     interval: localRecurring.value.interval,
@@ -48,6 +53,8 @@ function save() {
     dayOfMonth: localRecurring.value.dayOfMonth,
     monthOfYear: localRecurring.value.monthOfYear,
     dayOfYear: localRecurring.value.dayOfYear,
+    dayOfMonthCustom: localRecurring.value.dayOfMonthCustom,
+    dayOfYearCustom: localRecurring.value.dayOfYearCustom,
   }
 
   buttonText.value = getSummary(result)
@@ -85,10 +92,14 @@ function getSummary(data) {
       summary = `Every ${data.interval} week(s) on ${days}`
       break
     case 'MONTH':
-      summary = `Every ${data.interval} month(s) on day ${data.dayOfMonth}`
+      const dayOfMonth = data.dayOfMonthCustom == -1 ? ' last day ' : (data.dayOfMonthCustom == 1 ? ' first day ' :' on day ' + data.dayOfMonth)
+      summary = `Every ${data.interval} month(s) ${dayOfMonth}`
       break
     case 'YEAR':
-      summary = `Every year on ${months[data.monthOfYear - 1]} ${data.dayOfYear}`
+      const dayOfYear = data.dayOfYearCustom == -1 ? ' last day ' : (data.dayOfYearCustom == 1 ? ' first day ' :' on day ' + data.dayOfYear)
+      const interval = data.interval == 1 ? 'Every year' : `Every ${data.interval} year(s)`
+      const monthLabel = data.monthOfYear.map(i => months[i]).join(', ')
+      summary = `${interval} on ${monthLabel} ${dayOfYear}`
       break
     default:
       summary = 'Set Recurrence'
@@ -104,8 +115,17 @@ function validateData() {
   if (!localRecurring.value.startDate) {
     store.dispatch('triggerAlert', {
       type: 'warning',
-      title: 'Warning!',
-      message: 'Please set start date.',
+      title: 'Warning Recurring!',
+      message: 'Please set start date when "Set Recurrence" / "Recurring Period".',
+    })
+    return false
+  }
+  console.log('local recuring type',localRecurring.value.recurringType);
+  if (!localRecurring.value.recurringType || !Array.isArray(localRecurring.value.recurringType) || localRecurring.value.recurringType.length == 0) {
+    store.dispatch('triggerAlert', {
+      type: 'warning',
+      title: 'Warning Recurring!',
+      message: 'Please select a recurrence type.',
     })
     return false
   }
@@ -113,70 +133,75 @@ function validateData() {
   if (localRecurring.value.endDate && localRecurring.value.startDate > localRecurring.value.endDate) {
     store.dispatch('triggerAlert', {
       type: 'warning',
-      title: 'Warning!',
+      title: 'Warning Recurring!',
       message: 'Start date cannot be later than end date.',
     })
     return false
   }
 
-  if (localRecurring.value.recurringType === 'DAY' && (!localRecurring.value.interval || localRecurring.value.interval < 1)) {
+  if (localRecurring.value.recurringType == 'DAY' && (!localRecurring.value.interval || localRecurring.value.interval < 1)) {
     store.dispatch('triggerAlert', {
       type: 'warning',
-      title: 'Warning!',
+      title: 'Warning Recurring!',
       message: 'Please enter a valid interval for daily recurrence.',
     })
     return false
   }
 
-  if (localRecurring.value.recurringType === 'WEEK' && (!localRecurring.value.interval || localRecurring.value.interval < 1)) {
+  if (localRecurring.value.recurringType == 'WEEK' && (!localRecurring.value.interval || localRecurring.value.interval < 1)) {
     store.dispatch('triggerAlert', {
       type: 'warning',
-      title: 'Warning!',
+      title: 'Warning Recurring!',
       message: 'Please enter a valid interval for weekly recurrence.',
     })
     return false
   }
 
-  if (localRecurring.value.recurringType === 'WEEK' && (!Array.isArray(localRecurring.value.daysOfWeek) || localRecurring.value.daysOfWeek.length === 0)) {
+  if (localRecurring.value.recurringType == 'WEEK' && (!Array.isArray(localRecurring.value.daysOfWeek) || localRecurring.value.daysOfWeek.length == 0)) {
     store.dispatch('triggerAlert', {
       type: 'warning',
-      title: 'Warning!',
+      title: 'Warning Recurring!',
       message: 'Please select at least one day of the week.',
     })
     return false
   }
 
-  if (localRecurring.value.recurringType === 'MONTH' && (!localRecurring.value.interval || localRecurring.value.interval < 1)) {
+  if (localRecurring.value.recurringType == 'MONTH' && (!localRecurring.value.interval || localRecurring.value.interval < 1)) {
     store.dispatch('triggerAlert', {
       type: 'warning',
-      title: 'Warning!',
+      title: 'Warning Recurring!',
       message: 'Please enter a valid interval for monthly recurrence.',
     })
     return false
   }
 
-  if (localRecurring.value.recurringType === 'MONTH' && (!localRecurring.value.dayOfMonth || localRecurring.value.dayOfMonth < 1 || localRecurring.value.dayOfMonth > 31)) {
+  // console.log('recurringType', localRecurring.value.recurringType);
+  console.log('dayOfMonth',typeof localRecurring.value.dayOfMonth, localRecurring.value.dayOfMonth == '');
+  console.log('perifan', localRecurring.value.recurringType == 'MONTH' && (!localRecurring.value.dayOfMonth || localRecurring.value.dayOfMonth == '' || localRecurring.value.dayOfMonth == null || localRecurring.value.dayOfMonth < -1 || localRecurring.value.dayOfMonth > 31));
+  localRecurring.value.dayOfMonth = localRecurring.value.dayOfMonthCustom == 'custom' ? localRecurring.value.dayOfMonth : (localRecurring.value.dayOfMonthCustom)
+  if (localRecurring.value.recurringType == 'MONTH' && (!localRecurring.value.dayOfMonth || localRecurring.value.dayOfMonth == '' || localRecurring.value.dayOfMonth == null || localRecurring.value.dayOfMonth < -1 || localRecurring.value.dayOfMonth > 31 || localRecurring.value.dayOfMonth == 'custom')) {
     store.dispatch('triggerAlert', {
       type: 'warning',
-      title: 'Warning!',
+      title: 'Warning Recurring!',
       message: 'Please enter a valid day of the month (1-31).',
     })
     return false
   }
 
-  if (localRecurring.value.recurringType === 'YEAR' && (!localRecurring.value.monthOfYear || localRecurring.value.monthOfYear < 1 || localRecurring.value.monthOfYear > 12)) {
+  if (localRecurring.value.recurringType == 'YEAR' && (!Array.isArray(localRecurring.value.monthOfYear) || localRecurring.value.monthOfYear.length == 0)) {
     store.dispatch('triggerAlert', {
       type: 'warning',
-      title: 'Warning!',
+      title: 'Warning Recurring!',
       message: 'Please select a valid month for yearly recurrence.',
     })
     return false
   }
 
-  if (localRecurring.value.recurringType === 'YEAR' && (!localRecurring.value.dayOfMonth || localRecurring.value.dayOfMonth < 1 || localRecurring.value.dayOfMonth > 31)) {
+  localRecurring.value.dayOfYear = localRecurring.value.dayOfYearCustom == 'custom' ? localRecurring.value.dayOfYear : (localRecurring.value.dayOfYearCustom)
+  if (localRecurring.value.recurringType == 'YEAR' && (!localRecurring.value.dayOfYear || localRecurring.value.dayOfYear == '' || localRecurring.value.dayOfYear == null || localRecurring.value.dayOfYear < -1 || localRecurring.value.dayOfYear > 31 || localRecurring.value.dayOfYear == 'custom')) {
     store.dispatch('triggerAlert', {
       type: 'warning',
-      title: 'Warning!',
+      title: 'Warning Recurring!',
       message: 'Please enter a valid day of the month (1-31) for yearly recurrence.',
     })
     return false
@@ -190,12 +215,13 @@ function showModal() {
     type: 'info',
     title: 'Set Recurrence Schedule',
     inputs: [
-      { label: 'Start Date', model: 'startDate', type: 'date', selectedModel: localRecurring.value.startDate },
+      { label: 'Start Date', model: 'startDate', type: 'date', selectedModel: localRecurring.value.startDate, required: true },
       { label: 'End Date', model: 'endDate', type: 'date', selectedModel: localRecurring.value.endDate },
       {
         label: 'Recurrence Type',
         model: 'recurringType',
         type: 'select',
+        required: true,
         options: [
           { value: 'DAY', text: 'Daily' },
           { value: 'WEEK', text: 'Weekly' },
@@ -212,6 +238,7 @@ function showModal() {
         condition: (data) => data.recurringType.includes('DAY'),
         watchModel: ['recurringType'],
         selectedModel: localRecurring.value.interval,
+        required: true,
       },
       // Weekly
       {
@@ -220,6 +247,15 @@ function showModal() {
         type: 'number',
         condition: (data) => data.recurringType.includes('WEEK'),
         selectedModel: localRecurring.value.interval,
+        required: true,
+      },
+      {
+        label: 'Repeat every X years',
+        model: 'interval',
+        type: 'number',
+        condition: (data) => data.recurringType.includes('YEAR'),
+        selectedModel: localRecurring.value.interval,
+        required: true,
       },
       {
         label: 'Select Days',
@@ -237,6 +273,7 @@ function showModal() {
         ],
         condition: (data) => data.recurringType.includes('WEEK'),
         selectedModel: localRecurring.value.daysOfWeek,
+        required: true,
       },
       // Monthly
       {
@@ -245,43 +282,73 @@ function showModal() {
         type: 'number',
         condition: (data) => data.recurringType.includes('MONTH'),
         selectedModel: localRecurring.value.interval,
+        required: true,
+      },
+      {
+        label: 'On day of the month',
+        model: 'dayOfMonthCustom',
+        type: 'select',
+        options: [
+          { value: -1, text: 'Last day of month' },
+          { value: 1, text: 'First day of month' },
+          { value: 'custom', text: 'Custom' },
+        ],
+        condition: (data) => data.recurringType.includes('MONTH'),
+        selectedModel: localRecurring.value.dayOfMonthCustom,
+        required: true,
       },
       {
         label: 'On day of the month',
         model: 'dayOfMonth',
         type: 'number',
-        condition: (data) => data.recurringType.includes('MONTH'),
+        condition: (data) => data.recurringType.includes('MONTH') && data.dayOfMonthCustom == 'custom',
         selectedModel: localRecurring.value.dayOfMonth,
+        required: true,
       },
       // Yearly
       {
         label: 'Month of the year',
         model: 'monthOfYear',
         type: 'select',
+        multiple: true,
         options: [
-          { value: '', text: 'Select Month' },
-          { value: 1, text: 'January' },
-          { value: 2, text: 'February' },
-          { value: 3, text: 'March' },
-          { value: 4, text: 'April' },
-          { value: 5, text: 'May' },
-          { value: 6, text: 'June' },
-          { value: 7, text: 'July' },
-          { value: 8, text: 'August' },
-          { value: 9, text: 'September' },
-          { value: 10, text: 'October' },
-          { value: 11, text: 'November' },
-          { value: 12, text: 'December' },
+          { value: 0, text: 'January' },
+          { value: 1, text: 'February' },
+          { value: 2, text: 'March' },
+          { value: 3, text: 'April' },
+          { value: 4, text: 'May' },
+          { value: 5, text: 'June' },
+          { value: 6, text: 'July' },
+          { value: 7, text: 'August' },
+          { value: 8, text: 'September' },
+          { value: 9, text: 'October' },
+          { value: 10, text: 'November' },
+          { value: 11, text: 'December' },
         ],
         condition: (data) => data.recurringType.includes('YEAR'),
         selectedModel: localRecurring.value.monthOfYear,
+        required: true,
+      },
+      {
+        label: 'Day of the month',
+        model: 'dayOfYearCustom',
+        type: 'select',
+        options: [
+          { value: -1, text: 'Last day of month' },
+          { value: 1, text: 'First day of month' },
+          { value: 'custom', text: 'Custom' },
+        ],
+        condition: (data) => data.recurringType.includes('YEAR'),
+        selectedModel: localRecurring.value.dayOfYearCustom,
+        required: true,
       },
       {
         label: 'Day of the month',
         model: 'dayOfYear',
         type: 'number',
-        condition: (data) => data.recurringType.includes('YEAR'),
+        condition: (data) => data.recurringType.includes('YEAR') && data.dayOfYearCustom == 'custom',
         selectedModel: localRecurring.value.dayOfYear,
+        required: true,
       },
     ],
     actions: [
@@ -301,5 +368,25 @@ function showModal() {
       },
     ],
   })
+}
+
+function resetRecurringData() {
+  if (localRecurring.value.recurringType == 'DAY') {
+    localRecurring.value.daysOfWeek = []
+    localRecurring.value.dayOfMonth = null
+    localRecurring.value.monthOfYear = []
+    localRecurring.value.dayOfYear = null
+  } else if (localRecurring.value.recurringType == 'WEEK') {
+    localRecurring.value.dayOfMonth = null
+    localRecurring.value.monthOfYear = []
+    localRecurring.value.dayOfYear = null
+  } else if (localRecurring.value.recurringType == 'MONTH') {
+    localRecurring.value.daysOfWeek = []
+    localRecurring.value.monthOfYear = []
+    localRecurring.value.dayOfYear = null
+  } else if (localRecurring.value.recurringType == 'YEAR') {
+    localRecurring.value.daysOfWeek = []
+    localRecurring.value.dayOfMonth = null
+  }
 }
 </script>

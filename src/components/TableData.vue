@@ -427,6 +427,7 @@ const reloadData = () => {
 watch(
 	filterValues,
 	() => {
+		console.log('filterValues', JSON.stringify(filterValues.value))
 		if (dt) dt.ajax.reload(null, false) // Reload DataTable on filter change
 	},
 	{ deep: true }
@@ -625,8 +626,14 @@ const ajaxOptions = computed(() => ({
 	data: (d) => {
 		for (const key in filterValues.value) {
 			if (
-				filterValues.value[key] !== '' &&
-				filterValues.value[key] !== undefined
+				filterValues.value[key] != '' &&
+				filterValues.value[key] != undefined &&
+				filterValues.value[key] != null && 
+				(Array.isArray(filterValues.value[key]) ? 
+					(filterValues.value[key].length > 0 ? 
+						(filterValues.value[key][0] != null && filterValues.value[key][0] != undefined && filterValues.value[key][0] != '')
+					: false) 
+				: true) 
 			) {
 				if (filterValues.value[key].length <= 1) {
 					d[key] = filterValues.value[key][0]

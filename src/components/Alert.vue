@@ -95,7 +95,6 @@ const iconClass = computed(() => {
 
 watch(alert, async (newAlert) => {
 	inputData.value = newAlert.inputs?.reduce((acc, input) => {
-		console.log('selectedModel:', input.selectedModel);
 		if (input.selectedModel) {
 			acc[input.model] = input.selectedModel;
 		} else {

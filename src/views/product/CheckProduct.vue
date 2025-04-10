@@ -1,6 +1,6 @@
 <template>
 	<div class="content min-h-screen" :class="{ 'full-width': smallMenu }">
-		<PageTitle />
+		<PageTitle :title="'Check Product'" />
 		<div class="w-full bg-white h-auto rounded-lg shadow-sm py-3 px-4 mb-4">
 			<FormSectionHeader
 				title="Check Product"
@@ -158,6 +158,22 @@
 						</div>
 					</div>
 				</div>
+				<FormSectionHeader
+					title="Mutation Information"
+					icon="info"
+					color="pinkDark"
+					accentColor="pinkOrange"
+				/>
+				<TableData 
+					:v-if="itemSelected != ''"
+					:columns="columns"
+					:export="false"
+					:reload="true"
+					:ajaxPath="ajaxPath"
+					:options="{
+						scrollX: true,
+					}"
+				/>
 			</template>
 			<template v-else>
 				<div
@@ -193,6 +209,8 @@ import FormSectionHeader from '../../components/FormSectionHeader.vue'
 import InputForm from '../../components/InputForm.vue'
 import QrScanner from '../../components/QrScanner.vue'
 import axiosInstance from '../../axios'
+import { Title } from 'chart.js'
+import { formatIDR } from '../../utils/common'
 const router = useRouter()
 const store = useStore()
 const authStore = useAuthStore()
@@ -232,6 +250,7 @@ const handleInsert = async () => {
 		const response = await axiosInstance.get(
 			`/inventory/check-product/${itemSelected.value}`
 		)
+		ajaxPath.value = '/finance/stock-card' + '?product_code_code=' + itemSelected.value
 		if (response.data.success) {
 			store.dispatch('triggerAlert', {
 				type: 'success',
@@ -265,4 +284,31 @@ const formatDate = (date) => {
 		day: '2-digit',
 	}).format(new Date(date))
 }
+
+const ajaxPath = ref('/finance/stock-card' + '?product_code_code=', itemSelected.value);
+const columns = [
+    { 
+        data: 'date', 
+        title: 'Date', 
+        render: (data) => {
+            const date = new Date(data);
+            return date.toLocaleDateString('id-ID') + ' ' + 
+                   date.toLocaleTimeString('id-ID', { hour12: false });
+        } 
+    },
+    { data: 'code', title: 'Code' },
+    { data: 'name', title: 'Name' },
+    { data: 'description', title: 'Description', render: (data,type,row) => {
+      if (row.trans_code != null && row.trans_code != '') {
+        return data + ' ' + row.trans_code;
+      } else {
+        return data;
+      }
+    } },
+    { data: 'in', title: 'In', className: 'text-end', render: (data) => String(data) },
+    { data: 'out', title: 'Out', className: 'text-end', render: (data) => String(data) },
+    { data: 'weight_in', title: 'In (gr)', render: (data) => data + ' gr', className: 'text-end' },
+    { data: 'weight_out', title: 'Out (gr)', render: (data) => data + ' gr', className: 'text-end' },
+	{ data: 'price', title: 'Buy price / Sold price', render: (data) =>'Rp. ' +  formatIDR(data), className: 'text-end' }
+];
 </script>

@@ -18,15 +18,6 @@
 				</h1>
 				<div class="flex gap-4">
 					<button
-						v-if="mode === 'edit' && hasUnsavedChanges"
-						class="flex items-center bg-pinkMed text-white px-4 py-2 rounded-lg gap-1 align-center hover:bg-pinkDark transition duration-300"
-						type="button"
-						@click="resetForm"
-					>
-						<i class="material-icons text-md">history</i>
-						Reset
-					</button>
-					<button
 						v-if="mode !== 'detail'"
 						class="flex items-center bg-pinkMed text-white px-4 py-2 rounded-lg gap-1 align-center hover:bg-pinkDark transition duration-300"
 						:class="{
@@ -89,6 +80,9 @@
 							{{ formError.account_cash_id }}
 						</p>
 					</div>
+				</div>
+				<!-- Second Grid -->
+				<div class="space-y-2">
 					<!-- Recurring Period -->
 					<div>
 						<label
@@ -97,57 +91,11 @@
 						>
 							Recurring Period<span class="text-pinkDark">*</span>
 						</label>
-						<Dropdown
-							v-if="form.recurring"
-							:items="recurringPeriod"
-							v-model="form.recurring_period_code"
-							placeholder="Select Recurring Period"
-							:multiple="false"
-							:searchable="false"
-							:disabled="mode === 'detail'"
+						<RecurringSelector
+							v-model="formRecurring"
+							ref="recurringFormRef"
 						/>
-						<p
-							v-if="formError.recurring_period_code"
-							class="text-pinkDark text-xs italic transition duration-300"
-						>
-							{{ formError.recurring_period_code }}
-						</p>
 					</div>
-				</div>
-				<!-- Second Grid -->
-				<div class="space-y-2">
-					<!-- Dropdown STORE -->
-					<div>
-						<label
-							for="dropdown"
-							class="block text-sm text-grey-900 font-medium mb-1"
-						>
-							Store<span class="text-pinkDark">*</span>
-						</label>
-						<Dropdown
-							:items="stores"
-							v-model="form.store_id"
-							placeholder="Select a store"
-							:multiple="false"
-							:searchable="true"
-							:disabled="mode === 'detail'"
-						/>
-						<p
-							v-if="formError.store_id"
-							class="text-pinkDark text-xs italic transition duration-300"
-						>
-							{{ formError.store_id }}
-						</p>
-					</div>
-					<!-- Open Date (DatePicker) -->
-					<InputForm
-						v-model="formattedDate"
-						id="trans_start_date"
-						type="date"
-						label="Start Date"
-						placeholder="Date"
-						:error="formError.trans_start_date"
-					/>
 				</div>
 			</div>
 			<div class="mt-8">
@@ -200,6 +148,8 @@ import FormSectionHeader from '../../components/FormSectionHeader.vue'
 import EdiTable from '../../components/EdiTable.vue'
 import TextareaForm from '../../components/TextareaForm.vue'
 import CheckboxForm from '../../components/form/CheckboxForm.vue'
+import RecurringSelector from '../../components/RecurringSelector.vue'
+
 const smallMenu = computed(() => store.getters.smallMenu)
 const props = defineProps({
 	mode: { type: String, required: true },
@@ -208,7 +158,6 @@ const props = defineProps({
 })
 // Dropdown Items
 const accounts = ref([])
-const stores = ref([])
 const types = ref([
 	{
 		label: 'Expense',
@@ -242,11 +191,9 @@ const form = ref({
 	account_cash_id: '',
 	total: 0,
 	description: '',
-	trans_start_date: '',
 	accounts: [],
 	trans_type_id: '',
 	recurring: true,
-	recurring_period_code: '',
 	store_id: '',
 })
 const formCopy = ref({ ...form.value })
@@ -255,14 +202,25 @@ const formError = ref({
 	account_cash_id: '',
 	total: '',
 	description: '',
-	trans_start_date: '',
 	accounts: '',
 	recurring: '',
-	recurring_period_code: '',
 	trans_type_id: '',
 	store_id: '',
 })
-const recurringPeriod = ref({})
+const formRecurring = ref({
+	recurringType: '',
+	interval: 1,
+	daysOfWeek: [],
+	dayOfMonth: null,
+	dayOfMonthCustom: null,
+	monthOfYear: null,
+	dayOfYear: null,
+	dayOfYearCustom: null,
+	startDate: null,
+	endDate: null,
+})
+const formRecurringCopy = ref({ ...formRecurring.value })
+const recurringFormRef = ref()
 
 const router = useRouter()
 const store = useStore()
@@ -294,13 +252,6 @@ onMounted(async () => {
 		items: accAll,
 		required: true,
 	})
-	// GET ALL STORES
-	var storeData = await axiosInstance.get('/master/store')
-	var storesFormated = storeData.data.data.map((store) => ({
-		label: store.name,
-		id: store.id,
-	}))
-	stores.value = storesFormated
 
 	// MOUNT UPDATED DATA
 	if (props.mode != 'add' && id) {
@@ -324,13 +275,6 @@ onMounted(async () => {
 	} else {
 		form.value.account_cash_id = [form.value.account_cash_id]
 	}
-
-	// GET ALL RECURRING PERIOD
-	var recper = await axiosInstance.get('/finance/recurring-period')
-	recurringPeriod.value = recper.data.data.map((rec) => ({
-		label: rec.name,
-		id: rec.code,
-	}))
 })
 
 const mountUpdatedData = async () => {
@@ -339,7 +283,6 @@ const mountUpdatedData = async () => {
 	console.log('mount data', JSON.stringify(data))
 	form.value.total = Math.abs(data.total)
 	form.value.description = data.description
-	form.value.trans_start_date = formatDate(data.trans_start_date)
 	var tempaccounts = []
 	data.trans_details_recurring.forEach((details) => {
 		if (details.kas && details.kas == true) {
@@ -352,12 +295,23 @@ const mountUpdatedData = async () => {
 			})
 		}
 	})
-	form.value.recurring_period_code = [data.recurring_period_code]
 	form.value.trans_type_id = [data.trans_type_id]
 	form.value.accounts = tempaccounts
 	form.value.store_id = [data.store_id]
 	formCopy.value.accounts = tempaccounts
 	formCopy.value = { ...form.value }
+	formRecurring.value = {
+		recurringType:[data.recurringType],
+		interval: data.interval,
+		daysOfWeek: data.daysOfWeek,
+		dayOfMonth: data.dayOfMonth,
+		dayOfMonthCustom: data.dayOfMonth != 1 && data.dayOfMonth != -1 ? ['custom'] : [data.dayOfMonth],
+		monthOfYear:data.monthOfYear,
+		dayOfYear: data.dayOfYear,
+		dayOfYearCustom: data.dayOfYear != 1 && data.dayOfYear != -1 ? ['custom'] : [data.dayOfYear],
+		startDate: formatDate(data.startDate),
+		endDate: formatDate(data.endDate),
+	}
 }
 
 const formatDate = (date) => {
@@ -366,53 +320,25 @@ const formatDate = (date) => {
 	return new Date(date).toISOString().split('T')[0] // Extract only the date part
 }
 
-const formattedDate = computed({
-	get: () => formatDate(form.value.trans_start_date),
-	set: (newValue) => {
-		form.value.trans_start_date = newValue
-	},
-})
-
 const resetError = () => {
 	Object.keys(formError.value).forEach((key) => {
 		formError.value[key] = ''
 	})
 }
 
-const resetForm = async () => {
-	const response = await axiosInstance.get(`/finance/transaction/${id}`)
-	const data = response.data.data
-	form.value.total = Math.abs(data.total)
-	form.value.description = data.description
-	form.value.trans_start_date = formatDate(data.trans_start_date)
-	var tempaccounts = []
-	data.trans_details.forEach((details) => {
-		if (details.kas && details.kas == true) {
-			form.value.account_cash_id = [details.account_id]
-		} else {
-			tempaccounts.push({
-				account_id: [details.account_id],
-				amount: details.amount,
-				description: details.description,
-			})
-		}
-	})
-	console.log('tempaccounts', JSON.stringify(tempaccounts))
-	form.value.accounts = tempaccounts
-	formCopy.value.accounts = tempaccounts
-	formCopy.value = { ...form.value }
-}
-
 const hasUnsavedChanges = computed(() => {
 	return Object.keys(form.value).some(
 		(key) => form.value[key] !== formCopy.value[key]
+	) || Object.keys(formRecurring.value).some(
+		(key) => formRecurring.value[key] != formRecurringCopy.value[key]
 	)
 })
 
 const submit = async () => {
 	resetError()
-	if (props.mode === 'detail') return
-	if (!hasUnsavedChanges.value && props.mode === 'edit') return
+	if (props.mode === 'detail') return;
+	if (!hasUnsavedChanges.value && props.mode === 'edit') return;
+	if(!recurringFormRef.value.validate()) return;
 	try {
 		const endpoint =
 			props.mode === 'edit'
@@ -420,23 +346,30 @@ const submit = async () => {
 				: '/finance/recurring'
 		const method = props.mode === 'edit' ? 'put' : 'post'
 
+		// Preprocess form data
 		form.value.accounts = form.value.accounts.map((account) => {
 			account.account_id = account.account_id
 				? account.account_id[0]
 				: null
 			return account
 		})
-		if (form.value.recurring_period_code != '') {
-			form.value.recurring_period_code =
-				form.value.recurring_period_code[0]
-		}
 		if (form.value.store_id != '') {
 			form.value.store_id = form.value.store_id[0]
 		}
 		if (form.value.trans_type_id != '') {
 			form.value.trans_type_id = form.value.trans_type_id[0]
 		}
-		const response = await axiosInstance[method](endpoint, form.value)
+		// Preprocess form recurring
+		formRecurring.value.recurringType = formRecurring.value.recurringType[0]
+		formRecurring.value.dayOfMonth = formRecurring.value.dayOfMonthCustom == 'custom' ? formRecurring.value.dayOfMonth :
+			( formRecurring.value.dayOfMonthCustom.length > 0 ? formRecurring.value.dayOfMonthCustom[0] : null )
+		formRecurring.value.dayOfYear = formRecurring.value.dayOfYearCustom == 'custom' ? formRecurring.value.dayOfYear :
+			( formRecurring.value.dayOfYearCustom.length > 0 ? formRecurring.value.dayOfYearCustom[0] : null )
+			
+		const response = await axiosInstance[method](endpoint, {
+			...form.value,
+			...formRecurring.value,
+		})
 		console.log('submit response', response)
 		if (response.data.success) {
 			const action = props.mode === 'edit' ? 'Updated' : 'Created'
@@ -470,8 +403,8 @@ const submit = async () => {
 			return account
 		})
 		form.value.store_id = [form.value.store_id]
-		form.value.recurring_period_code = [form.value.recurring_period_code]
 		form.value.trans_type_id = [form.value.trans_type_id]
+		formRecurring.value.recurringType = [formRecurring.value.recurringType]
 		if (
 			error.response &&
 			error.response.data.statusCode.toString().startsWith('4')
