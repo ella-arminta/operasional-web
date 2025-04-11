@@ -167,8 +167,8 @@ const fetchEmployees = async () => {
 	})
 
 	if (response.data.success) {
-		employees.value = response.data.data
-		copyEmployees.value = response.data.data
+		employees.value = response.data.data.data
+		copyEmployees.value = response.data.data.data
 	}
 }
 const sortEmployee = () => {

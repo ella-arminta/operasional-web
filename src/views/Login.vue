@@ -115,25 +115,22 @@ export default {
 							return
 						}
 					} else {
+						// await fetch permissions
+						await authStore.fetchPermissions()
+						store.dispatch('triggerAlert', {
+							type: 'success',
+							title: 'Berhasil!',
+							message: 'Anda berhasil login.',
+							actions: [
+								{
+									label: 'close',
+									type: 'secondary',
+									handler: () => store.dispatch('hideAlert'),
+								},
+							],
+						})
 						router.push('/home')
-						return
 					}
-
-					// await fetch permissions
-					await authStore.fetchPermissions()
-					store.dispatch('triggerAlert', {
-						type: 'success',
-						title: 'Berhasil!',
-						message: 'Anda berhasil login.',
-						actions: [
-							{
-								label: 'close',
-								type: 'secondary',
-								handler: () => store.dispatch('hideAlert'),
-							},
-						],
-					})
-					router.push('/home')
 				}
 			} catch (error) {
 				alert('Login failed', error)
