@@ -135,7 +135,7 @@
 							>
 								<td
 									class="px-4 py-2 text-center border-r border-opacity-50"
-									colspan="5"
+									colspan="7"
 								>
 									<input
 										type="checkbox"
@@ -272,7 +272,7 @@ const fetchCompany = async () => {
 			},
 		})
 		if (response.data) {
-			const ownedCompanies = response.data.data
+			const ownedCompanies = response.data.data.data
 			companies.value = ownedCompanies.map((company) => ({
 				id: company.id,
 				label: company.name,
@@ -312,7 +312,7 @@ const fetchStores = async (company_id: string) => {
 			},
 		})
 		if (response.data) {
-			const ownedStores = response.data.data
+			const ownedStores = response.data.data.data
 			stores.value = ownedStores.map((store) => ({
 				id: store.id,
 				label: store.name,
@@ -349,6 +349,8 @@ const header = [
 	{ label: 'Add', key: 'add' },
 	{ label: 'Edit', key: 'edit' },
 	{ label: 'Delete', key: 'delete' },
+	{ label: 'Approve', key: 'approve' },
+	{ label: 'Disapprove', key: 'disapprove' },
 ]
 const fetchFeatures = async () => {
 	try {
