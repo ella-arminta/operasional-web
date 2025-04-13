@@ -35,7 +35,7 @@ const filters = ref([])
 
 onMounted(async () => {
 	const companyData = await axiosInstance.get('/master/company')
-	var companyOptions = companyData.data.data.map((company) => {
+	var companyOptions = companyData.data.data.data.map((company) => {
 		return { label: company.name, id: company.id }
 	})
     const userdata = decryptData(Cookies.get('userdata'))
@@ -43,7 +43,7 @@ onMounted(async () => {
 	const selectedStore = userdata.store_id;
 
 	const storeData = await axiosInstance.get('/master/store')
-	var storeOptions = storeData.data.data.map((store) => {
+	var storeOptions = storeData.data.data.data.map((store) => {
 		return { label: store.name, id: store.id }
 	})
 
@@ -113,7 +113,7 @@ const refetchData = async (type, data) => {
   const fullUrl = queryParams.toString() ? `${url}?${queryParams.toString()}` : url;
   const response = await axiosInstance.get(fullUrl);
 
-  const formattedData = response.data.data.map(item => ({
+  const formattedData = response.data.data.data.map(item => ({
     label: item.name,
     id: item.id,
   }));

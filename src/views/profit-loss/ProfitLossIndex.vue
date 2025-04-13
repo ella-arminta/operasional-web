@@ -145,7 +145,7 @@ const isPdfLoading = ref(false);
 
 onMounted(async () => {
     const companyData = await axiosInstance.get('/master/company');
-    const companyFormated = companyData.data.data.map((item) => {
+    const companyFormated = companyData.data.data.data.map((item) => {
         return {
             label: item.name,
             id: item.id,
@@ -155,7 +155,7 @@ onMounted(async () => {
 	const selectedCompany = userdata.company_id;
 
     const storeData = await axiosInstance.get('/master/store');
-    const storeFormated = storeData.data.data.map((item) => {
+    const storeFormated = storeData.data.data.data.map((item) => {
         return {
             label: item.name,
             id: item.id,
@@ -225,7 +225,7 @@ const refetchData = async (type, data) => {
   const fullUrl = queryParams.toString() ? `${url}?${queryParams.toString()}` : url;
   const response = await axiosInstance.get(fullUrl);
 
-  const formattedData = response.data.data.map(item => ({
+  const formattedData = response.data.data.data.map(item => ({
     label: item.name,
     id: item.id,
   }));

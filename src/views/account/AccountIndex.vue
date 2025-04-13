@@ -26,7 +26,7 @@ const filters = ref([])
 
 onMounted(async () => {
 	const storeData = await axiosInstance.get('/master/store')
-	var storesFormated = storeData.data.data.map((store) => ({
+	var storesFormated = storeData.data.data.data.map((store) => ({
 		label: store.name,
 		id: store.id,
 	}))
@@ -36,7 +36,7 @@ onMounted(async () => {
 		id: type.id,
 	}))
 	const companyData = await axiosInstance.get('/master/company')
-	var companiesFormated = companyData.data.data.map((company) => ({
+	var companiesFormated = companyData.data.data.data.map((company) => ({
 		label: company.name,
 		id: company.id,
 	}))
