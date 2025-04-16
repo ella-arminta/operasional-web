@@ -68,12 +68,12 @@ onMounted(async () => {
 		id: type.id,
 	}))
 	var companyData = await axiosInstance.get('/master/company');
-	var companyFormat = companyData.data.data.map((company) => ({
+	var companyFormat = companyData.data.data.data.map((company) => ({
 		label: company.name,
 		id: company.id,
 	}))
 	var storeData = await axiosInstance.get('/master/store');
-	var storeFormat = storeData.data.data.map((store) => ({
+	var storeFormat = storeData.data.data.data.map((store) => ({
 		label: store.name,
 		id: store.id,
 	}));

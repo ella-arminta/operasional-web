@@ -47,7 +47,7 @@ const filters = ref([])
 
 onMounted(async () => {
 	const storeData = await axiosInstance.get('/master/store')
-	var storesFormated = storeData.data.data.map((store) => ({
+	var storesFormated = storeData.data.data.data.map((store) => ({
 		label: store.name,
 		id: store.id,
 	}))

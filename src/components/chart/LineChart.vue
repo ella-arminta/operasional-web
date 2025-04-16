@@ -32,6 +32,10 @@ const props = defineProps({
     type: String,
     default: ''
   },
+  colData: {
+    type: String,
+    default: 'sellPrice'
+  }
 });
 
 const chartMode = ref<'date' | 'month'>('date'); // Toggle mode
@@ -101,7 +105,7 @@ const processData = (data) => {
         hour12: false
       })
     );
-    chartData.value.datasets[0].data = data.map(item => item.sellPrice);
+    chartData.value.datasets[0].data = data.map(item => item[props.colData]);
   } else {
     // Mode Month: Ambil harga terakhir di setiap hari
     const dailyLastPrice = {};
@@ -111,7 +115,7 @@ const processData = (data) => {
       const dayKey = date.toISOString().split('T')[0]; // YYYY-MM-DD
 
       // Simpan harga terakhir untuk setiap hari
-      dailyLastPrice[dayKey] = item.sellPrice;
+      dailyLastPrice[dayKey] = item[props.colData];
     });
 
     // Ambil bulan dalam range startDate - endDate

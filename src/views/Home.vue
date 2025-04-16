@@ -150,6 +150,8 @@ watchEffect(async () => {
 		<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-5">
 			<LineChart :apiPath="'/finance/gold-price'" :title="'Gold Selling Price'" :startDate="startDate"
 				:endDate="endDate" />
+			<LineChart :apiPath="'/finance/gold-price'" colData="buyPrice" :title="'Gold Buy Price'" :startDate="startDate"
+				:endDate="endDate" />
 			<LineChart :apiPath="'/finance/sales-chart'" :title="'Sales'" :startDate="startDate" :endDate="endDate" />
 		</div>
 	</div>
