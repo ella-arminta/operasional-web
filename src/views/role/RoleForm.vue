@@ -569,7 +569,7 @@ const submit = async () => {
 		const method = props.mode === 'edit' ? 'put' : 'post'
 		const response = await axiosInstance[method](endpoint, data)
 
-		if (response.data) {
+		if (response.data && props.mode !== 'add') {
 			try {
 				// Assign permission
 				const permissionData = {
@@ -612,6 +612,22 @@ const submit = async () => {
 					message: 'Failed to assign permission.',
 				})
 			}
+		} else if (response.data) {
+			await store.dispatch('triggerAlert', {
+				type: 'success',
+				title: 'Success!',
+				message: response.data.message,
+				actions: [
+					{
+						label: 'close',
+						type: 'secondary',
+						handler: async () => {
+							await store.dispatch('hideAlert')
+							router.push('/settings/role')
+						},
+					},
+				],
+			})
 		}
 	} catch (error) {
 		console.error(error)
