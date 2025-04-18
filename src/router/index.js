@@ -306,6 +306,24 @@ const router = createRouter({
 								mode: route.params.mode,
 							}),
 						},
+						// Receivables & Payables
+						{
+							path: 'receivable-payable',
+							component: () =>
+								import(
+									'../views/payable/ReceivablePayableIndex.vue'
+								),
+						},
+						{
+							path: 'receivable-payable/:mode/:id?',
+							component: () =>
+								import(
+									'../views/payable/ReceivablePayableForm.vue'
+								),
+							props: (route) => ({
+								mode: route.params.mode,
+							}),
+						},
 						{
 							path: 'stock-card',
 							component: () =>

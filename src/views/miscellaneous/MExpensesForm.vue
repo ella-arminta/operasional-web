@@ -252,18 +252,18 @@ const id = router.currentRoute.value.params.id
 onMounted(async () => {
 	// get accounts
 	var response = await axiosInstance.get('/finance/account')
-	var allAccounts = response.data.data
+	var allAccounts = response.data.data;
 	var ownedAccountsKas = response.data.data.filter(
-		(account) => account.account_type_id === 1
+		(account) => account.account_type_id === 1 || account.account_type_id === 3 || account.account_type_id === 4
 	)
 	// GET ACCOUNTS
 	var acc = ownedAccountsKas.map((account) => ({
-		label: account.name,
+		label:account.code + ' - ' + account.name,
 		id: account.id,
 	}))
 	// GET ALL ACCOUNTS
 	var accAll = allAccounts.map((account) => ({
-		label: account.name,
+		label: account.code + ' - ' + account.name,
 		id: account.id,
 	}))
 	accounts.value = acc

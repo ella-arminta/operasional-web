@@ -300,10 +300,10 @@ onMounted(async () => {
 	// get accounts
 	var response = await axiosInstance.get('/finance/account')
 	var ownedAccountsKas = response.data.data.filter(
-		(account) => account.account_type_id === 1
+		(account) => account.account_type_id === 1 || account.account_type_id === 3 || account.account_type_id === 4
 	)
 	var acc = ownedAccountsKas.map((account) => ({
-		label: account.name,
+		label: account.code + ' - ' + account.name,
 		id: account.id,
 	}))
 	accounts.value = acc
