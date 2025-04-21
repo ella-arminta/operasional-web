@@ -476,7 +476,7 @@ const remindersList = ref([]);
 const remindersUpdated = (data) => {
 	console.log('update amount payed in parent', data[0]);
 	// form.value.amount_paid = data[data.length - 1]?.total_amount_paid ?? 0;
-	// mountUpdatedData();
+	mountUpdatedData();
 }
 
 const statusText = computed(() => {
