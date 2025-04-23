@@ -33,6 +33,7 @@ export default {
 	methods: {
 		handleSidebarToggle(isCollapsed) {
 			this.isSidebarCollapsed = isCollapsed
+			localStorage.setItem('smallMenu', isCollapsed)
 		}
 	}
 }
@@ -86,7 +87,6 @@ body {
 	padding: 1px;
 	width: var(--main-content-width);
 	position: absolute;
-	right: 0;
 	top: 0;
 	bottom: 0;
 	transition: width var(--transition-speed);
