@@ -604,6 +604,7 @@ const options = computed(() => ({
 					</td>
 					<td colspan="1" style="padding: 10px 30px 10px 10px;"></td>
 					<td colspan="1" style="padding: 10px 30px 10px 10px;"></td>
+					<td colspan="1" style="padding: 10px 30px 10px 10px;"></td>
 					<td colspan="1" class="text-end" style="padding: 10px 30px 10px 10px;"><strong>${formatIDR(totalDebit)}</strong></td>
 					<td colspan="1" class="text-end" style="padding: 10px 30px 10px 10px;"><strong>${formatIDR(totalCredit)}</strong></td>
 				</tr>

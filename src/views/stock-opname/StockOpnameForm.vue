@@ -392,6 +392,16 @@ const getStockOpname = async (id) => {
 	}
 }
 
+function getStatusLabel(status) {
+	switch (status) {
+		case 0: return 'Available'
+		case 1: return 'Sold'
+		case 2: return 'Bought back'
+		case 3: return 'Taken Out'
+		default: return 'Unknown'
+	}
+}
+
 const getProductCodes = async () => {
 	const response = await axiosInstance.get('/inventory/product-code', {
 		params: {
@@ -406,12 +416,12 @@ const getProductCodes = async () => {
 			name: product.product.name,
 			type: product.product.type.name,
 			weight: `${product.weight} gr`,
-			status:
-				product.status == 0
-					? 'Available'
-					: product.status == 1
-						? 'Sold'
-						: 'Taken Out',
+			status: getStatusLabel(product.status),
+				// product.status == 0
+				// 	? 'Available'
+				// 	: product.status == 1
+				// 		? 'Sold'
+				// 		: 'Taken Out',
 			scanned:
 				form.value.details.filter(
 					(p) => p.product_code_id === product.id
