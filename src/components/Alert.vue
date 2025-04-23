@@ -1,8 +1,7 @@
 <template>
 	<div v-if="alert.visible"
 		class="fixed inset-0 flex items-center justify-center bg-slate-400/5 z-index transition duration-300 ease-in-out max-h-screen">
-		<div class="bg-white rounded-lg shadow-lg p-6 relative transition-all duration-300"
-			:class="[isSidebarCollapsed ? 'alert-collapsed' : 'alert-expanded']">
+		<div class="bg-white rounded-lg shadow-lg w-96 p-6 relative">
 			<!-- Alert Icon -->
 			<div class="flex items-center mb-4">
 				<div class="flex items-center justify-center w-12 h-12 rounded-full animation-ping"
@@ -23,14 +22,17 @@
 			<div v-if="alert.inputs?.length">
 				<div v-for="(input, index) in alert.inputs" :key="index" class="mb-3"
 					:v-if="checkInputCondition(input)">
-					<label class="block text-sm font-medium text-gray-700" v-if="checkInputCondition(input)">{{
-						input.label }}</label>
+					<label class="block text-sm font-medium text-gray-700" v-if="checkInputCondition(input)">
+						{{ input.label }}
+						<span v-if="input.required" class="text-red-500">*</span>
+					</label>
 					<input v-if="input.type !== 'select' && checkInputCondition(input)" v-model="inputData[input.model]"
-						:type="input.type || 'text'" class="w-full border p-2 rounded" />
+						:type="input.type || 'text'" class="w-full border p-2 rounded"
+						:placeholder="input.placeholder || ''" :required="input.required || false" />
 
 					<Dropdown v-if="input.type === 'select' && checkInputCondition(input)"
 						:items="dropdownOptions[input.model]" :multiple="input.multiple || false"
-						v-model="inputData[input.model]" />
+						v-model="inputData[input.model]" :required="input.required || false" />
 				</div>
 			</div>
 
@@ -56,9 +58,6 @@ const alert = computed(() => store.state.alert);
 const inputData = ref({});
 const dropdownOptions = ref({});
 
-// Check if sidebar is collapsed
-const isSidebarCollapsed = computed(() => store.getters.smallMenu);
-
 const iconBackground = computed(() => {
 	const type = alert.value.type;
 	return {
@@ -83,6 +82,7 @@ const iconClass = computed(() => {
 
 watch(alert, async (newAlert) => {
 	inputData.value = newAlert.inputs?.reduce((acc, input) => {
+		console.log('input:', input.selectedModel);
 		if (input.selectedModel) {
 			acc[input.model] = input.selectedModel;
 		} else {
@@ -169,43 +169,23 @@ const handleAction = (action) => {
 		action.handler();
 	}
 };
-
 const checkInputCondition = (input) => {
 	if (!input.condition) return true;
+
+	// console.log('condition function:', input.condition.toString());
+	// console.log('inputData.value:', inputData.value);
 
 	const result = typeof input.condition === 'function'
 		? input.condition(inputData.value)
 		: !!input.condition;
 
+	// console.log('Condition result:', result);
 	return result;
 };
 </script>
 
-<style>
+<style scoped>
 .z-index {
 	z-index: 9999;
-}
-
-.alert-collapsed {
-	width: 24rem;
-	/* w-96 = 24rem */
-	max-width: calc(100vw - 90px);
-	/* Adjust for sidebar collapsed width */
-}
-
-.alert-expanded {
-	width: 32rem;
-	/* Wider alert when sidebar is expanded */
-	max-width: calc(100vw - 300px);
-	/* Adjust for sidebar expanded width */
-}
-
-@media (max-width: 768px) {
-
-	.alert-collapsed,
-	.alert-expanded {
-		width: 90%;
-		max-width: 24rem;
-	}
 }
 </style>

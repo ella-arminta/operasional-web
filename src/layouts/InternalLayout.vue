@@ -1,7 +1,7 @@
 <template>
 	<div class="app internal"
 		:class="{ 'sidebar-expanded': !isSidebarCollapsed, 'sidebar-collapsed': isSidebarCollapsed }">
-		<Alert :class="{ 'wide-alert': !isSidebarCollapsed }" />
+		<Alert />
 		<MenuSidebar @sidebar-toggle="handleSidebarToggle" />
 		<div class="main-content">
 			<router-view />
