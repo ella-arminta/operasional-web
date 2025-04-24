@@ -59,7 +59,7 @@
 								placeholder="Select a category"
 								:multiple="false"
 								:searchable="true"
-								:disabled="mode === 'detail'"
+								:disabled="mode !== 'add'"
 								:addRoute="'/master/category/add'"
 							/>
 							<p
@@ -85,7 +85,7 @@
 								placeholder="Select a type"
 								:multiple="false"
 								:searchable="true"
-								:disabled="mode === 'detail'"
+								:disabled="mode !== 'add'"
 								:addRoute="`/master/category/view/${form.category_id}`"
 							/>
 							<p
