@@ -1,23 +1,16 @@
 <template>
-	<div
-		v-if="alert.visible"
-		class="fixed inset-0 flex items-center justify-center bg-slate-400/5 z-index transition duration-300 ease-in-out max-h-screen"
-	>
+	<div v-if="alert.visible"
+		class="fixed inset-0 flex items-center justify-center bg-slate-400/5 z-index transition duration-300 ease-in-out max-h-screen">
 		<div class="bg-white rounded-lg shadow-lg w-96 p-6 relative">
 			<!-- Alert Icon -->
 			<div class="flex items-center mb-4">
-				<div
-					class="flex items-center justify-center w-12 h-12 rounded-full animation-ping"
-					:class="iconBackground"
-				>
+				<div class="flex items-center justify-center w-12 h-12 rounded-full animation-ping"
+					:class="iconBackground">
 					<i class="text-2xl" :class="iconClass"></i>
 				</div>
 				<h3 class="text-lg font-semibold ml-4">{{ alert.title }}</h3>
-				<button
-					@click="closeAlert"
-					v-if="alert.type !== 'loading'"
-					class="absolute top-3 right-3 text-gray-400 hover:text-gray-600"
-				>
+				<button @click="closeAlert" v-if="alert.type !== 'loading'"
+					class="absolute top-3 right-3 text-gray-400 hover:text-gray-600">
 					✖
 				</button>
 			</div>
@@ -27,32 +20,26 @@
 
 			<!-- Alert Inputs -->
 			<div v-if="alert.inputs?.length">
-				<div v-for="(input, index) in alert.inputs" :key="index" class="mb-3" :v-if="checkInputCondition(input)">
-					<label class="block text-sm font-medium text-gray-700" v-if="checkInputCondition(input)">{{ input.label }}</label>
-					<input
-						v-if="input.type !== 'select' && checkInputCondition(input)"
-						v-model="inputData[input.model]"
-						:type="input.type || 'text'"
-						class="w-full border p-2 rounded"
-					/>
+				<div v-for="(input, index) in alert.inputs" :key="index" class="mb-3"
+					:v-if="checkInputCondition(input)">
+					<label class="block text-sm font-medium text-gray-700" v-if="checkInputCondition(input)">
+						{{ input.label }}
+						<span v-if="input.required" class="text-red-500">*</span>
+					</label>
+					<input v-if="input.type !== 'select' && checkInputCondition(input)" v-model="inputData[input.model]"
+						:type="input.type || 'text'" class="w-full border p-2 rounded"
+						:placeholder="input.placeholder || ''" :required="input.required || false" />
 
-					<Dropdown
-						v-if="input.type === 'select' && checkInputCondition(input)"
-						:items="dropdownOptions[input.model]"
-						:multiple="input.multiple || false"
-						v-model="inputData[input.model]"
-					/>
+					<Dropdown v-if="input.type === 'select' && checkInputCondition(input)"
+						:items="dropdownOptions[input.model]" :multiple="input.multiple || false"
+						v-model="inputData[input.model]" :required="input.required || false" />
 				</div>
 			</div>
 
 			<!-- Action Buttons -->
 			<div class="flex justify-end space-x-3">
-				<button
-					v-for="(action, index) in alert.actions"
-					:key="index"
-					:class="['px-4 py-2 rounded-lg text-sm', buttonClass(action.type)]"
-					@click="handleAction(action)"
-				>
+				<button v-for="(action, index) in alert.actions" :key="index"
+					:class="['px-4 py-2 rounded-lg text-sm', buttonClass(action.type)]" @click="handleAction(action)">
 					{{ action.label }}
 				</button>
 			</div>
@@ -95,6 +82,7 @@ const iconClass = computed(() => {
 
 watch(alert, async (newAlert) => {
 	inputData.value = newAlert.inputs?.reduce((acc, input) => {
+		console.log('input:', input.selectedModel);
 		if (input.selectedModel) {
 			acc[input.model] = input.selectedModel;
 		} else {
@@ -125,7 +113,7 @@ watch(alert, async (newAlert) => {
 							label: option.text,
 						}));
 					}
-					
+
 				} catch (error) {
 					console.error('Error fetching dropdown options:', error);
 				}

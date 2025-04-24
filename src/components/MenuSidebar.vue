@@ -1,53 +1,77 @@
 <template>
-	<div class="menu" :class="{ 'small-menu': smallMenu }">
-		<div class="flex items-center gap-3 px-4">
-			<div class="flex flex-col items-start mt-8 mb-10">
-				<div
-					class="text-xl uppercase text-pinkDark font-bold text-start flex items-center"
-					:class="{ hidden: smallMenu }"
-				>
-					{{ dataStore?.code }}
-				</div>
-				<div
-					class="text-sm text-gray-800 text-start italic"
-					:class="{ hidden: smallMenu }"
-				>
-					{{ dataStore?.name }}
-				</div>
-			</div>
-			<router-link
-				:to="'/settings/change-store'"
-				class="material-icons text-md"
-				>change_circle</router-link
-			>
+	<div>
+
+		<div v-if="isMobile" @click="toggleMobileMenu" class="mobile-menu-toggle" :class="{ 'active': showMobileMenu }">
+			<i class="material-icons">{{ showMobileMenu ? 'close' : 'menu' }}</i>
 		</div>
-		<MenuItem
-			v-for="(item, index) in menuTree"
-			:key="index"
-			:data="item.children"
-			:label="item.label"
-			:path="item.path"
-			:icon="item.icon"
-			:depth="0"
-		/>
-		<i @click="store.dispatch('toggleSmallMenu')" class="material-icons"
-			>menu</i
-		>
+
+
+		<div v-if="isMobile && showMobileMenu" class="mobile-overlay" @click="toggleMobileMenu"></div>
+
+
+		<div class="menu" :class="{
+			'small-menu': smallMenu && !isMobile,
+			'mobile-menu': isMobile,
+			'mobile-expanded': isMobile && showMobileMenu
+		}">
+
+			<div class="store-header" :class="{ 'store-header-small': smallMenu && !isMobile }">
+
+				<div class="store-info">
+					<div class="text-xl uppercase text-pinkDark font-bold text-center">
+						{{ dataStore?.code }}
+					</div>
+					<div class="text-sm text-gray-800 text-center italic" :class="{ 'hidden': smallMenu && !isMobile }">
+						{{ dataStore?.name }}
+					</div>
+				</div>
+
+
+				<router-link :to="'/settings/change-store'" class="material-icons text-md change-store-icon">
+					change_circle
+				</router-link>
+			</div>
+
+
+			<div v-if="!isMobile" class="toggle-button" :class="{ 'collapsed': smallMenu }" @click="toggleMenu">
+				<i class="material-icons">{{ smallMenu ? 'chevron_right' : 'chevron_left' }}</i>
+			</div>
+
+
+			<MenuItem v-for="(item, index) in menuTree" :key="index" :data="item.children" :label="item.label"
+				:path="item.path" :icon="item.icon" :depth="0" :is-mobile="isMobile" :small-menu="smallMenu" />
+		</div>
 	</div>
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch, onBeforeUnmount } from 'vue'
 import MenuItem from './MenuItem.vue'
 import { useStore } from 'vuex'
 import { useAuthStore } from '../vuex/auth'
+import { useRoute } from 'vue-router'
 import axiosInstance from '../axios'
 import { decryptData } from '../utils/crypto'
 import Cookies from 'js-cookie'
 
+
+const emit = defineEmits(['sidebar-toggle'])
+
 const store = useStore()
 const authStore = useAuthStore()
+const route = useRoute()
 const smallMenu = computed(() => store.getters.smallMenu)
+const isMobile = ref(false)
+const showMobileMenu = ref(false)
+const savedSmallMenuState = ref(false)
+
+
+const initSidebarState = () => {
+	const savedState = localStorage.getItem('smallMenu')
+	if (savedState !== null) {
+		store.commit('SET_SMALL_MENU', savedState === 'true')
+	}
+}
 
 const menuTree = ref([
 	{
@@ -274,7 +298,7 @@ const explorePath = async () => {
 	paths.push('/logout')
 	paths.push('/faq')
 	paths.push('/marketplace/dashboard')
-	// reduce data
+
 	menuTree.value = await filterMenu(menuTree.value, new Set(paths))
 }
 const dataStore = ref(null)
@@ -293,7 +317,7 @@ const getStore = async () => {
 }
 
 const filterMenu = async (menu, allowedPaths, depth = 0) => {
-	// Process all items asynchronously
+
 	const filteredItems = await Promise.all(
 		menu.map(async (item) => {
 			if (item.path) {
@@ -316,9 +340,56 @@ const filterMenu = async (menu, allowedPaths, depth = 0) => {
 		})
 	)
 
-	// ✅ Now filter out null values AFTER awaiting all Promises
+
 	return filteredItems.filter(Boolean)
 }
+
+const toggleMenu = () => {
+	store.dispatch('toggleSmallMenu')
+
+	localStorage.setItem('smallMenu', !smallMenu.value)
+
+	emit('sidebar-toggle', !smallMenu.value)
+}
+
+const toggleMobileMenu = () => {
+	showMobileMenu.value = !showMobileMenu.value
+
+	document.body.style.overflow = showMobileMenu.value ? 'hidden' : ''
+}
+
+const checkMobile = () => {
+	const wasMobile = isMobile.value
+	isMobile.value = window.innerWidth < 768
+
+
+	if (!wasMobile && isMobile.value) {
+
+		savedSmallMenuState.value = smallMenu.value
+	}
+
+
+	if (wasMobile && !isMobile.value) {
+
+		if (smallMenu.value !== savedSmallMenuState.value) {
+			store.commit('SET_SMALL_MENU', savedSmallMenuState.value)
+		}
+
+
+		if (showMobileMenu.value) {
+			showMobileMenu.value = false
+			document.body.style.overflow = ''
+		}
+	}
+}
+
+
+watch(route, () => {
+	if (isMobile.value && showMobileMenu.value) {
+		showMobileMenu.value = false
+		document.body.style.overflow = ''
+	}
+})
 
 watch(
 	() => authStore.allowedPaths,
@@ -330,59 +401,200 @@ watch(
 onMounted(() => {
 	explorePath()
 	getStore()
+	initSidebarState()
+
+
+	checkMobile()
+
+
+	window.addEventListener('resize', checkMobile)
+
+
+	emit('sidebar-toggle', smallMenu.value)
+})
+
+
+watch(smallMenu, (newValue) => {
+	emit('sidebar-toggle', newValue)
+})
+
+onBeforeUnmount(() => {
+
+	window.removeEventListener('resize', checkMobile)
+
+	document.body.style.overflow = ''
 })
 </script>
 
 <style lang="scss" scoped>
-.menu {
-	position: relative;
-	height: 100%;
-	background-color: var(--bg-white);
-	color: var(--pink-dark);
-	min-width: 15%;
-	// width: 15%;
-	padding: 0 20px;
-	left: 0;
-	top: 0;
-	border-right: 1px solid #ececec;
-	transition: all 0.3s ease;
-	overflow: auto;
-	padding-top: 20px;
-	box-shadow: 0px 4px 35.2px 0px #0000001a;
-	z-index: 99;
+:root {
+	--sidebar-width: 280px;
+	--sidebar-collapsed-width: 70px;
+	--transition-speed: 0.3s;
+	--pink-dark: #d23f57;
+}
 
-	i {
-		position: absolute;
-		left: 80%;
-		font-size: 20px;
-		top: 15px;
-		user-select: none;
-		cursor: pointer;
-		transition: all 0.3s ease;
+
+.store-header {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin-top: 8px;
+	margin-bottom: 20px;
+	width: 100%;
+
+
+	.store-info {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		margin-bottom: 8px;
 	}
 
-	&.small-menu {
-		overflow: inherit;
-		min-width: 60px;
-		width: 60px;
-		padding: 0;
-		padding-top: 50px;
 
-		i {
-			left: 20px;
+	.change-store-icon {
+		color: var(--pink-dark);
+		font-size: 20px;
+		margin-top: 5px;
+	}
+
+
+	&.store-header-small {
+		padding: 0 5px;
+		margin-top: 5px;
+
+		.store-info {
+			margin-bottom: 5px;
 		}
 	}
 }
 
-// Small devices
-@media (max-width: 47rem) {
-	.menu {
-		position: fixed;
-		width: 60%;
 
-		&.small-menu {
-			position: relative;
+.mobile-menu-toggle {
+	position: fixed;
+	bottom: 20px;
+	right: 20px;
+	width: 56px;
+	height: 56px;
+	border-radius: 50%;
+	background-color: var(--pink-dark);
+	color: white;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+	z-index: 1000;
+	cursor: pointer;
+	transition: all 0.3s ease;
+
+	&.active {
+		transform: rotate(180deg);
+	}
+
+	i {
+		font-size: 24px;
+	}
+}
+
+
+.mobile-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.5);
+	z-index: 90;
+
+}
+
+
+.toggle-button {
+	position: absolute;
+	right: 10px;
+	top: 15px;
+	width: 28px;
+	height: 28px;
+	border-radius: 50%;
+	background-color: #f5f5f5;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	transition: all 0.2s;
+	z-index: 2;
+
+	&.collapsed {
+		right: 20px;
+
+	}
+
+	&:hover {
+		background-color: #e0e0e0;
+	}
+
+	i {
+		font-size: 20px;
+		color: var(--pink-dark);
+	}
+}
+
+
+.menu {
+	position: fixed;
+
+	height: 100vh;
+	background-color: var(--bg-white);
+	color: var(--pink-dark);
+	width: var(--sidebar-width, 280px);
+	padding: 0 20px;
+	left: 0;
+	top: 0;
+	border-right: 1px solid #ececec;
+	transition: all var(--transition-speed, 0.3s) ease;
+	overflow-y: auto;
+	overflow-x: hidden;
+	padding-top: 20px;
+	box-shadow: 0px 4px 35.2px 0px #0000001a;
+	z-index: 100;
+
+
+	&.small-menu {
+		width: var(--sidebar-collapsed-width, 70px);
+		min-width: var(--sidebar-collapsed-width, 70px);
+		padding: 0;
+		padding-top: 50px;
+	}
+
+
+	&.mobile-menu {
+		transform: translateX(-100%);
+		width: var(--sidebar-width, 280px) !important;
+
+		padding: 0 20px;
+
+		&.mobile-expanded {
+			transform: translateX(0);
 		}
+	}
+}
+
+
+@media (max-width: 1024px) {
+	.menu {
+		--sidebar-width: 250px;
+	}
+}
+
+@media (max-width: 768px) {
+	.menu {
+		width: var(--sidebar-width, 280px);
+		min-width: var(--sidebar-width, 280px);
+	}
+
+
+	.store-header .store-info div:nth-child(2) {
+		display: block !important;
 	}
 }
 
