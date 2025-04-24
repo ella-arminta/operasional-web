@@ -2,12 +2,12 @@
 	<div class="content min-h-screen" :class="{ 'full-width': smallMenu }">
 		<PageTitle />
 		<div class="w-full bg-white h-auto rounded-lg shadow-sm py-3 px-4">
+			<h1 class="text-lg font-semibold col-span-3 mb-3 text-gray-500">
+				List of Authorized Stores
+			</h1>
 			<div
-				class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-3"
+				class="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-3"
 			>
-				<h1 class="text-lg font-semibold col-span-3 mb-3 text-gray-500">
-					List of Authorized Stores
-				</h1>
 				<template v-for="company in companies">
 					<template v-for="store in company.stores">
 						<div

@@ -14,6 +14,9 @@
 			:infoPath="
 				actions.includes('detail') ? '/master/category/detail' : ''
 			"
+			:options="{
+				scrollX: true,
+			}"
 		/>
 	</div>
 </template>

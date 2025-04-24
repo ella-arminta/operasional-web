@@ -12,6 +12,9 @@
 			"
 			:infoPath="actions.includes('detail') ? '/master/price/detail' : ''"
 			:filters="filters"
+			:options="{
+				scrollX: true,
+			}"
 		/>
 	</div>
 </template>

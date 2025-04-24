@@ -22,7 +22,7 @@
 					title="Basic Product Information"
 					icon="info"
 				/>
-				<div class="grid grid-cols-3 gap-6 mt-4">
+				<div class="grid sm:grid-cols-1 md:grid-cols-3 gap-6 mt-4">
 					<div class="space-y-3">
 						<!-- Code -->
 						<InputForm

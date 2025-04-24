@@ -1,6 +1,6 @@
 <template>
 	<div class="content min-h-screen" :class="{ 'full-width': smallMenu }">
-		<PageTitle />
+		<PageTitle :title="'Stock Opname'" />
 		<TableData
 			:columns="columns"
 			:addPath="

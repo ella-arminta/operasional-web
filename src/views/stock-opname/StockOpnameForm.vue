@@ -1,6 +1,6 @@
 <template>
 	<div class="content min-h-screen" :class="{ 'full-width': smallMenu }">
-		<PageTitle />
+		<PageTitle :title="'Stock Opname'" />
 		<form
 			class="w-full bg-white p-4 rounded-lg shadow-md"
 			@submit.prevent="submit"
@@ -124,7 +124,7 @@
 			</div>
 			<template v-if="mode !== 'add'">
 				<FormSectionHeader title="Item Details" icon="tab" />
-				<div class="rounded-lg">
+				<div class="rounded-lg overflow-x-auto">
 					<table
 						class="shadow-xl border-none w-full h-full rounded-lg overflow-hidden"
 					>

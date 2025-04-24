@@ -8,7 +8,7 @@
 				color="pinkDark"
 				accentColor="pinkOrange"
 			/>
-			<div class="grid grid-cols-3 gap-6 mt-4 items-end">
+			<div class="grid sm:grid-cols-1 md:grid-cols-3 gap-6 mt-4 items-end">
 				<InputForm
 					v-model="itemSelected"
 					id="item"
@@ -46,7 +46,7 @@
 				/>
 				<div class="flex flex-col gap-6">
 					<!-- Photo -->
-					<div class="grid grid-cols-3 gap-6">
+					<div class="grid sm:grid-cols-1  md:grid-cols-3 gap-6">
 						<div class="space-y-2">
 							<template v-if="res.image !== null">
 								<img
@@ -296,8 +296,8 @@ const columns = [
                    date.toLocaleTimeString('id-ID', { hour12: false });
         } 
     },
-    { data: 'code', title: 'Code' },
-    { data: 'name', title: 'Name' },
+	{ data: 'company', title: 'Company' },
+    { data: 'store', title: 'Store' },
     { data: 'description', title: 'Description', render: (data,type,row) => {
       if (row.trans_code != null && row.trans_code != '') {
         return data + ' ' + row.trans_code;

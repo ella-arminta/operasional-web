@@ -24,7 +24,7 @@
 				title="Basic Receivable/Payable Information"
 				icon="info"
 			/>
-			<div class="grid grid-cols-3 gap-6 mt-4">
+			<div class="grid sm:grid-cols-1 md:grid-cols-3 gap-6 mt-4">
 				<!-- First Grid -->
 				<div class="space-y-3">
 					<!-- Code -->
@@ -144,27 +144,27 @@
 					@update:rows="updateAmountPayed"
 				/>
 			</div>
-			<div class="grid grid-cols-2 gap-3 mt-4">
+			<div class="grid sm:grid-cols-1 md:grid-cols-2 gap-3 mt-4">
 				<!-- First Grid -->
 				<div class="space-y-2">
 				</div>
 				<!-- Second Grid -->
 				<div class="space-y-2">
 					<div class="col-start-4 col-span-2 space-y-2">
-						<div class="h-6 grid grid-cols-2 w-full items-center">
+						<div class=" grid grid-cols-2 w-full items-center">
 							<div class="text-start">Amount payable/receivable</div>
 							<div class="text-pinkDark text-md text-end">
 								Rp. {{ formatIDR(form.amount) }}
 							</div>
 						</div>
-						<div class="h-6 grid grid-cols-2 w-full items-center">
+						<div class=" grid grid-cols-2 w-full items-center">
 							<div class="text-start">Amount payed</div>
 							<div class="text-pinkDark text-md text-end">
 								Rp. {{ formatIDR(form.amount_paid) }}
 							</div>
 						</div>
 						<hr />
-						<div class="h-6 grid grid-cols-2 w-full items-center">
+						<div class=" grid grid-cols-2 w-full items-center">
 							<div class="text-start font-bold">Payment Due</div>
 							<div class="text-pinkDark text-md text-end font-bold">
 								Rp. {{ form.amount_paid ? formatIDR(form.amount - form.amount_paid) : formatIDR(form.amount) }}

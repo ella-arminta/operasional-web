@@ -45,7 +45,7 @@
 				title="Basic Cashier Closing Information"
 				icon="info"
 			/>
-			<div class="grid grid-cols-2 gap-3 mt-4">
+			<div class="grid sm:grid-cols-1 md:grid-cols-2 gap-3 mt-4">
 				<!-- First Grid -->
 				<div class="space-y-2">
 					<!-- Code -->

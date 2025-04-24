@@ -20,7 +20,7 @@
 			/>
 			<!-- Form Basic Information -->
 			<FormSectionHeader title="Basic Store Information" icon="info" />
-			<div class="grid grid-cols-3 gap-6 mt-4">
+			<div class="grid sm:grid-cols-1 md:grid-cols-3 gap-6 mt-4">
 				<!-- First Grid -->
 				<div class="space-y-3">
 					<!-- Code -->
@@ -199,7 +199,7 @@
 				title="Advanced Store Settings"
 				icon="settings"
 			/>
-			<div class="grid grid-cols-3 gap-6 mt-4">
+			<div class="grid sm:grid-cols-1 md:grid-cols-3 gap-6 mt-4">
 				<div class="space-y-3">
 					<!-- Activation Status -->
 					<ToggleForm
