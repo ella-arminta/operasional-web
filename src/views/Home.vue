@@ -4,7 +4,7 @@ import { useStore } from 'vuex'
 import PageTitle from '../components/PageTitle.vue'
 import LineChart from '../components/chart/LineChart.vue'
 import axiosInstance from '../axios'
-import { formatIDR } from '../utils/common'
+// import { formatIDR } from '../utils/common'
 
 const store = useStore()
 const smallMenu = computed(() => store.getters.smallMenu)
@@ -17,11 +17,13 @@ const salesCount = ref(0)
 const salesIncome = ref(0)
 onMounted(async () => {
 	const today = new Date();
-	const tomorrow = new Date();
-	tomorrow.setDate(today.getDate() + 1);
 
-	startDate.value = today.toISOString().split('T')[0]; // Format YYYY-MM-DD
-	endDate.value = tomorrow.toISOString().split('T')[0];
+	const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+	const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+	startOfMonth.setDate(startOfMonth.getDate() + 1);
+	endOfMonth.setDate(endOfMonth.getDate() + 1);
+	startDate.value = startOfMonth.toISOString().split('T')[0]; // Format YYYY-MM-DD
+	endDate.value = endOfMonth.toISOString().split('T')[0];
 
 	const response = await axiosInstance.get('/finance/current-gold-price');
 	console.log('response', response.data);
@@ -56,6 +58,9 @@ const fetchSalesCards = async () => {
 	console.log('salesCount', salesCount.value);
 	console.log('salesIncome', salesIncome.value);
 };
+function formatIDR(angka) {
+  return 'Rp. ' + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
 
 watchEffect(async () => {
 	if (startDate.value && endDate.value) {
@@ -92,7 +97,7 @@ watchEffect(async () => {
 			<div class="card w-full bg-white rounded-lg px-4 py-7 shadow-md">
 				<div class="card-header">
 					<h2 class="text-center text-2xl text-wrap text-pinkDark">
-						Rp. {{ formatIDR(sellPrice) }}
+						{{ formatIDR(sellPrice) }}
 					</h2>
 				</div>
 				<div class="card-body mt-2">
@@ -108,7 +113,7 @@ watchEffect(async () => {
 			<div class="card w-full bg-white rounded-lg px-4 py-7 shadow-md">
 				<div class="card-header">
 					<h2 class="text-center text-2xl text-wrap text-pinkDark">
-						Rp. {{ formatIDR(buyPrice) }}
+						{{ formatIDR(buyPrice) }}
 					</h2>
 				</div>
 				<div class="card-body mt-2">
@@ -136,7 +141,7 @@ watchEffect(async () => {
 			<div class="card w-full bg-white rounded-lg px-4 py-7 shadow-md">
 				<div class="card-header">
 					<h2 class="text-center text-2xl text-wrap text-pinkDark">
-						Rp. {{ formatIDR(salesIncome) }}
+						{{ formatIDR(salesIncome) }}
 					</h2>
 				</div>
 				<div class="card-body mt-2">
