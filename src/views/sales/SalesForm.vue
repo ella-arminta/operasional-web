@@ -185,8 +185,8 @@
 						<div class="text-end text-pinkDark">
 							<input v-model="tax" type="decimal"
 								class="border-b-2 border-pinkDark border-opacity-50 text-pinkDark text-md w-3/4 focus:border-b-2 focus:border-pinkDark focus:outline-none text-end bg-white"
-								placeholder="Tax Percentage" :disabled="mode === 'detail'" :class="{
-									'border-none': mode === 'detail',
+								placeholder="Tax Percentage" :disabled="mode === 'detail' || form.payment_link" :class="{
+									'border-none': mode === 'detail' || form.payment_link,
 								}" />%
 						</div>
 					</div>
