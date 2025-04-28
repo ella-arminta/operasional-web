@@ -1,7 +1,7 @@
 <template>
 	<div class="bg-white w-full h-[90px] rounded-lg relative mb-5 shadow-sm">
 		<div
-			class="flex items-center justify-between px-4 py-2 h-full flex-wrap"
+			class="flex items-center justify-between px-4 py-2 h-full"
 		>
 			<!-- Set h-full here to make the child follow the parent's height -->
 			<div class="flex flex-col justify-center">

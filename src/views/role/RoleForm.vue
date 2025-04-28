@@ -87,8 +87,8 @@
 			</div>
 			<template v-if="mode !== 'add'">
 				<FormSectionHeader title="Permission" icon="lock" />
-				<div class="w-full !rounded-md shadow-sm overflow-hidden">
-					<table class="w-full table-fixed">
+				<div class="w-full !rounded-md shadow-sm overflow-x-auto">
+					<table class="w-full md:table-fixed">
 						<thead class="bg-pinkDark text-white">
 							<tr>
 								<th class="px-4 py-2 text-start" width="35%">

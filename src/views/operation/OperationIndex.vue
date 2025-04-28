@@ -16,6 +16,9 @@
 			:infoPath="
 				actions.includes('detail') ? '/inventory/operation/detail' : ''
 			"
+			:options="{
+				scrollX: true,
+			}"
 		/>
 	</div>
 </template>

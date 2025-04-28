@@ -6,6 +6,9 @@
 			:addPath="actions.includes('add') ? '/master/company/add' : ''"
 			:export="false"
 			:reload="true"
+			:options="{
+				scrollX: true,
+			}"
 			:ajaxPath="'/master/company'"
 			:editPath="actions.includes('edit') ? '/master/company/edit' : ''"
 			:deletePath="actions.includes('delete') ? '/master/company' : ''"

@@ -45,7 +45,7 @@
 				title="Basic Cashier Closing Information"
 				icon="info"
 			/>
-			<div class="grid grid-cols-2 gap-3 mt-4">
+			<div class="grid sm:grid-cols-1 md:grid-cols-2 gap-3 mt-4">
 				<!-- First Grid -->
 				<div class="space-y-2">
 					<!-- Code -->
@@ -300,10 +300,10 @@ onMounted(async () => {
 	// get accounts
 	var response = await axiosInstance.get('/finance/account')
 	var ownedAccountsKas = response.data.data.filter(
-		(account) => account.account_type_id === 1
+		(account) => account.account_type_id === 1 || account.account_type_id === 3 || account.account_type_id === 4
 	)
 	var acc = ownedAccountsKas.map((account) => ({
-		label: account.name,
+		label: account.code + ' - ' + account.name,
 		id: account.id,
 	}))
 	accounts.value = acc

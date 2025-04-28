@@ -1,6 +1,6 @@
 <template>
 	<div class="content min-h-screen" :class="{ 'full-width': smallMenu }">
-		<PageTitle />
+		<PageTitle :title="'Stock Out'" />
 		<form
 			class="w-full bg-white p-4 rounded-lg shadow-md"
 			@submit.prevent="submit"

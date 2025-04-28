@@ -19,7 +19,7 @@
 				@reset="resetForm"
 			/>
 			<FormSectionHeader title="Basic Category Information" icon="info" />
-			<div class="grid grid-cols-3 gap-6 mt-4">
+			<div class="grid sm:grid-cols-1 md:grid-cols-3 gap-6 mt-4">
 				<div class="space-y-3">
 					<!-- Code -->
 					<InputForm
@@ -162,7 +162,7 @@
 						<hr
 							class="mt-1 border-t border-pinkOrange border-opacity-25"
 						/>
-						<div class="grid grid-cols-3 gap-6 mt-4">
+						<div class="grid sm:grid-cols-1 md:grid-cols-3 gap-6 mt-4">
 							<div class="space-y-3">
 								<!-- Name -->
 								<InputForm
