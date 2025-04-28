@@ -842,18 +842,20 @@ const calculateTax = () => {
 	) {
 		adj =
 			parseFloat(percentKBL.value) > 0
-				? parseFloat(percentKBL.value) *
-					(sub_total_purchase -
-						(sub_total_sales + form.value.tax_price))
+				? (parseFloat(percentKBL.value) *
+						(sub_total_purchase -
+							(sub_total_sales + form.value.tax_price))) /
+					100
 				: parseFloat(fixedKBL.value)
 		console.log('ft:', adj)
 	} else {
 		adj =
 			parseFloat(percentTT.value) > 0
-				? parseFloat(percentTT.value) *
-					(sub_total_sales +
-						form.value.tax_price -
-						sub_total_purchase)
+				? (parseFloat(percentTT.value) *
+						(sub_total_sales +
+							form.value.tax_price -
+							sub_total_purchase)) /
+					100
 				: parseFloat(fixedTT.value)
 		console.log('ft:', adj)
 	}
@@ -1514,7 +1516,7 @@ watch(
 			console.log(total + tax_price)
 			adj =
 				parseFloat(percentKBL.value) > 0
-					? parseFloat(percentKBL.value) * (total + tax_price)
+					? (parseFloat(percentKBL.value) * (total + tax_price)) / 100
 					: parseFloat(fixedKBL.value)
 		} else {
 			console.log(
@@ -1527,8 +1529,9 @@ watch(
 			console.log(total + tax_price)
 			adj =
 				parseFloat(percentTT.value) > 0
-					? parseFloat(percentTT.value) *
-						(Number(total) + Number(tax_price))
+					? (parseFloat(percentTT.value) *
+							(Number(total) + Number(tax_price))) /
+						100
 					: parseFloat(fixedTT.value)
 		}
 		form.value.adjustment_price = adj
