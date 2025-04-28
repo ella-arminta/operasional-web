@@ -8,7 +8,7 @@
 					<th
 						class="px-4 py-2 text-start text-white"
 						:colspan="
-							readonly
+							!readonly
 								? columns.filter((c) => !c.hidden).length + 1
 								: columns.filter((c) => !c.hidden).length
 						"
