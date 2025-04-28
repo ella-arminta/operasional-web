@@ -169,6 +169,10 @@ const menuTree = ref([
 				label: 'Recurring Income/Expense',
 				path: '/finance/recurring',
 			},
+			{
+				label: 'Receivables & Payables',
+				path: '/finance/receivable-payable',
+			}
 		],
 	},
 	{

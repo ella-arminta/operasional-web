@@ -12,6 +12,9 @@
 			:infoPath="
 				actions.includes('detail') ? '/settings/role/detail' : ''
 			"
+			:options="{
+				scrollX: true,
+			}"
 		/>
 	</div>
 </template>

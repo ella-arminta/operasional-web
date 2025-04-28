@@ -18,7 +18,7 @@
 				@reset="resetForm"
 			/>
 			<FormSectionHeader title="Transaction Information" icon="info" />
-			<div class="grid grid-cols-3 gap-6 mt-4">
+			<div class="grid sm:grid-cols-1 md:grid-cols-3 gap-6 mt-4">
 				<div class="space-y-3">
 					<InputForm
 						v-if="mode !== 'add'"
@@ -236,7 +236,7 @@
 				</div>
 				<div
 					v-if="selectedType == 1"
-					class="grid grid-cols-3 gap-6 mb-4 items-end"
+					class="grid sm:grid-cols-1 md:grid-cols-3 gap-6 mb-4 items-end"
 				>
 					<div>
 						<InputForm
@@ -269,7 +269,7 @@
 				</div>
 				<div
 					v-if="selectedType == 2"
-					class="grid grid-cols-3 gap-6 mb-4 items-end"
+					class="grid sm:grid-cols-1 md:grid-cols-3 gap-6 mb-4 items-end"
 				>
 					<div>
 						<label
@@ -320,7 +320,7 @@
 							type="number"
 						/>
 					</div>
-					<div class="col-start-3">
+					<div class="md:col-start-3">
 						<button
 							type="button"
 							class="w-full bg-pinkDark text-white rounded-lg py-2 px-4 hover:bg-pinkOrange transition duration-300"
@@ -350,8 +350,8 @@
 				:deletePath="'/transaction/transaction-detail'"
 				:noDataState="noDataState"
 			/>
-			<div class="grid grid-cols-5 gap-6 mt-8 place-items-end mr-4">
-				<div class="col-start-1 col-span-2 w-full">
+			<div class="grid sm:grid-cols-1 md:grid-cols-5 gap-6 mt-8 place-items-end mr-4">
+				<div class="md:col-start-1 col-span-2 w-full">
 					<TextareaForm
 						v-model="form.comment"
 						id="comment"
@@ -362,7 +362,7 @@
 						:readonly="mode === 'detail'"
 					/>
 				</div>
-				<div class="col-start-4 col-span-2 space-y-2">
+				<div class="md:col-start-4 md:col-span-2 space-y-2">
 					<div class="h-6 grid grid-cols-2 w-full items-center">
 						<div class="text-start">Weight Total</div>
 						<div class="text-pinkDark text-md text-end">

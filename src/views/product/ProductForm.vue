@@ -22,7 +22,7 @@
 					title="Basic Product Information"
 					icon="info"
 				/>
-				<div class="grid grid-cols-3 gap-6 mt-4">
+				<div class="grid sm:grid-cols-1 md:grid-cols-3 gap-6 mt-4">
 					<div class="space-y-3">
 						<!-- Code -->
 						<InputForm
@@ -972,6 +972,7 @@ watch(
 			const transRefData = await axiosFetchTransRef(
 				formCode.value.transref_id[0]
 			)
+			console.log('this is transrefData', transRefData);
 			const val = transRefData.data.data.data[0]
 			formCode.value.weight = parseFloat(Math.abs(val.weight))
 			formCode.value.account_id = [val.transaction.account_id]
@@ -1027,8 +1028,7 @@ onMounted(async () => {
 	taxPurchasePercentage.value = parseFloat(store.data.data.tax_purchase)
 	const accresponse = await axiosInstance.get('/finance/account', {
 		params: {
-			store_id: form.value.store_id,
-			account_type_id: 1,
+			account_type_id: [1, 3, 4],
 		},
 	})
 	accounts.value = accresponse.data.data.map((account) => ({

@@ -7,6 +7,9 @@
 			:export="false"
 			:reload="true"
 			:ajaxPath="'/master/store'"
+			:options="{
+				scrollX: true,
+			}"
 			:editPath="actions.includes('edit') ? '/master/store/edit' : ''"
 			:deletePath="actions.includes('delete') ? '/master/store' : ''"
 			:infoPath="actions.includes('detail') ? '/master/store/detail' : ''"

@@ -88,6 +88,19 @@ const columns = [
 		width: '10%',
 		searchable: false,
 		orderable: false,
+		render: (data, type, row) => {
+			console.log('purchase index', row)
+			const notAllowApprove = row.status != 2;
+
+			if (notAllowApprove) {
+				data = data.replace(
+					/<div\s+[^>]*title="Approve"[^>]*>[\s\S]*?<\/div>/g,
+					''
+				)
+			}
+
+			return data
+		},
 	},
 ]
 const formatPrice = (price) => {

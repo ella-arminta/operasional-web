@@ -20,19 +20,27 @@
 
 			<!-- Alert Inputs -->
 			<div v-if="alert.inputs?.length">
-				<div v-for="(input, index) in alert.inputs" :key="index" class="mb-3"
-					:v-if="checkInputCondition(input)">
+				<div v-for="(input, index) in alert.inputs" :key="index" class="mb-3" :v-if="checkInputCondition(input)">
 					<label class="block text-sm font-medium text-gray-700" v-if="checkInputCondition(input)">
 						{{ input.label }}
 						<span v-if="input.required" class="text-red-500">*</span>
 					</label>
-					<input v-if="input.type !== 'select' && checkInputCondition(input)" v-model="inputData[input.model]"
-						:type="input.type || 'text'" class="w-full border p-2 rounded"
-						:placeholder="input.placeholder || ''" :required="input.required || false" />
+					<input
+						v-if="input.type !== 'select' && checkInputCondition(input)"
+						v-model="inputData[input.model]"
+						:type="input.type || 'text'"
+						class="w-full border p-2 rounded"
+						:placeholder="input.placeholder || ''"
+						:required="input.required || false"
+					/>
 
-					<Dropdown v-if="input.type === 'select' && checkInputCondition(input)"
-						:items="dropdownOptions[input.model]" :multiple="input.multiple || false"
-						v-model="inputData[input.model]" :required="input.required || false" />
+					<Dropdown
+						v-if="input.type === 'select' && checkInputCondition(input)"
+						:items="dropdownOptions[input.model]"
+						:multiple="input.multiple || false"
+						v-model="inputData[input.model]"
+						:required="input.required || false"
+					/>
 				</div>
 			</div>
 

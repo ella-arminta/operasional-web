@@ -16,8 +16,11 @@ const columns = [
 		return formatDatetime(data);
 		}
 	},
-	{ data: 'account', title: 'Account' },
+	{ data: 'account', title: 'Account', render: function(data, type, row) {
+		return `${row.account_code} - ${data}`
+	} },
 	{ data: 'label', title: 'Label' },
+	{ data: 'description', title: 'Description'},
 	{ data: 'debit', title: 'Debit', name: 'debit', render: function (data) {
 			return `<div style="text-align:right;">${formatIDR(data)}</div>`;
 	}},
