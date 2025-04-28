@@ -654,7 +654,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch, reactive } from 'vue'
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
 import Cookies from 'js-cookie'
@@ -683,7 +683,7 @@ const scanningSales = ref(false)
 const scanningPurchase = ref(false)
 // Form
 // Form Data
-const form = ref({
+const form = reactive({
 	code: '',
 	employee: '',
 	date: '',
@@ -834,7 +834,7 @@ const calculateTax = () => {
 		)
 	form.value.sub_total_price = sub_total_sales - sub_total_purchase
 	let adj = 0
-	if (parseFloat(form.value.adjustment_price) > 0) {
+	if (parseFloat(form.value.adjustment_price) > 0 && props.mode === 'edit') {
 		adj = parseFloat(form.value.adjustment_price)
 	} else if (
 		sub_total_purchase - (sub_total_sales + form.value.tax_price) >=
@@ -1503,7 +1503,10 @@ watch(
 		form.value.tax_price = tax_price
 		form.value.sub_total_price = total
 		let adj = 0
-		if (parseFloat(form.value.adjustment_price) > 0) {
+		if (
+			parseFloat(form.value.adjustment_price) > 0 &&
+			props.mode === 'edit'
+		) {
 			adj = parseFloat(form.value.adjustment_price)
 		} else if (total + tax_price <= 0) {
 			console.log(
@@ -1536,7 +1539,8 @@ watch(
 		}
 		form.value.adjustment_price = adj
 		form.value.total_price = total + tax_price + adj
-	}
+	},
+	{ deep: true }
 )
 
 const validateForm = () => {
