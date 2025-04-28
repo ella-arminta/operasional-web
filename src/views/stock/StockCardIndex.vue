@@ -27,15 +27,23 @@ const columns = [
     } },
     { data: 'in', title: 'In' },
     { data: 'out', title: 'Out' },
-    { data: 'balance', title: 'Balance', render: (data) => Number(data) },
+    { 
+      data: 'balance', 
+      title: 'Balance', 
+      render: (data) => data != null ? Number(data) : 0
+    },
     { data: 'weight_in', title: 'In (gr)' },
     { data: 'weight_out', title: 'Out (gr)' },
-    { data: 'balance_weight', title: 'Balance (gr)', render: (data) => Number(data) },
+    { 
+      data: 'balance_weight', 
+      title: 'Balance (gr)', 
+      render: (data) => data != null ? Number(data) : 0
+    },
     { data: 'avg_price_per_weight', title: 'Unit Price (per gram)', name: 'avg_price_per_weight', render:function(data) {
       return 'Rp. '+ formatIDR(data);
     } },
     {
-      data: '', title: 'Stock Value (Rp)', render: function(data, type, row) {
+      data: null, title: 'Stock Value (Rp)', render: function(data, type, row) {
         if (!row || typeof row.balance_weight === 'undefined' || typeof row.avg_price_per_weight === 'undefined') {
           return '-';
         }
@@ -52,20 +60,10 @@ const pageTitle = 'Stock Card';
 const filters = ref([]);
 
 onMounted(async () => {
-	const categoryData = await axiosInstance.get('/inventory/category');
-	var categoryFormat = categoryData.data.data.data.map((cat) => ({
-		label: cat.name,
-		id: cat.id,
-	}))
 	var prodData = await axiosInstance.get('/inventory/product');
 	var prodFormat = prodData.data.data.data.map((prod) => ({
 		label: prod.name,
 		id: prod.id,
-	}))
-	var typeData = await axiosInstance.get('/inventory/type');
-	var typeFormat = typeData.data.data.data.map((type) => ({
-		label: type.name,
-		id: type.id,
 	}))
 	var companyData = await axiosInstance.get('/master/company');
 	var companyFormat = companyData.data.data.data.map((company) => ({
@@ -97,18 +95,6 @@ onMounted(async () => {
 		},
 		{
 			type: 'select',
-			label: 'Category',
-			name: 'category_id',
-			options: [{ label: 'All Category', value: '' }, ...categoryFormat],
-		},
-		{
-			type: 'select',
-			label: 'Type',
-			name: 'type_id',
-			options: [{ label: 'All Type', value: '' }, ...typeFormat],
-		},
-		{
-			type: 'select',
 			label: 'Product',
 			name: 'product_id',
 			options: [{ label: 'All Product', value: '' }, ...prodFormat],
@@ -125,14 +111,12 @@ const handleFilterChange = (data) => {
   };
 
 // 0 -> value yg keupdate user, 1 -> value yg diupdate sesuai value 0
-  updateFilter('company_id', ['store', 'type', 'product', 'category']);
-  updateFilter('category_id', ['type', 'product']);
-  updateFilter('type_id', ['product']);
-  updateFilter('store_id', ['type', 'product', 'category']);
+  updateFilter('company_id', ['store', 'product']);
+  updateFilter('store_id', ['product']);
 };
 
 const setValuePrev = (data) => {
-  const keys = ['company_id', 'store_id', 'category_id', 'type_id', 'product_id'];
+  const keys = ['company_id', 'store_id', 'product_id'];
   keys.forEach((key, index) => {
     filters.value[index + 1].value = data[key]?.[0] || '';
   });
@@ -140,10 +124,8 @@ const setValuePrev = (data) => {
 
 const refetchData = async (type, data) => {
   const endpoints = {
-    store: { url: '/master/store', params: ['company_id'], filterIndex: 2, label: 'All Store', deeper: false },
-    type: { url: '/inventory/type', params: ['company_id', 'store_id', 'category_id'], filterIndex: 4, label: 'All Type', deeper: true },
-    product: { url: '/inventory/product', params: ['category_id', 'type_id', 'company_id', 'store_id'], filterIndex: 5, label: 'All Product', deeper: true },
-    category: { url: '/inventory/category', params: ['company_id', 'store_id'], filterIndex: 3, label: 'All Category', deeper: true },
+    store: { url: '/master/store', params: ['company_id'], filterIndex: 2, label: 'All Store', deeper: true },
+    product: { url: '/inventory/product', params: ['company_id', 'store_id'], filterIndex: 3, label: 'All Product', deeper: true },
   };
 
   const { url, params, filterIndex, label, deeper } = endpoints[type];
@@ -159,13 +141,16 @@ const refetchData = async (type, data) => {
   const response = await axiosInstance.get(fullUrl);
 
   let formattedData;
+  console.log('this is the response', response);
   try {
     if (deeper) {
+      console.log('masuk deeper')
       formattedData = response.data.data.data.map(item => ({
         label: item.name,
         id: item.id,
       }));
     } else {
+      console.log('gak masuk deeper');
       formattedData = response.data.data.map(item => ({
         label: item.name,
         id: item.id,

@@ -971,6 +971,7 @@ watch(
 			const transRefData = await axiosFetchTransRef(
 				formCode.value.transref_id[0]
 			)
+			console.log('this is transrefData', transRefData);
 			const val = transRefData.data.data.data[0]
 			formCode.value.weight = parseFloat(Math.abs(val.weight))
 			formCode.value.account_id = [val.transaction.account_id]

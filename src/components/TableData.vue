@@ -127,7 +127,7 @@
 			<thead>
 				<tr class="!bg-pinkDark text-white">
 					<th v-for="column in columns" :key="column.data">
-						{{ column.data.replace('_', ' ').toUpperCase() }}
+						{{ column.data != null ? column.data.replace('_', ' ').toUpperCase() : '' }}
 					</th>
 				</tr>
 			</thead>
@@ -853,6 +853,9 @@ const options = computed(() => ({
 			})
 		}
 	},
+	initComplete: function(settings, json) {
+		settings.oInstance.api().columns.adjust().draw(false);
+	}
 }))
 const attachDrawCallBack = () => {
 	document.querySelectorAll('.delete-btn').forEach((btn) => {

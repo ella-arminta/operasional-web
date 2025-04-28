@@ -294,14 +294,17 @@ const submit = async () => {
 	}
 	resetError()
 	try {
-		const data = form.value.prices.map((price) => {
+		var data = form.value.prices.map((price) => {
 			return {
 				type_id: price.type_id,
 				price: price.price,
 				date: form.value.date,
 			}
 		})
-		console.log(data)
+		var data = {
+			data: data
+		}
+		console.log('this is price data',data)
 		const endpoint =
 			props.mode === 'edit'
 				? `/inventory/price/${id}`
