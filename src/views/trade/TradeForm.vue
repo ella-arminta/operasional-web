@@ -822,7 +822,7 @@ const calculateTax = () => {
 					parseFloat(item.adjustment_price)),
 			0
 		)
-	form.value.tax_price = sub_total_sales * (tax.value / 100)
+	form.value.tax_price = sub_total_sales * (Number(tax.value) / 100)
 	let sub_total_purchase = form.value.transaction_details
 		.filter((item) => item.transaction_type == 2)
 		.reduce(
@@ -846,6 +846,7 @@ const calculateTax = () => {
 					(sub_total_purchase -
 						(sub_total_sales + form.value.tax_price))
 				: parseFloat(fixedKBL.value)
+		console.log('ft:', adj)
 	} else {
 		adj =
 			parseFloat(percentTT.value) > 0
@@ -854,6 +855,7 @@ const calculateTax = () => {
 						form.value.tax_price -
 						sub_total_purchase)
 				: parseFloat(fixedTT.value)
+		console.log('ft:', adj)
 	}
 	form.value.adjustment_price = adj
 	form.value.total_price =
