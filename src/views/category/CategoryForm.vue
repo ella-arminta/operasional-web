@@ -481,6 +481,7 @@ const submit = async () => {
 		} else {
 			await submitType(id)
 		}
+		router.push('/master/category')
 	}
 	if (!Array.isArray(form.value.metal_type)) {
 		form.value.metal_type = [form.value.metal_type]

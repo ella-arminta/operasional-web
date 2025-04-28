@@ -51,7 +51,7 @@
 							<template v-if="res.image !== null">
 								<img
 									:src="
-										'http://127.0.0.1/3000/uploads/' +
+										'http://127.0.0.1:3000/uploads/' +
 											res.image ?? 'empty.png'
 									"
 									alt="Product Image"
@@ -164,7 +164,7 @@
 					color="pinkDark"
 					accentColor="pinkOrange"
 				/>
-				<TableData 
+				<TableData
 					:v-if="itemSelected != ''"
 					:columns="columns"
 					:export="false"
@@ -250,7 +250,8 @@ const handleInsert = async () => {
 		const response = await axiosInstance.get(
 			`/inventory/check-product/${itemSelected.value}`
 		)
-		ajaxPath.value = '/finance/stock-card' + '?product_code_code=' + itemSelected.value
+		ajaxPath.value =
+			'/finance/stock-card' + '?product_code_code=' + itemSelected.value
 		if (response.data.success) {
 			store.dispatch('triggerAlert', {
 				type: 'success',
@@ -285,30 +286,65 @@ const formatDate = (date) => {
 	}).format(new Date(date))
 }
 
-const ajaxPath = ref('/finance/stock-card' + '?product_code_code=', itemSelected.value);
+const ajaxPath = ref(
+	'/finance/stock-card' + '?product_code_code=',
+	itemSelected.value
+)
 const columns = [
-    { 
-        data: 'date', 
-        title: 'Date', 
-        render: (data) => {
-            const date = new Date(data);
-            return date.toLocaleDateString('id-ID') + ' ' + 
-                   date.toLocaleTimeString('id-ID', { hour12: false });
-        } 
-    },
-    { data: 'code', title: 'Code' },
-    { data: 'name', title: 'Name' },
-    { data: 'description', title: 'Description', render: (data,type,row) => {
-      if (row.trans_code != null && row.trans_code != '') {
-        return data + ' ' + row.trans_code;
-      } else {
-        return data;
-      }
-    } },
-    { data: 'in', title: 'In', className: 'text-end', render: (data) => String(data) },
-    { data: 'out', title: 'Out', className: 'text-end', render: (data) => String(data) },
-    { data: 'weight_in', title: 'In (gr)', render: (data) => data + ' gr', className: 'text-end' },
-    { data: 'weight_out', title: 'Out (gr)', render: (data) => data + ' gr', className: 'text-end' },
-	{ data: 'price', title: 'Buy price / Sold price', render: (data) =>'Rp. ' +  formatIDR(data), className: 'text-end' }
-];
+	{
+		data: 'date',
+		title: 'Date',
+		render: (data) => {
+			const date = new Date(data)
+			return (
+				date.toLocaleDateString('id-ID') +
+				' ' +
+				date.toLocaleTimeString('id-ID', { hour12: false })
+			)
+		},
+	},
+	{ data: 'code', title: 'Code' },
+	{ data: 'name', title: 'Name' },
+	{
+		data: 'description',
+		title: 'Description',
+		render: (data, type, row) => {
+			if (row.trans_code != null && row.trans_code != '') {
+				return data + ' ' + row.trans_code
+			} else {
+				return data
+			}
+		},
+	},
+	{
+		data: 'in',
+		title: 'In',
+		className: 'text-end',
+		render: (data) => String(data),
+	},
+	{
+		data: 'out',
+		title: 'Out',
+		className: 'text-end',
+		render: (data) => String(data),
+	},
+	{
+		data: 'weight_in',
+		title: 'In (gr)',
+		render: (data) => data + ' gr',
+		className: 'text-end',
+	},
+	{
+		data: 'weight_out',
+		title: 'Out (gr)',
+		render: (data) => data + ' gr',
+		className: 'text-end',
+	},
+	{
+		data: 'price',
+		title: 'Buy price / Sold price',
+		render: (data) => 'Rp. ' + formatIDR(data),
+		className: 'text-end',
+	},
+]
 </script>

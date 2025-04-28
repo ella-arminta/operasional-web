@@ -795,7 +795,8 @@ const submit = async () => {
 	}
 	resetError()
 	const data = await submitProduct()
-	router.push(`/inventory/product/detail/${data.id}`)
+	if (!data) return
+	router.push(`/inventory/product`)
 	if (!Array.isArray(form.value.type_id)) {
 		form.value.type_id = [form.value.type_id]
 	}

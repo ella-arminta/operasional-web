@@ -574,6 +574,9 @@ const submit = async () => {
 				{ expires: 5 / 24 }
 			) // 5 hours
 
+			// Fething new PErmission
+			await authStore.fetchPermissions()
+
 			router.push('/home')
 		}
 	} catch (error) {
