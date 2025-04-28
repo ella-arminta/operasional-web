@@ -1492,7 +1492,8 @@ watch(
 				weight += item.quantity * suffix
 			}
 			if (item.transaction_type == 1) {
-				tax_price += parseFloat(item.total_price) * (tax.value / 100)
+				tax_price +=
+					parseFloat(item.total_price) * (Number(tax.value) / 100)
 			}
 			total += item.total_price
 		})
