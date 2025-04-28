@@ -683,7 +683,7 @@ const scanningSales = ref(false)
 const scanningPurchase = ref(false)
 // Form
 // Form Data
-const form = reactive({
+const form = ref({
 	code: '',
 	employee: '',
 	date: '',
@@ -834,7 +834,7 @@ const calculateTax = () => {
 		)
 	form.value.sub_total_price = sub_total_sales - sub_total_purchase
 	let adj = 0
-	if (parseFloat(form.value.adjustment_price) > 0 && props.mode === 'edit') {
+	if (parseFloat(form.value.adjustment_price) > 0 && props.mode !== 'add') {
 		adj = parseFloat(form.value.adjustment_price)
 	} else if (
 		sub_total_purchase - (sub_total_sales + form.value.tax_price) >=
