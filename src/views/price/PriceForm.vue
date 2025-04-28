@@ -301,10 +301,6 @@ const submit = async () => {
 				date: form.value.date,
 			}
 		})
-		var data = {
-			data: data
-		}
-		console.log('this is price data',data)
 		const endpoint =
 			props.mode === 'edit'
 				? `/inventory/price/${id}`

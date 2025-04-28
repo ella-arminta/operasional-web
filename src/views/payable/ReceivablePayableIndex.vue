@@ -21,6 +21,10 @@ const columns = [
 		data: 'payable_receivables.status',
 		title: 'Status',
 		render: function(data, type, row) {
+			if (!row.payable_receivables) {
+				return '<span class="inline-block px-2 py-1 text-xs font-semibold text-yellow-700 bg-yellow-100 rounded">On Progress</span>';
+			}
+
 			if (data == 1) {
 				return '<span class="inline-block px-2 py-1 text-xs font-semibold text-green-700 bg-green-100 rounded">Paid</span>';
 			} else if (data == 0 && (new Date(row.payable_receivables.due_date) >= new Date() || row.payable_receivables.due_date == null)) {
@@ -28,7 +32,7 @@ const columns = [
 			} else if (data == 0 && new Date(row.payable_receivables.due_date) < new Date()) {
 				return '<span class="inline-block px-2 py-1 text-xs font-semibold text-red-700 bg-red-100 rounded">Overdue</span>';
 			}
-		},
+		}
 	},
     {
         data: 'account.name',
@@ -38,15 +42,19 @@ const columns = [
         },
     },
 	{
-		data: 'payable_receivables.due_date',
+    	data: 'payable_receivables.due_date',
 		title: 'Due Date',
-		render: (data) => data ? formatDate(data) : 'Not yet set',
+		render: (data, type, row) => row.payable_receivables && row.payable_receivables.due_date
+			? formatDate(row.payable_receivables.due_date)
+			: 'Not Available',
 	},
 	{ data: 'amount', title: 'Amount Payable/Receivable', render: (data) => 'Rp. ' + formatIDR(data) },
 	{
 		data: 'payable_receivables.amount_paid',
 		title: 'Paid Amount',
-		render: (data) => 'Rp. ' + formatIDR(data),
+		render: (data, type, row) => row.payable_receivables && row.payable_receivables.amount_paid
+			? 'Rp. ' + formatIDR(row.payable_receivables.amount_paid)
+			: 'Rp. 0',
 	},
 	{
 		data: 'trans_date',
