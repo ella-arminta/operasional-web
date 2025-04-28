@@ -1509,6 +1509,8 @@ watch(
 				'fixedKBL.value',
 				fixedKBL.value
 			)
+			console.log(total, tax_price)
+			console.log(total + tax_price)
 			adj =
 				parseFloat(percentKBL.value) > 0
 					? parseFloat(percentKBL.value) * (total + tax_price)
@@ -1520,6 +1522,8 @@ watch(
 				'fixedTT.value',
 				fixedTT.value
 			)
+			console.log(total, tax_price)
+			console.log(total + tax_price)
 			adj =
 				parseFloat(percentTT.value) > 0
 					? parseFloat(percentTT.value) *
