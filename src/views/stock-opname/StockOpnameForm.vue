@@ -171,7 +171,11 @@
 											"
 										>
 											{{
-												item[column.key] ? 'Yes' : 'No'
+												item[column.key]
+													? 'Yes'
+													: item['status'] == 2
+														? 'Sold Out'
+														: 'No'
 											}}
 										</div>
 									</div>

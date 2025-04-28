@@ -7,7 +7,11 @@
 					<!-- colspan count columns -->
 					<th
 						class="px-4 py-2 text-start text-white"
-						:colspan="columns.filter((c) => !c.hidden).length + 1"
+						:colspan="
+							readonly
+								? columns.filter((c) => !c.hidden).length + 1
+								: columns.filter((c) => !c.hidden).length
+						"
 					>
 						<div class="flex justify-between items-center">
 							<div>
