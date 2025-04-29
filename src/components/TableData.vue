@@ -437,26 +437,26 @@ watch(
 	() => {
 		filterValues.value = props.filters.reduce(
 			(acc, filter) => {
-				if (filter.type == 'selectRangeFinance') {
-					// this month start and end in string format
-					const today = new Date()
-					const start = new Date(
-						today.getFullYear(),
-						today.getMonth(),
-						1
-					)
-						.toISOString()
-						.split('T')[0]
-					const end = new Date(
-						today.getFullYear(),
-						today.getMonth() + 1,
-						0
-					)
-						.toISOString()
-						.split('T')[0]
-					acc.dateStart = start
-					acc.dateEnd = end
-					return acc
+				if (filter.type === 'selectRangeFinance') {
+					const today = new Date();
+
+					const startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+					const endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+					// Manual format YYYY-MM-DD pakai lokal waktu
+					const formatDate = (date) => {
+						const year = date.getFullYear();
+						const month = (date.getMonth() + 1).toString().padStart(2, '0'); // bulan 1-12
+						const day = date.getDate().toString().padStart(2, '0'); // tanggal 1-31
+						return `${year}-${month}-${day}`;
+					};
+
+					acc.dateStart = formatDate(startDate);
+					acc.dateEnd = formatDate(endDate);
+
+					console.log('handleRangeSelected', acc.dateStart, acc.dateEnd);
+
+					return acc;
 				}
 				if (filter.type == 'select') {
 					if (filter.value) {
@@ -642,7 +642,11 @@ const ajaxOptions = computed(() => ({
 				if (filterValues.value[key].length <= 1) {
 					d[key] = filterValues.value[key][0]
 				} else {
-					d[key] = JSON.stringify(filterValues.value[key])
+					if (key != 'dateStart' && key != 'dateEnd') {
+						d[key] = JSON.stringify(filterValues.value[key])
+					} else {
+						d[key] = filterValues.value[key];
+					}
 				}
 			}
 		}
