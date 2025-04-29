@@ -18,6 +18,12 @@ const selectedRange = ref({
         end: new Date(today.getFullYear(), today.getMonth() + 1, 0),
     } 
 });
+const formatDate = (date) => {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
+};
 
 // Methods
 const toggleDropdown = () => {
@@ -55,7 +61,7 @@ const selectRange = () => {
             tempEndDate.getFullYear();
 
     }
-    console.log('beforevalue', JSON.stringify(selectedRange.value.value));
+    // console.log('beforevalue', JSON.stringify(selectedRange.value.value));
 
     isDropdownOpen.value = false;
     labelFixSelected.value = selectedRange.value.label;
@@ -67,27 +73,27 @@ const selectRange = () => {
       selectedRange.value.value.end = new Date(selectedRange.value.value.end);
     }
     // Convert buat di emit
-    selectedRange.value.value.start = selectedRange.value.value.start.toISOString().split('T')[0];
-    selectedRange.value.value.end = selectedRange.value.value.end.toISOString().split('T')[0];
+    selectedRange.value.value.start = formatDate(selectedRange.value.value.start);;
+    selectedRange.value.value.end = formatDate(selectedRange.value.value.end);;
     selectedRange.value.value.label = labelFixSelected.value;
-    console.log('middlevalue', JSON.stringify(selectedRange.value.value));
+    // console.log('middlevalue', JSON.stringify(selectedRange.value.value));
     emit("range-selected",  selectedRange.value.value );
     // balikin format 
     selectedRange.value.value.start = new Date(selectedRange.value.value.start);
     selectedRange.value.value.end = new Date(selectedRange.value.value.end);
-    console.log('aftervalue', JSON.stringify(selectedRange.value.value));
+    // console.log('aftervalue', JSON.stringify(selectedRange.value.value));
 };
 
 const navigate = (direction, options) => {
     if (options == 'months') {
-        const currentSelected = selectedRange.value.value;
+        const baseDate = new Date(selectedRange.value.value.start); // Ambil selalu dari start
         var newMonth;
         if (direction == 'next'){
-            newMonth = new Date(currentSelected.end.getFullYear(), currentSelected.end.getMonth() + 1, 1);
+            newMonth = new Date(baseDate.getFullYear(), baseDate.getMonth() + 1, 1); // next month, tanggal 1
         } else if (direction == 'prev'){ // prev
-            newMonth = new Date(currentSelected.start.getFullYear(), currentSelected.start.getMonth() - 1, 1);
+            newMonth = new Date(baseDate.getFullYear(), baseDate.getMonth() - 1, 1); // prev month, tanggal 1
         } else { // current
-            newMonth = new Date();
+            newMonth = new Date(today.getFullYear(), today.getMonth(), 1); // hari ini tanggal 1
         }
         selectedRange.value = {
             label: newMonth.toLocaleString('default', { month: 'long' }) + ' ' + newMonth.getFullYear(),
@@ -96,7 +102,7 @@ const navigate = (direction, options) => {
                 end: new Date(newMonth.getFullYear(), newMonth.getMonth() + 1, 0),
             }
         };
-    } 
+    }
     else if (options == 'quarters') {
         const currentSelected = selectedRange.value.value;
         var newQuarter;
