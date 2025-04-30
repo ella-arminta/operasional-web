@@ -18,7 +18,6 @@ const columns = [
 	{ data: 'account_name', title: 'Account' },
 	{ data: 'total', title: 'Total' },
 	{ data: 'description', title: 'Description' },
-	{ data: 'created_by', title: 'Created By' },
 	{
 		data: 'action',
 		title: 'Action',
