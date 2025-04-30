@@ -350,7 +350,9 @@
 				:deletePath="'/transaction/transaction-detail'"
 				:noDataState="noDataState"
 			/>
-			<div class="grid sm:grid-cols-1 md:grid-cols-5 gap-6 mt-8 place-items-end mr-4">
+			<div
+				class="grid sm:grid-cols-1 md:grid-cols-5 gap-6 mt-8 place-items-end mr-4"
+			>
 				<div class="md:col-start-1 col-span-2 w-full">
 					<TextareaForm
 						v-model="form.comment"
@@ -711,6 +713,19 @@ const handleInsert = async () => {
 			}
 		)
 		if (response.data.success) {
+			if (
+				form.value.transaction_details.find(
+					(item) => item.product_code_id == response.data.data.id
+				)
+			) {
+				store.dispatch('triggerAlert', {
+					type: 'error',
+					title: 'Error!',
+					message: 'Product already added.',
+				})
+				return
+			}
+
 			const data = {
 				detail_type: 'product',
 				id: null,
