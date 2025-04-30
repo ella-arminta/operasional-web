@@ -942,6 +942,7 @@ watch(
 			if (item.detail_type != 'operation') {
 				weight += parseFloat(item.quantity)
 			}
+			item.total_price= itemTotal
 
 			total += itemTotal
 		})
