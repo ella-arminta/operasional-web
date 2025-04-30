@@ -165,7 +165,11 @@
 													)
 												: $event.target.value
 									"
-									:readonly="col.readonly"
+									:readonly="
+										col.readonly ||
+										(col.key === 'quantity' &&
+											rows[rowIndex].type !== 'Operation')
+									"
 									:placeholder="
 										col.readonly ? 'To be generated' : ''
 									"
