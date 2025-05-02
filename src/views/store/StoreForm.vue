@@ -80,6 +80,12 @@
 						:error="formError.open_date"
 						required
 					/>
+					<!-- Active Status -->
+					<ToggleForm
+						v-model="form.is_active"
+						label="Active Marketplace"
+						:disabled="mode === 'detail'"
+					/>
 				</div>
 				<!-- Second Grid -->
 				<div class="space-y-3">
@@ -201,12 +207,6 @@
 			/>
 			<div class="grid sm:grid-cols-1 md:grid-cols-3 gap-6 mt-4">
 				<div class="space-y-3">
-					<!-- Activation Status -->
-					<ToggleForm
-						v-model="form.is_active"
-						label="Active Status"
-						:disabled="mode === 'detail'"
-					/>
 					<!-- Tax Percentage / PPN Jual -->
 					<InputForm
 						v-model="form.tax_percentage"
@@ -417,7 +417,7 @@ const form = ref({
 	longitude: 0,
 	logo: '',
 	poin_config: 0,
-	is_active: true,
+	is_active: false,
 	is_flex_price: false,
 	is_float_price: false,
 	tax_percentage: 0,
@@ -526,7 +526,9 @@ onMounted(async () => {
 				form.value.wa_number = form.value.wa_number.substring(2)
 			}
 			form.value.company_id = [form.value.company_id]
+			form.value.is_active = !!form.value.is_active
 			formCopy.value = { ...form.value }
+			console.log('COPY ' + formCopy.value.is_active)
 			prevLocation.value = {
 				lat: form.value.latitude,
 				lng: form.value.longitude,
@@ -548,6 +550,7 @@ onMounted(async () => {
 		}
 	} else {
 		form.value.company_id = [form.value.company_id]
+		form.value.is_active = true 
 	}
 })
 
