@@ -251,6 +251,9 @@
 						:readonly="mode === 'detail'"
 						:error="formError.poin_config"
 					/>
+					<p class="text-gray-500 text-xs mt-1">
+							This config determines points earned for marketplace transactions. Example: With value <b>10000</b>, users earn <b>1 point</b> for every <b>Rp 100,000</b> spent.
+					</p>
 					<!-- Grace Period -->
 					<InputForm
 						v-model="form.grace_period"
