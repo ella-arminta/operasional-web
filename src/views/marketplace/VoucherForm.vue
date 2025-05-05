@@ -132,14 +132,6 @@
 						{{ form.totalSold }} vouchers sold
 					</p>
 				</div>
-
-				<button
-					v-if="mode !== 'detail'"
-					type="submit"
-					class="w-full mt-4 px-4 py-2 bg-pinkDark text-white rounded-lg hover:bg-pinkDarker transition duration-300"
-				>
-					{{ mode === 'edit' ? 'Update Voucher' : 'Create Voucher' }}
-				</button>
 			</form>
 		</div>
 	</div>

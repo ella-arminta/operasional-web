@@ -16,10 +16,6 @@
                     <InputForm id="account_holder" v-model="form.account_holder" label="Account Holder"
                         placeholder="Enter account holder name" required :readonly="mode === 'detail'" />
                 </div>
-                <button v-if="mode !== 'detail'" type="submit"
-                    class="w-full mt-4 px-4 py-2 bg-pinkDark text-white rounded-lg hover:bg-pinkDarker transition duration-300">
-                    {{ mode === 'edit' ? 'Update Bank Account' : 'Create Bank Account' }}
-                </button>
             </form>
         </div>
     </div>
