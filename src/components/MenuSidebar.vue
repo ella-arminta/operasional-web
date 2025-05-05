@@ -68,9 +68,6 @@ const savedSmallMenuState = ref(false)
 
 const initSidebarState = () => {
 	const savedState = localStorage.getItem('smallMenu')
-	if (savedState !== null) {
-		store.commit('SET_SMALL_MENU', savedState === 'true')
-	}
 }
 
 const menuTree = ref([
@@ -374,12 +371,6 @@ const checkMobile = () => {
 
 
 	if (wasMobile && !isMobile.value) {
-
-		if (smallMenu.value !== savedSmallMenuState.value) {
-			store.commit('SET_SMALL_MENU', savedSmallMenuState.value)
-		}
-
-
 		if (showMobileMenu.value) {
 			showMobileMenu.value = false
 			document.body.style.overflow = ''
