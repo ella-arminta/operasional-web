@@ -24,7 +24,7 @@ export default {
 		}
 	},
 	mounted() {
-		// Cek local storage untuk status sidebar
+		// Check local storage for sidebar status
 		const savedState = localStorage.getItem('smallMenu')
 		if (savedState !== null) {
 			this.isSidebarCollapsed = savedState === 'true'
@@ -47,7 +47,7 @@ export default {
 	--main-content-width: calc(110% - var(--sidebar-width));
 }
 
-/* Reset untuk memastikan tidak ada margin dan padding bawaan */
+/* Reset to ensure no default margin and padding */
 html,
 body {
 	margin: 0;
@@ -76,12 +76,10 @@ body {
 	margin-left: var(--sidebar-collapsed-width);
 }
 
-/* Main content styling with fixed width */
+/* Main content styling with flex layout */
 .main-content {
 	flex: 1;
-	/* Use flex to fill available space */
 	min-width: 0;
-	/* Important for flexbox */
 	z-index: 10;
 	box-sizing: border-box;
 	padding: 1px;
@@ -89,7 +87,7 @@ body {
 	position: absolute;
 	top: 0;
 	bottom: 0;
-	transition: width var(--transition-speed);
+	transition: all var(--transition-speed);
 }
 
 /* Adjust main content when sidebar is expanded/collapsed */
@@ -99,36 +97,47 @@ body {
 }
 
 .sidebar-collapsed .main-content {
-	width: var(--main-content-width);
+	width: calc(100% - var(--sidebar-collapsed-width));
 	left: var(--sidebar-collapsed-width);
 }
 
-/* Mobile Styles */
-.app.internal.mobile .main-content {
-	width: 100% !important;
-	left: 0 !important;
-	right: 0 !important;
-	padding: 10px;
-	position: relative;
-}
-
-/* Responsif untuk mobile */
+/* Mobile Styles - Fixed width issue */
 @media (max-width: 768px) {
 	.main-content {
 		width: 100% !important;
-		margin-left: 0 !important;
-		margin-right: 100px !important;
+		margin-left: auto !important;
+		margin-right: auto !important;
+		position: relative;
+		left: 0 !important;
+		max-width: 95%;
+		/* Restrict width to create centering effect */
+	}
+
+	.sidebar-expanded .main-content,
+	.sidebar-collapsed .main-content {
+		width: 100% !important;
+		left: 0 !important;
+	}
+
+	/* Ensure content fills available space with better centering */
+	.app.internal.mobile .main-content {
+		width: 95% !important;
+		left: 0 !important;
+		right: 0 !important;
 		padding: 10px;
 		position: relative;
-		left: 0;
+		margin: 0 auto;
+		/* Center the content */
+		display: flex;
+		flex-direction: column;
+		align-items: center;
 	}
-}
 
-/* Penataan tabel dan konten */
-.main-content table {
-	width: 100%;
-	table-layout: fixed;
-	border-collapse: collapse;
+	/* Center card contents on mobile */
+	.app.internal.mobile .card,
+	.app.internal.mobile .card-body {
+		margin: 0 auto;
+	}
 }
 
 .main-content .card,
