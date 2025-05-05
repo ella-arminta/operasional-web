@@ -4,6 +4,8 @@ import PageTitle from '../../components/PageTitle.vue'
 import TableData from '../../components/TableData.vue'
 import axiosInstance from '../../axios'
 import { useStore } from 'vuex'
+import { decryptData } from '../../utils/crypto'
+import Cookies from 'js-cookie'
 
 const columns = [
 	{ data: 'code', title: 'Code' },
@@ -40,14 +42,10 @@ onMounted(async () => {
 		label: company.name,
 		id: company.id,
 	}))
+	const userdata = decryptData(Cookies.get('userdata'))
+	const selectedCompany = userdata.company_id;
 
 	filters.value = [
-		{
-			type: 'select',
-			label: 'Store',
-			name: 'store_id',
-			options: [{ label: 'All Store', value: '' }, ...storesFormated],
-		},
 		{
 			type: 'select',
 			label: 'Company',
@@ -56,6 +54,13 @@ onMounted(async () => {
 				{ label: 'All Company', value: '' },
 				...companiesFormated,
 			],
+			value: selectedCompany,
+		},
+		{
+			type: 'select',
+			label: 'Store',
+			name: 'store_id',
+			options: [{ label: 'All Store', value: '' }, ...storesFormated],
 		},
 		{
 			type: 'select',

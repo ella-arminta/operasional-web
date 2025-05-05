@@ -175,7 +175,7 @@
 							>
 							<Dropdown
 								:items="status"
-								v-model="form.status"
+								v-model="statusFixed"
 								placeholder="Select a status"
 								:multiple="false"
 								:searchable="false"
@@ -705,9 +705,10 @@ const form = ref({
 	tax_price: 0,
 	total_price: 0,
 	adjustment_price: 0,
-	status: [0],
+	status: [2],
 	account_id: [],
 })
+const statusFixed = ref([2])
 const formCopy = ref({ ...form.value })
 
 const formError = ref({
@@ -988,8 +989,8 @@ const transactionDetailsColumns = [
 const noDataState = `<p class="text-center text-gray-500 w-full py-2 px-4">Add Transaction Details</p>`
 
 const status = [
-	{ id: 0, label: 'Pending' },
-	{ id: 1, label: 'Paid' },
+	// { id: 0, label: 'Pending' },
+	// { id: 1, label: 'Paid' },
 	{ id: 2, label: 'Done' },
 ]
 // Payment Method

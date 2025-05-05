@@ -104,7 +104,7 @@ const columns = [
 				)
 			}
 
-			const notAllowApprove = row.status != 2;
+			const notAllowApprove = row.status != 1;
 			if (notAllowApprove) {
 				data = data.replace(
 					/<div\s+[^>]*title="Approve"[^>]*>[\s\S]*?<\/div>/g,

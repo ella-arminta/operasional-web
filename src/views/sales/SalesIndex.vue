@@ -90,7 +90,7 @@ const columns = [
 		orderable: false,
 		render: (data, type, row) => {
 			console.log('purchase index', row)
-			const notAllowApprove = row.status != 2;
+			const notAllowApprove = row.status != 1;
 
 			if (notAllowApprove) {
 				data = data.replace(
