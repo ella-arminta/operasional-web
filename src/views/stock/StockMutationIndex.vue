@@ -41,7 +41,7 @@ const store = useStore()
 const smallMenu = computed(() => store.getters.smallMenu)
 
 const ajaxPath = '/finance/stock-mutation'
-const pageTitle = 'Stock Mutation Report'
+const pageTitle = 'Stock Mutation Accumulation Report'
 
 const filters = ref([])
 
@@ -143,6 +143,7 @@ const refetchData = async (type, data) => {
 			:reload="true"
 			:filters="filters"
 			:ajaxPath="ajaxPath"
+			:filterOpen="true"
 			:options="{ 
 				scrollX: true, 
 				fixedColumns: { start: 3 } 

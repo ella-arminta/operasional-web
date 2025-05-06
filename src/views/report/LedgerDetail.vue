@@ -7,13 +7,13 @@ import { useStore } from 'vuex';
 import DropdownFinance from '../../components/DropdownFinance.vue';
 import { name } from 'eslint-plugin-prettier/recommended';
 import { useRoute } from 'vue-router';
-import { formatIDR } from '../../utils/common';
+import { formatDatetime, formatIDR } from '../../utils/common';
 
 const columns = [
   { data: 'infoacc', title: 'Info Acc' },
   { data: 'date', title: 'Date', 
     render: function (data) {
-      return formatDate(data);
+      return formatDatetime(data);
     }
    },
   {
@@ -31,7 +31,8 @@ const columns = [
 			return `<div style="text-align:right;">${formatIDR(data)}</div>`;
 		}  
   },
-  { data: 'balance', title: 'Balance', sum:true, 
+  { data: 'balance', title: 'Balance', sum:false, 
+    // totalValue: (sums) => sums.debit - sums.credit, // key part
     render: function (data) {
 			return `<div style="text-align:right;">${formatIDR(data)}</div>`;
 		} 
@@ -80,7 +81,7 @@ onMounted(async () => {
       type: 'select',
       label: 'Account',
       name: 'account_id',
-      multiple: true,
+      multiple: false,
       options: [
         { label: 'All Account', id: '' },
         ...accountOptions
@@ -103,6 +104,7 @@ onMounted(async () => {
       :filters="filters"
       :totalFooter="true"
       :export="true"
+      :filterOpen="true"
       :ajaxPath="`/finance/ledger`"
       :options="{
 				scrollX: true,

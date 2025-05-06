@@ -21,8 +21,12 @@ export const formatDatetime = (dateString) => {
 }
 
 export function formatIDR(value) {
-	if (!value) return '0'
-	return parseFloat(value).toLocaleString('id-ID')
+	if (value == null || isNaN(value)) return '0,00';
+	
+	return parseFloat(value).toLocaleString('id-ID', {
+		minimumFractionDigits: 2,
+		maximumFractionDigits: 2
+	});
 }
 
 export function unformatCurrency(value) {

@@ -136,6 +136,7 @@ const refetchData = async (type, data) => {
 			:options="{
 				scrollX: true,
 			}"
+      		:filterOpen="true"
 			@filterValuesChanged="handleFilterChange"
 		/>
 	</div>

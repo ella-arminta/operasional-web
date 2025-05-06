@@ -176,6 +176,7 @@ const refetchData = async (type, data) => {
       :reload="true"
       :filters="filters"
       :ajaxPath="ajaxPath"
+      :filterOpen="true"
       :options="{
 				scrollX: true,
 			}"

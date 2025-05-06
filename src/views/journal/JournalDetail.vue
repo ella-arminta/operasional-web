@@ -135,6 +135,7 @@ const refetchData = async (type, data) => {
 			:filters="filters"
 			:ajaxPath="`/finance/journal/${id}`"
 			:infoLabel="'Jurnal'"
+			:filterOpen="true"
 			@filterValuesChanged="handleFilterChange"
 		/>
 	</div>

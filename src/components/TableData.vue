@@ -333,6 +333,7 @@ import InputForm from './InputForm.vue'
 import ExcelJS from 'exceljs'
 import FileSaver from 'file-saver'
 import { useRouter } from 'vue-router'
+import { formatIDR } from '../utils/common'
 
 // Define props
 const props = defineProps({
@@ -388,6 +389,10 @@ const props = defineProps({
 		type: Boolean,
 		default: false,
 	},
+	filterOpen: {
+		type: Boolean,
+		default: false,
+	},
 })
 
 DataTable.use(DataTablesCore)
@@ -407,6 +412,9 @@ let router = useRouter()
 
 onMounted(() => {
 	dt = table.value.dt
+	if (props.filterOpen) {
+		isFiltersOpen.value = true
+	}
 })
 
 const toggleFilters = () => {
@@ -428,7 +436,7 @@ watch(
 	filterValues,
 	() => {
 		// console.log('filterValues', JSON.stringify(filterValues.value))
-		if (dt) dt.ajax.reload(null, false) // Reload DataTable on filter change
+		if (dt) dt.ajax.reload(null, true) // Reload DataTable on filter change
 	},
 	{ deep: true }
 )
@@ -840,21 +848,41 @@ const options = computed(() => ({
 	order: [[1, 'desc']],
 	footerCallback: function (row, data, start, end, display) {
 		if (dt && props.totalFooter) {
+			const columnSums = {};
+			
 			dt.columns().every(function () {
 				const column = this
 				const columnIndex = column.index()
+				const colDef = props.columns[columnIndex];
 
 				if (props.columns[columnIndex]?.sum) {
 					let total = column
 						.data()
 						.reduce((sum, value) => sum + parseFloat(value) || 0, 0)
+					
+					columnSums[colDef.data] = total;
 
 					const footer = column.footer()
 					if (footer) {
-						footer.innerHTML = total.toLocaleString()
+						footer.innerHTML = formatIDR(total)
 					}
 				}
 			})
+
+			// Second pass: handle columns with `totalValue`
+			dt.columns().every(function () {
+				const column = this;
+				const columnIndex = column.index();
+				const colDef = props.columns[columnIndex];
+
+				if (colDef?.totalValue && typeof colDef.totalValue === 'function') {
+					const computed = colDef.totalValue(columnSums) || 0;
+					const footer = column.footer();
+					if (footer) {
+					footer.innerHTML = computed.toLocaleString();
+					}
+				}
+			});
 		}
 	},
 	initComplete: function(settings, json) {

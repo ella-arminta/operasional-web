@@ -13,6 +13,11 @@ import Cookies from 'js-cookie'
 const columns = [
 	{ data: 'code', title: 'Code' },
 	{ data: 'name', title: 'Name' },
+	{ data: 'startBalance', title: 'Start Balance', 
+		render: function (data) {
+			return `<div style="text-align:right;">${formatIDR(data)}</div>`;
+		} 
+	},
 	{ 
 		data: 'debit', 
 		title: 'Debit', 
@@ -31,7 +36,7 @@ const columns = [
 	},
 	{ 
 		data: 'balance', 
-		title: 'Balance', 
+		title: 'End Balance', 
 		sum: true, 
 		render: function (data) {
 			return `<div style="text-align:right;">${formatIDR(data)}</div>`;
@@ -153,6 +158,7 @@ const refetchData = async (type, data) => {
 			:infoLabel="'General Ledger Detail'"
 			:export="true"
 			:totalFooter="true"
+			:filterOpen="true"
 			:options="{
 				scrollX: true,
 			}"
