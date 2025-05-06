@@ -75,10 +75,10 @@ body {
 // Small devices
 @media (max-width: 47rem) {
 	.content {
-		width: 80%;
+		width: 90%;
 	}
 	.content.full-width {
-		width: 74%;
+		width: 90%;
 	}
 }
 .app.internal::before {

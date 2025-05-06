@@ -31,15 +31,15 @@ const columns = [
 		title: 'Credit', 
 		sum: true, 
 		render: function (data) {
-			return `<div style="text-align:right;">${formatIDR(data)}</div>`;
+			return `<div style="text-align:right;">- ${formatIDR(data)}</div>`;
 		} 
 	},
 	{ 
 		data: 'balance', 
 		title: 'End Balance', 
 		sum: true, 
-		render: function (data) {
-			return `<div style="text-align:right;">${formatIDR(data)}</div>`;
+		render: function (data, type, row) {
+			return `<div style="text-align:right;">${formatIDR(parseFloat(data) + parseFloat(row.startBalance))}</div>`;
 		} 
 	},
 	{
