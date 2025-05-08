@@ -182,6 +182,7 @@ const submit = async () => {
 		errors.forEach((err) => {
 			formError.value[err.field] = err.message
 		})
+		console.log('Form Errors:', formError.value)
 		store.dispatch('triggerAlert', {
 			type: 'error',
 			title: 'Error!',

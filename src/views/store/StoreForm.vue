@@ -252,7 +252,9 @@
 						:error="formError.poin_config"
 					/>
 					<p class="text-gray-500 text-xs mt-1">
-							This config determines points earned for marketplace transactions. Example: With value <b>10000</b>, users earn <b>1 point</b> for every <b>Rp 100,000</b> spent.
+						This config determines points earned for marketplace
+						transactions. Example: With value <b>10000</b>, users
+						earn <b>1 point</b> for every <b>Rp 100,000</b> spent.
 					</p>
 					<!-- Grace Period -->
 					<InputForm
@@ -553,7 +555,7 @@ onMounted(async () => {
 		}
 	} else {
 		form.value.company_id = [form.value.company_id]
-		form.value.is_active = true 
+		form.value.is_active = true
 	}
 })
 
@@ -705,10 +707,12 @@ const submit = async () => {
 		if (Array.isArray(form.value.company_id)) {
 			form.value.company_id = form.value.company_id[0]
 		}
-		form.value.fixed_kbl_adjustment= Number(form.value.fixed_kbl_adjustment);
-		form.value.fixed_tt_adjustment= Number(form.value.fixed_tt_adjustment);
-		form.value.defect_nominal= Number(form.value.defect_nominal);
-		form.value.defect_percentage= Number(form.value.defect_percentage);
+		form.value.fixed_kbl_adjustment = Number(
+			form.value.fixed_kbl_adjustment
+		)
+		form.value.fixed_tt_adjustment = Number(form.value.fixed_tt_adjustment)
+		form.value.defect_nominal = Number(form.value.defect_nominal)
+		form.value.defect_percentage = Number(form.value.defect_percentage)
 
 		const response = await axiosInstance[method](endpoint, form.value)
 
@@ -735,6 +739,7 @@ const submit = async () => {
 		errors.forEach((err) => {
 			formError.value[err.field] = err.message
 		})
+		console.log('Form Error', formError.value)
 		store.dispatch('triggerAlert', {
 			type: 'error',
 			title: 'Error!',

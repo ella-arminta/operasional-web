@@ -336,9 +336,16 @@
 			class="w-full bg-white h-auto rounded-lg shadow-sm mt-4"
 			v-if="mode !== 'add'"
 		>
-			<h1 class="text-xl text-pinkDark font-bold pt-3 px-4">
-				Product Codes
-			</h1>
+			<div class="pt-3 px-4 flex items-center justify-between">
+				<div class="text-xl text-pinkDark font-bold">Product Codes</div>
+				<button
+					type="button"
+					class="px-4 py-2 bg-pinkDark text-white rounded-lg hover:bg-pinkOrange transition duration-300 ease-in-out"
+					@click="printQR(id)"
+				>
+					Print Product Code
+				</button>
+			</div>
 			<TableData
 				ref="refTable"
 				:columns="columns"
@@ -592,6 +599,34 @@ const openImageModal = (imagePath) => {
 const closeImageModal = () => {
 	showImageModal.value = false
 	selectedImage.value = ''
+}
+
+const printQR = async (productId: string) => {
+	try {
+		const response = await axiosInstance.get(
+			`/print-product-qr/${productId}`,
+			{
+				responseType: 'blob', // Ensure response is a Blob
+			}
+		)
+
+		if (response.status !== 200) {
+			throw new Error('Failed to generate PDF')
+		}
+
+		const blob = response.data
+		console.log('Blob:', blob) // Log the blob for debugging
+
+		// Check if blob is a valid object before using createObjectURL
+		if (!(blob instanceof Blob)) {
+			throw new Error('Invalid PDF blob received')
+		}
+
+		const url = URL.createObjectURL(blob) // Create an object URL from the Blob
+		window.open(url, '_blank') // Open the PDF in a new tab
+	} catch (error) {
+		console.error('Error printing QR:', error)
+	}
 }
 
 // Form Data for Product
@@ -972,7 +1007,7 @@ watch(
 			const transRefData = await axiosFetchTransRef(
 				formCode.value.transref_id[0]
 			)
-			console.log('this is transrefData', transRefData);
+			console.log('this is transrefData', transRefData)
 			const val = transRefData.data.data.data[0]
 			formCode.value.weight = parseFloat(Math.abs(val.weight))
 			formCode.value.account_id = [val.transaction.account_id]
