@@ -303,8 +303,9 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue'
-import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '../../vuex/auth'
 import Cookies from 'js-cookie'
 import axiosInstance from '../../axios'
 import MapPicker from '../../components/MapPicker.vue'
@@ -383,6 +384,7 @@ const alreadyHave = () => {
 const prevLocation = ref({ lat: -7.2575, lng: 112.7521 }) // Default location (Surabaya)
 const showModal = ref(false)
 const firstLoad = ref(true)
+const authStore = useAuthStore()
 
 const openModal = () => {
 	showModal.value = true
@@ -580,8 +582,8 @@ const submit = async () => {
 			router.push('/home')
 		}
 	} catch (error) {
-		console.error(error.response.data)
-		const errors = error.response.data.errors || []
+		console.error(error)
+		const errors = error.response?.data?.errors || []
 		errors.forEach((err) => {
 			formError.value[err.field] = err.message
 		})

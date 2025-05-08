@@ -49,6 +49,7 @@
 <script setup>
 import { ref, watch } from 'vue'
 import axiosInstance from '../axios'
+import { useStore } from 'vuex'
 
 // Define props
 const props = defineProps({
@@ -73,6 +74,7 @@ const emit = defineEmits(['update:modelValue'])
 const fileInput = ref(null)
 const preview = ref('') // For previewing the image
 const loading = ref(false) // For loading state
+const store = useStore()
 
 // Trigger file input click
 const triggerFileInput = () => {
@@ -130,6 +132,12 @@ const handleFileChange = async (event) => {
 			emit('update:modelValue', uploadedUrl)
 		} catch (error) {
 			console.error('File upload failed:', error)
+			store.dispatch('triggerAlert', {
+				type: 'error',
+				title: 'Error!',
+				message: error.response?.data.message ?? 'File upload failed!',
+			})
+			loading.value = false
 		}
 	}
 }
