@@ -8,7 +8,9 @@
 				color="pinkDark"
 				accentColor="pinkOrange"
 			/>
-			<div class="grid sm:grid-cols-1 md:grid-cols-3 gap-6 mt-4 items-end">
+			<div
+				class="grid sm:grid-cols-1 md:grid-cols-3 gap-6 mt-4 items-end"
+			>
 				<InputForm
 					v-model="itemSelected"
 					id="item"
@@ -46,13 +48,14 @@
 				/>
 				<div class="flex flex-col gap-6">
 					<!-- Photo -->
-					<div class="grid sm:grid-cols-1  md:grid-cols-3 gap-6">
+					<div class="grid sm:grid-cols-1 md:grid-cols-3 gap-6">
 						<div class="space-y-2">
 							<template v-if="res.image !== null">
 								<img
 									:src="
-										'http://127.0.0.1:3000/uploads/' +
-											res.image ?? 'empty.png'
+										res.image
+											? baseUrl + '/' + res.image
+											: 'empty.png'
 									"
 									alt="Product Image"
 									class="w-full h-auto object-cover border border-pinkDark border-opacity-25 rounded-lg p-4"
@@ -244,6 +247,7 @@ const handleScan = (result) => {
 	itemSelected.value = result.split(';')[0]
 	scanning.value = false
 }
+const baseUrl = import.meta.env.VITE_BASE_URL
 const handleInsert = async () => {
 	// Handle for Product
 	try {
@@ -291,28 +295,60 @@ const ajaxPath = ref(
 	itemSelected.value
 )
 const columns = [
-    { 
-        data: 'date', 
-        title: 'Date', 
-        render: (data) => {
-            const date = new Date(data);
-            return date.toLocaleDateString('id-ID') + ' ' + 
-                   date.toLocaleTimeString('id-ID', { hour12: false });
-        } 
-    },
+	{
+		data: 'date',
+		title: 'Date',
+		render: (data) => {
+			const date = new Date(data)
+			return (
+				date.toLocaleDateString('id-ID') +
+				' ' +
+				date.toLocaleTimeString('id-ID', { hour12: false })
+			)
+		},
+	},
 	{ data: 'company', title: 'Company' },
-    { data: 'store', title: 'Store' },
-    { data: 'description', title: 'Description', render: (data,type,row) => {
-      if (row.trans_code != null && row.trans_code != '') {
-        return data + ' ' + row.trans_code;
-      } else {
-        return data;
-      }
-    } },
-    { data: 'in', title: 'In', className: 'text-end', render: (data) => String(data) },
-    { data: 'out', title: 'Out', className: 'text-end', render: (data) => String(data) },
-    { data: 'weight_in', title: 'In (gr)', render: (data) => data + ' gr', className: 'text-end' },
-    { data: 'weight_out', title: 'Out (gr)', render: (data) => data + ' gr', className: 'text-end' },
-	{ data: 'price', title: 'Buy price / Sold price', render: (data) =>'Rp. ' +  formatIDR(data), className: 'text-end' }
-];
+	{ data: 'store', title: 'Store' },
+	{
+		data: 'description',
+		title: 'Description',
+		render: (data, type, row) => {
+			if (row.trans_code != null && row.trans_code != '') {
+				return data + ' ' + row.trans_code
+			} else {
+				return data
+			}
+		},
+	},
+	{
+		data: 'in',
+		title: 'In',
+		className: 'text-end',
+		render: (data) => String(data),
+	},
+	{
+		data: 'out',
+		title: 'Out',
+		className: 'text-end',
+		render: (data) => String(data),
+	},
+	{
+		data: 'weight_in',
+		title: 'In (gr)',
+		render: (data) => data + ' gr',
+		className: 'text-end',
+	},
+	{
+		data: 'weight_out',
+		title: 'Out (gr)',
+		render: (data) => data + ' gr',
+		className: 'text-end',
+	},
+	{
+		data: 'price',
+		title: 'Buy price / Sold price',
+		render: (data) => 'Rp. ' + formatIDR(data),
+		className: 'text-end',
+	},
+]
 </script>
