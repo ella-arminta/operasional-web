@@ -300,6 +300,7 @@
 							id="buy_price"
 							label="Harga Beli (sebelum pajak)"
 							placeholder="Harga Beli (sebelum pajak)"
+							format="currency"
 							:readonly="selectedType == 2"
 							required
 						/>
@@ -313,6 +314,7 @@
 							:placeholder="
 								'PPN Beli (' + taxPurchasePercentage + '%)'
 							"
+							format="currency"
 							:editPath="'/master/store/edit/' + form.store_id"
 							:readonly="true"
 							required
@@ -340,10 +342,11 @@
 				<div class="text-xl text-pinkDark font-bold">Product Codes</div>
 				<button
 					type="button"
-					class="px-4 py-2 bg-pinkDark text-white rounded-lg hover:bg-pinkOrange transition duration-300 ease-in-out"
+					class="px-4 py-2 bg-pinkDark text-white rounded-lg hover:bg-pinkOrange transition duration-300 ease-in-out flex items-center gap-2"
 					@click="printQR(id)"
 				>
-					Print Product Code
+					<!-- Icon for Print -->
+					<i class="material-icons text-md">print</i> Print
 				</button>
 			</div>
 			<TableData
@@ -353,9 +356,9 @@
 				:export="false"
 				:reload="true"
 				:ajaxPath="`/inventory/product-codes/${id}`"
-				:editPath="''"
+				:editPath="'/inventory/product-code/edit'"
 				:deletePath="'/inventory/product-code'"
-				:infoPath="''"
+				:infoPath="'/inventory/product-code/detail'"
 				:defData="{
 					transaction_id: id,
 				}"
@@ -485,11 +488,6 @@ const columns = Object.freeze([
 		data: 'no',
 		title: 'No',
 		width: '5%',
-	},
-	{
-		data: 'id',
-		title: 'Id',
-		visible: false,
 	},
 	{
 		data: 'barcode',

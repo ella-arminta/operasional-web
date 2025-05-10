@@ -336,7 +336,7 @@ const submit = async () => {
 			throw new Error('Date is required')
 		}
 		if (form.value.category_id === null) {
-			throw new Error('Kategori is required')
+			throw new Error('Category is required')
 		}
 		if (form.value.status === null) {
 			throw new Error('Status is required')
@@ -373,11 +373,20 @@ const submit = async () => {
 			router.push('/inventory/stock-opname')
 		}
 	} catch (error) {
-		store.dispatch('triggerAlert', {
-			message: error.response?.data?.message ?? error.message,
-			type: 'error',
-			title: 'Error',
-		})
+		if (error.response?.data?.message === 'store_id already exists') {
+			store.dispatch('triggerAlert', {
+				message:
+					'Store Opname already Created for this date and category',
+				type: 'error',
+				title: 'Error',
+			})
+		} else {
+			store.dispatch('triggerAlert', {
+				message: error.response?.data?.message ?? error.message,
+				type: 'error',
+				title: 'Error',
+			})
+		}
 	}
 	form.value.category_id = [form.value.category_id]
 	form.value.status = [form.value.status]
@@ -398,11 +407,16 @@ const getStockOpname = async (id) => {
 
 function getStatusLabel(status) {
 	switch (status) {
-		case 0: return 'Available'
-		case 1: return 'Sold'
-		case 2: return 'Bought back'
-		case 3: return 'Taken Out'
-		default: return 'Unknown'
+		case 0:
+			return 'Available'
+		case 1:
+			return 'Sold'
+		case 2:
+			return 'Bought back'
+		case 3:
+			return 'Taken Out'
+		default:
+			return 'Unknown'
 	}
 }
 
@@ -421,11 +435,11 @@ const getProductCodes = async () => {
 			type: product.product.type.name,
 			weight: `${product.weight} gr`,
 			status: getStatusLabel(product.status),
-				// product.status == 0
-				// 	? 'Available'
-				// 	: product.status == 1
-				// 		? 'Sold'
-				// 		: 'Taken Out',
+			// product.status == 0
+			// 	? 'Available'
+			// 	: product.status == 1
+			// 		? 'Sold'
+			// 		: 'Taken Out',
 			scanned:
 				form.value.details.filter(
 					(p) => p.product_code_id === product.id

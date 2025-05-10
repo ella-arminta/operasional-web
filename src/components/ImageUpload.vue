@@ -21,7 +21,11 @@
 				v-if="preview"
 				:src="preview"
 				alt="Preview"
-				class="rounded-lg max-h-40 w-auto"
+				class="rounded-lg w-auto"
+				:class="{
+					'max-h-40': height == 0,
+					'max-h-80': height > 0,
+				}"
 			/>
 			<i v-else class="material-icons text-4xl">cloud_upload</i>
 			<p class="text-sm">
@@ -64,6 +68,10 @@ const props = defineProps({
 	uploadFile: {
 		type: String,
 		default: '',
+	},
+	height: {
+		type: Number,
+		default: 0,
 	},
 })
 

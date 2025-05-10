@@ -174,6 +174,14 @@ const router = createRouter({
 								mode: route.params.mode,
 							}),
 						},
+						{
+							path: 'product-code/:mode/:id?',
+							component: () =>
+								import('../views/product/ProductCodeForm.vue'),
+							props: (route) => ({
+								mode: route.params.mode,
+							}),
+						},
 						// Path for Check Product
 						{
 							path: 'check-product',
