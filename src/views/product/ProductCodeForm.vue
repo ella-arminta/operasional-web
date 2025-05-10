@@ -1,6 +1,6 @@
 <template>
 	<div class="content min-h-screen" :class="{ 'full-width': smallMenu }">
-		<PageTitle :title="'Check Product'" />
+		<PageTitle :title="'Product Code'" />
 		<div class="w-full bg-white h-auto rounded-lg shadow-sm py-3 px-4">
 			<FormSectionHeader
 				title="Product Code Information"
