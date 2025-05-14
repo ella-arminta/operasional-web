@@ -294,13 +294,13 @@
 					<!-- Kolom 3: Harga Beli, PPN Beli, & Generate -->
 					<div class="col-span-1">
 						<!-- Harga Beli (sebelum pajak) -->
+						<!-- format="currency" -->
 						<InputForm
 							v-model="formCode.buy_price"
 							type="number"
 							id="buy_price"
 							label="Harga Beli (sebelum pajak)"
 							placeholder="Harga Beli (sebelum pajak)"
-							format="currency"
 							:readonly="selectedType == 2"
 							required
 						/>
@@ -964,7 +964,7 @@ const fetchTransRef = async () => {
 				// console.log('product value id', prod.id);
 				transrefs.value.push({
 					id: prod.id,
-					label: `${prod.transaction.code} | ${prod.weight} gr | ${formatNumber(Math.abs(prod.total_price))}`,
+					label: `${prod.transaction.code} | ${prod.weight} gr | ${formatNumber(Math.abs(parseFloat(prod.total_price)))}`,
 				})
 			}
 		}

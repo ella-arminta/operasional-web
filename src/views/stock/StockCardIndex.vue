@@ -43,11 +43,17 @@ const columns = [
       return 'Rp. '+ formatIDR(data);
     } },
     {
-      data: null, title: 'Stock Value (Rp)', render: function(data, type, row) {
+      data: null, 
+      title: 'Stock Value (Rp)', 
+      render: function(data, type, row) {
         if (!row || typeof row.balance_weight === 'undefined' || typeof row.avg_price_per_weight === 'undefined') {
           return '-';
         }
-        return 'Rp. '+formatIDR(row.balance_weight * row.avg_price_per_weight);
+
+        let angka1 = parseFloat(row.balance_weight).toFixed(2);
+        let angka2 = parseFloat(row.avg_price_per_weight).toFixed(2);
+        let hasil = angka1 * angka2;
+        return 'Rp. ' + formatIDR(hasil);
       }
     }
 ];

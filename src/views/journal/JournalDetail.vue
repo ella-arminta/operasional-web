@@ -20,7 +20,18 @@ const columns = [
 		return `${row.account_code} - ${data}`
 	} },
 	{ data: 'label', title: 'Label' },
-	{ data: 'description', title: 'Description'},
+	{
+		data: 'description',
+		title: 'Description',
+		render: function(data, type, row) {
+			return `
+			<div class="flex flex-col">
+				<span class="">${data}</span>
+				<span class="text-sm text-gray-500">${row.detail_description}</span>
+			</div>
+			`;
+		}
+	},
 	{ data: 'debit', title: 'Debit', name: 'debit', render: function (data) {
 			return `<div style="text-align:right;">${formatIDR(data)}</div>`;
 	}},

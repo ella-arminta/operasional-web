@@ -33,7 +33,7 @@ const columns = [
 			if (!row || typeof row.final_gram === 'undefined' || typeof row.unit_price === 'undefined') {
 				return '-';
 			}
-			return 'Rp. '+formatIDR(row.final_gram * row.unit_price);
+			return 'Rp. '+formatIDR(parseFloat(row.final_gram).toFixed(2) * parseFloat(row.unit_price).toFixed(2));
 		}
 	},
 ]
