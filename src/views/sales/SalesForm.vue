@@ -3,10 +3,10 @@
 		<PageTitle />
 		<form class="w-full bg-white h-auto rounded-lg shadow-sm py-3 px-4" @submit.prevent="submit">
 			<FormHeader :title="mode === 'edit'
-					? 'Edit Sales Transaction'
-					: mode === 'add'
-						? 'Sales Transaction Form'
-						: 'Sales Transaction Detail'
+				? 'Edit Sales Transaction'
+				: mode === 'add'
+					? 'Sales Transaction Form'
+					: 'Sales Transaction Detail'
 				" :showResetButton="false" :showSaveButton="mode !== 'detail'" @reset="resetForm" />
 			<FormSectionHeader title="Transaction Information" icon="info" />
 			<div class="grid sm:grid-cols-1 md:grid-cols-3 gap-6 mt-4">
@@ -187,9 +187,9 @@
 								class="border-b-2 border-pinkDark border-opacity-50 text-pinkDark text-md w-3/4 focus:border-b-2 focus:border-pinkDark focus:outline-none text-end bg-white"
 								placeholder="Tax Percentage" :disabled="mode === 'detail' || form.payment_link
 									" :class="{
-									'border-none':
-										mode === 'detail' || form.payment_link,
-								}" />%
+										'border-none':
+											mode === 'detail' || form.payment_link,
+									}" />%
 						</div>
 					</div>
 					<div class="h-6 grid grid-cols-2 w-full items-center">
@@ -757,10 +757,9 @@ watch(
 
 		// Update form values only once
 		form.value.sub_total_price = total
-		form.value.tax_price = total * parseFloat(tax.value / 100)
 		form.value.weight_total = weight
-
 		if (!form.value.payment_link) {
+			form.value.tax_price = total * parseFloat(tax.value / 100)
 			form.value.total_price = total + parseFloat(form.value.tax_price)
 		}
 	},
