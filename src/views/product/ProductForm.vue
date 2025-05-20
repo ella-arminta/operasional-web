@@ -314,7 +314,6 @@
 							:placeholder="
 								'PPN Beli (' + taxPurchasePercentage + '%)'
 							"
-							format="currency"
 							:editPath="'/master/store/edit/' + form.store_id"
 							:readonly="true"
 							required
@@ -1080,8 +1079,9 @@ watch(
 		) {
 			formCode.value.tax_purchase = 0
 		} else {
-			formCode.value.tax_purchase =
-				(newVal * taxPurchasePercentage.value) / 100
+			formCode.value.tax_purchase = Math.round(
+				(newVal * taxPurchasePercentage.value) / 100 * 100
+				) / 100;
 		}
 	},
 	{ deep: true }
