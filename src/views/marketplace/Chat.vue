@@ -844,56 +844,55 @@ onUnmounted(() => {
                         </div>
 
                         <!-- Messages for this date -->
-                        <div class="space-y-4">
-                            <div v-for="message in dayMessages" :key="message.id" class="flex items-end space-x-2"
-                                :class="message.senderType === 'store' ? 'justify-end flex-row-reverse space-x-reverse' : 'justify-start'">
+                        <!-- Bagian message bubble dan avatar -->
+                        <div v-for="message in dayMessages" :key="message.id" class="flex items-end space-x-2"
+                            :class="message.senderType === 'store' ? 'justify-end flex-row-reverse space-x-reverse' : 'justify-start'">
 
-                                <!-- Avatar for customer messages -->
-                                <div v-if="message.senderType === 'user'" class="flex-shrink-0">
-                                    <div
-                                        class="w-8 h-8 bg-gray-400 rounded-full flex items-center justify-center text-white text-sm font-medium">
-                                        {{ selectedConversation?.user?.name?.charAt(0)?.toUpperCase() || 'C' }}
-                                    </div>
+                            <!-- Avatar untuk pesan user -->
+                            <div v-if="message.senderType === 'user'" class="flex-shrink-0">
+                                <div
+                                    class="w-8 h-8 bg-gray-400 rounded-full flex items-center justify-center text-white text-sm font-medium">
+                                    {{ selectedConversation?.user?.name?.charAt(0)?.toUpperCase() || 'C' }}
+                                </div>
+                            </div>
+
+                            <!-- Balon Pesan -->
+                            <div class="flex flex-col max-w-xs lg:max-w-md">
+                                <div :class="[
+                                    'px-4 py-3 shadow-sm',
+                                    message.senderType === 'store'
+                                        ? 'bg-blue-600 text-white rounded-br-sm rounded-tl-2xl rounded-tr-2xl rounded-bl-2xl'
+                                        : 'bg-gray-200 text-gray-900 rounded-bl-sm rounded-tr-2xl rounded-tl-2xl rounded-br-2xl'
+                                ]">
+                                    <p class="text-sm leading-relaxed break-words">{{ message.content }}</p>
                                 </div>
 
-                                <!-- Message bubble -->
-                                <div class="flex flex-col max-w-xs lg:max-w-md">
-                                    <div :class="[
-                                        'px-4 py-3 rounded-2xl shadow-sm',
-                                        message.senderType === 'store'
-                                            ? 'bg-pinkDark text-white rounded-br-sm'
-                                            : 'bg-white text-gray-900 border border-gray-200 rounded-bl-sm'
-                                    ]">
-                                        <p class="text-sm leading-relaxed break-words">{{ message.content }}</p>
-                                    </div>
-
-                                    <!-- Message time -->
-                                    <div :class="[
-                                        'text-xs mt-1 px-2',
-                                        message.senderType === 'store' ? 'text-right text-gray-500' : 'text-left text-gray-500'
-                                    ]">
-                                        {{ formatTime(message.created_at) }}
-                                        <!-- Read status for store messages -->
-                                        <span v-if="message.senderType === 'store'" class="ml-1">
-                                            <svg class="w-3 h-3 inline text-gray-400" fill="currentColor"
-                                                viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd"
-                                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                                    clip-rule="evenodd" />
-                                            </svg>
-                                        </span>
-                                    </div>
+                                <!-- Waktu Pesan -->
+                                <div :class="[
+                                    'text-xs mt-1 px-2 select-none',
+                                    message.senderType === 'store' ? 'text-right text-gray-300' : 'text-left text-gray-600'
+                                ]">
+                                    {{ formatTime(message.created_at) }}
+                                    <span v-if="message.sender_type === 'store'" class="ml-1 inline-block">
+                                        <svg class="w-3 h-3 inline text-gray-300" fill="currentColor"
+                                            viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd"
+                                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                                clip-rule="evenodd" />
+                                        </svg>
+                                    </span>
                                 </div>
+                            </div>
 
-                                <!-- Avatar for store messages -->
-                                <div v-if="message.senderType === 'store'" class="flex-shrink-0">
-                                    <div
-                                        class="w-8 h-8 bg-pinkDark rounded-full flex items-center justify-center text-white text-sm font-medium">
-                                        S
-                                    </div>
+                            <!-- Avatar untuk pesan store -->
+                            <div v-if="message.sender_type === 'store'" class="flex-shrink-0">
+                                <div
+                                    class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
+                                    S
                                 </div>
                             </div>
                         </div>
+
                     </div>
 
                     <!-- Typing indicator (if needed) -->
@@ -1088,5 +1087,23 @@ textarea:focus {
 
 .message-bubble:hover .message-time {
     opacity: 1;
+}
+
+/* Membuat balon chat lebih halus dan konsisten */
+.bg-blue-600 {
+    background-color: #3b82f6;
+    /* warna biru cerah */
+}
+
+/* Animasi ringan untuk hover balon chat */
+.px-4.py-3.shadow-sm:hover {
+    transform: translateY(-2px);
+    transition: transform 0.2s ease;
+}
+
+/* Buat teks timestamp lebih kecil dan subtle */
+.text-xs.text-gray-300 {
+    font-size: 10px;
+    opacity: 0.8;
 }
 </style>
