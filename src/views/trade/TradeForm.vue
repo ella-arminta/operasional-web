@@ -1539,7 +1539,7 @@ watch(
 		// ) {
 		// 	adj = parseFloat(form.value.adjustment_price)
 		// } else if (total + tax_price <= 0) {
-		if (total + tax_price <= 0) {
+		if (total <= 0) {
 			console.log(
 				'percentKBL.value',
 				percentKBL.value,
@@ -1566,6 +1566,7 @@ watch(
 					? (parseFloat(percentTT.value) * Number(total)) / 100
 					: parseFloat(fixedTT.value)
 		}
+		console.log('ft:', adj)
 		form.value.adjustment_price = adj
 		form.value.total_price = total + tax_price + adj
 	},
