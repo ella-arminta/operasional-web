@@ -79,7 +79,8 @@ const groupedMessages = computed(() => {
     const groups: { [key: string]: Message[] } = {}
 
     messages.value.forEach(message => {
-        const date = formatDate(message.created_at)
+        // Gunakan createdAt yang sudah di-map
+        const date = formatDate(message.createdAt)
         if (!groups[date]) {
             groups[date] = []
         }
@@ -165,22 +166,22 @@ const initializeSocket = () => {
         }
     }, 5000)
 
-    socket.on('new_message', (message: Message) => {
-        console.log('📩 New message received:', message)
+    // socket.on('new_message', (message: Message) => {
+    //     console.log('📩 New message received:', message)
 
-        // If we're in the current conversation, add message
-        if (selectedConversation.value &&
-            message.conversationId === selectedConversation.value.id) {
-            messages.value.push(message)
-            nextTick(() => scrollToBottom())
-        }
+    //     // If we're in the current conversation, add message
+    //     if (selectedConversation.value &&
+    //         message.conversationId === selectedConversation.value.id) {
+    //         messages.value.push(message)
+    //         nextTick(() => scrollToBottom())
+    //     }
 
-        // Refresh conversation list to update last message
-        // loadConversations()
+    //     // Refresh conversation list to update last message
+    //     // loadConversations()
 
-        // Show notification
-        showNotification('New Message', `New message from customer: ${message.content.substring(0, 50)}...`)
-    })
+    //     // Show notification
+    //     showNotification('New Message', `New message from customer: ${message.content.substring(0, 50)}...`)
+    // })
 
     socket.on('conversation_updated', () => {
         console.log('🔄 Conversation updated')
@@ -222,6 +223,10 @@ const loadConversations = async () => {
         console.log('📋 Conversations response:', response.data)
 
         if (response.data.success) {
+            const formated = {
+                ...response.data.data,
+                createdAt: response.data.data.created_at
+            }
             conversations.value = response.data.data
             console.log('✅ Loaded conversations:', conversations.value.length)
 
@@ -265,12 +270,16 @@ const loadMessages = async (userId: string) => {
         console.log('💬 Messages response:', response.data)
 
         if (response.data.success) {
+            // Mapping yang konsisten untuk semua properties
             messages.value = response.data.data.messages.map(msg => ({
-                ...msg,
-                senderType: msg.sender_type,
-                createdAt: msg.created_at,
-                conversationId: msg.conversation_id
+                id: msg.id,
+                conversationId: msg.conversation_id,
+                senderId: msg.sender_id,
+                senderType: msg.sender_type, // Konsisten gunakan senderType
+                content: msg.content,
+                createdAt: msg.created_at    // Konsisten gunakan createdAt
             }))
+
             console.log('✅ Loaded messages:', messages.value.length)
             console.log('Messages data:', messages.value)
 
@@ -282,13 +291,12 @@ const loadMessages = async (userId: string) => {
     } catch (error) {
         console.error('❌ Failed to fetch messages:', error)
         console.error('Error details:', error.response?.data)
-
-        // Show user-friendly error
         alert(`Failed to load messages: ${error.response?.data?.message || error.message}`)
     } finally {
         isLoadingMessages.value = false
     }
 }
+
 
 const sendMessage = async () => {
     if (!newMessage.value.trim() || isSending.value || !storeId || !selectedConversation.value) {
@@ -331,7 +339,13 @@ const sendMessage = async () => {
         console.log('📤 Send message response:', response.data)
 
         if (response.data.success) {
-            messages.value.push(response.data.data)
+            const formattedMessage = {
+                ...response.data.data,
+                senderType: response.data.data.sender_type,
+                createdAt: response.data.data.created_at,
+                conversationId: response.data.data.conversation_id
+            }
+            messages.value.push(formattedMessage)
             console.log('✅ Message sent successfully')
             await nextTick()
             scrollToBottom()
@@ -552,15 +566,25 @@ const initializeSocketWithStatus = () => {
 
     socket.on('new_message', (message: Message) => {
         console.log('📩 New message received:', message)
-        // If we're in the current conversation, add message
-        if (message.sender_type != 'store') {
-            messages.value.push(message)
+
+
+
+        // Refresh conversation list hanya jika message bukan dari store ini
+        if (message.sender_type !== 'store') {
+            // Map properties untuk konsistensi
+            const formattedMessage = {
+                ...message,
+                senderType: message.sender_type,
+                createdAt: message.created_at,
+                conversationId: message.conversation_id
+            }
+
+            // Tambahkan message ke array (baik dari user maupun store)
+            messages.value.push(formattedMessage)
             messages.value = [...messages.value]
             nextTick(() => scrollToBottom())
-            // Refresh conversation list to update last message
             loadConversations()
-
-            // Show notification
+            // Show notification hanya untuk message dari customer
             showNotification('New Message', `New message from customer: ${message.content.substring(0, 50)}...`)
         }
     })
@@ -695,8 +719,8 @@ onUnmounted(() => {
             <div v-else class="bg-white rounded-lg shadow-md">
                 <div class="divide-y divide-gray-200">
                     <div v-for="conversation in filteredConversations" :key="conversation.id"
-                        @click="openChat(conversation)"
-                        class="p-6 hover:bg-gray-50 cursor-pointer transition-colors group">
+                        @click="openChat(conversation)" class="p-6 hover:bg-gray-50 cursor-pointer tr
+                        ansition-colors group">
                         <div class="flex items-start space-x-4">
                             <!-- Avatar -->
                             <div class="flex-shrink-0">
@@ -834,6 +858,7 @@ onUnmounted(() => {
                     </div>
 
                     <!-- Message Groups by Date -->
+                    <!-- Fix template untuk menggunakan property names yang konsisten -->
                     <div v-for="(dayMessages, date) in groupedMessages" :key="date" class="space-y-6">
                         <!-- Date Separator -->
                         <div class="flex justify-center my-6">
@@ -844,11 +869,10 @@ onUnmounted(() => {
                         </div>
 
                         <!-- Messages for this date -->
-                        <!-- Bagian message bubble dan avatar -->
                         <div v-for="message in dayMessages" :key="message.id" class="flex items-end space-x-2"
                             :class="message.senderType === 'store' ? 'justify-end flex-row-reverse space-x-reverse' : 'justify-start'">
 
-                            <!-- Avatar untuk pesan user -->
+                            <!-- Avatar untuk pesan user (kiri) -->
                             <div v-if="message.senderType === 'user'" class="flex-shrink-0">
                                 <div
                                     class="w-8 h-8 bg-gray-400 rounded-full flex items-center justify-center text-white text-sm font-medium">
@@ -867,13 +891,13 @@ onUnmounted(() => {
                                     <p class="text-sm leading-relaxed break-words">{{ message.content }}</p>
                                 </div>
 
-                                <!-- Waktu Pesan -->
+                                <!-- Waktu Pesan - FIX: gunakan createdAt yang konsisten -->
                                 <div :class="[
                                     'text-xs mt-1 px-2 select-none',
                                     message.senderType === 'store' ? 'text-right text-gray-300' : 'text-left text-gray-600'
                                 ]">
-                                    {{ formatTime(message.created_at) }}
-                                    <span v-if="message.sender_type === 'store'" class="ml-1 inline-block">
+                                    {{ formatTime(message.createdAt) }}
+                                    <span v-if="message.senderType === 'store'" class="ml-1 inline-block">
                                         <svg class="w-3 h-3 inline text-gray-300" fill="currentColor"
                                             viewBox="0 0 20 20">
                                             <path fill-rule="evenodd"
@@ -884,15 +908,7 @@ onUnmounted(() => {
                                 </div>
                             </div>
 
-                            <!-- Avatar untuk pesan store -->
-                            <div v-if="message.sender_type === 'store'" class="flex-shrink-0">
-                                <div
-                                    class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
-                                    S
-                                </div>
-                            </div>
                         </div>
-
                     </div>
 
                     <!-- Typing indicator (if needed) -->
@@ -1105,5 +1121,17 @@ textarea:focus {
 .text-xs.text-gray-300 {
     font-size: 10px;
     opacity: 0.8;
+}
+
+/* Ensure proper message alignment */
+.justify-end .max-w-xs,
+.justify-end .max-w-md {
+    margin-left: auto;
+}
+
+/* Better spacing for reversed flex */
+.space-x-reverse>*+* {
+    margin-right: 0.5rem;
+    margin-left: 0;
 }
 </style>
