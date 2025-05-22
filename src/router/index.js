@@ -416,6 +416,13 @@ const router = createRouter({
 								),
 						},
 						{
+							path: 'chat',
+							component: () =>
+								import(
+									'../views/marketplace/Chat.vue'
+								),
+						},
+						{
 							path: 'voucher',
 							component: () =>
 								import('../views/marketplace/VoucherIndex.vue'),
@@ -543,7 +550,8 @@ router.beforeEach(async (to, from, next) => {
 		if (
 			to.path === '/home' ||
 			to.path === '/logout' ||
-			to.path === '/marketplace/dashboard'
+			to.path === '/marketplace/dashboard' ||
+			to.path === '/marketplace/chat'
 		) {
 			next()
 			return
