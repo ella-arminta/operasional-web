@@ -914,14 +914,6 @@ onUnmounted(() => {
                 <!-- Message Input -->
                 <div class="border-t border-gray-200 bg-white p-4">
                     <div class="flex items-end space-x-3">
-                        <!-- Attachment button (optional) -->
-                        <button
-                            class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                            </svg>
-                        </button>
 
                         <!-- Message input -->
                         <div class="flex-1 relative">
@@ -930,14 +922,6 @@ onUnmounted(() => {
                                 class="w-full resize-none border border-gray-300 rounded-2xl px-4 py-3 pr-12 focus:ring-2 focus:ring-pinkDark focus:border-transparent placeholder-gray-500 text-sm leading-relaxed max-h-32"
                                 :disabled="isSending" style="min-height: 44px;"></textarea>
 
-                            <!-- Emoji button (optional) -->
-                            <button
-                                class="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 rounded">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                            </button>
                         </div>
 
                         <!-- Send button -->
