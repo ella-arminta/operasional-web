@@ -42,7 +42,7 @@ const columns = [
     },
     {
       data: 'price',
-      title: 'In Price',
+      title: 'In Price (per gram)',
       render: function(data, type, row) {
         if (row.in > 0) {
           let angka = parseFloat(data).toFixed(2);
@@ -115,6 +115,18 @@ onMounted(async () => {
 			options: [{ label: 'All Product', value: '' }, ...prodFormat],
 		},
 	]
+  if (prodFormat.length > 0) {
+    // Set value di filters
+    filters.value.find(f => f.name === 'product_id').value = prodFormat[0].id;
+    
+    // Simulasikan event filterValuesChanged untuk trigger pengambilan data
+    handleFilterChange({
+      product_id: [prodFormat[0].id],
+      company_id: filters.value.find(f => f.name === 'company_id')?.value ? [filters.value.find(f => f.name === 'company_id').value] : [''],
+      store_id: filters.value.find(f => f.name === 'store_id')?.value ? [filters.value.find(f => f.name === 'store_id').value] : ['']
+    });
+  }
+
 });
 const prevDatas = ref({});
 const handleFilterChange = (data) => {

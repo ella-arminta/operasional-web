@@ -23,19 +23,6 @@ const columns = [
 	{ data: 'trade_gram', title: 'tukar tambah/tukar kurang (gram)', name: 'trade_gram' },
 	{ data: 'final', title: 'Final Stock', name: 'final' },
 	{ data: 'final_gram', title: 'Final Stock (gram)', name: 'final_gram' },
-	{ data: 'unit_price', title: 'Unit Price (per gram)', name: 'unit_price', render:function(data) {
-		return 'Rp. '+ formatIDR(data);
-	} },
-	{ 
-		data: 'final_gram',
-		title: 'Stock Value (Rp)', 
-		render: function(data, type, row) {
-			if (!row || typeof row.final_gram === 'undefined' || typeof row.unit_price === 'undefined') {
-				return '-';
-			}
-			return 'Rp. '+formatIDR(parseFloat(row.final_gram).toFixed(2) * parseFloat(row.unit_price).toFixed(2));
-		}
-	},
 ]
 const store = useStore()
 const smallMenu = computed(() => store.getters.smallMenu)
