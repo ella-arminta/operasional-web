@@ -880,13 +880,14 @@ onUnmounted(() => {
                             <!-- Balon Pesan -->
                             <div class="flex flex-col max-w-xs lg:max-w-md">
                                 <div :class="[
-                                    'px-4 py-3 shadow-sm',
+                                    'px-6 py-4 shadow-sm text-base', /* padding dan font lebih besar */
                                     message.senderType === 'store'
-                                        ? 'bg-blue-600 text-white rounded-br-sm rounded-tl-2xl rounded-tr-2xl rounded-bl-2xl'
-                                        : 'bg-gray-200 text-gray-900 rounded-bl-sm rounded-tr-2xl rounded-tl-2xl rounded-br-2xl'
+                                        ? 'bg-blue-600 text-white rounded-br-sm rounded-tl-2xl rounded-tr-2xl rounded-bl-2xl max-w-lg'
+                                        : 'bg-gray-200 text-gray-900 rounded-bl-sm rounded-tr-2xl rounded-tl-2xl rounded-br-2xl max-w-lg'
                                 ]">
-                                    <p class="text-sm leading-relaxed break-words">{{ message.content }}</p>
+                                    <p class="leading-relaxed break-words">{{ message.content }}</p>
                                 </div>
+
 
                                 <!-- Waktu Pesan - FIX: gunakan createdAt yang konsisten -->
                                 <div :class="[
