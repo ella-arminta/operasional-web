@@ -250,6 +250,10 @@ const menuTree = ref([
 				label: 'Balance',
 				path: '/marketplace/balance',
 			},
+			{
+				label: 'Chat',
+				path: '/marketplace/chat',
+			},
 		],
 	},
 	{
@@ -298,6 +302,7 @@ const explorePath = async () => {
 	paths.push('/home')
 	paths.push('/logout')
 	paths.push('/faq')
+	paths.push('/marketplace/chat')
 	paths.push('/marketplace/dashboard')
 
 	menuTree.value = await filterMenu(menuTree.value, new Set(paths))

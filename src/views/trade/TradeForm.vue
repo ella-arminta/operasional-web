@@ -1533,23 +1533,24 @@ watch(
 		form.value.tax_price = tax_price
 		form.value.sub_total_price = total
 		let adj = 0
-		if (
-			parseFloat(form.value.adjustment_price) > 0 &&
-			props.mode === 'edit'
-		) {
-			adj = parseFloat(form.value.adjustment_price)
-		} else if (total + tax_price <= 0) {
+		// if (
+		// 	parseFloat(form.value.adjustment_price) > 0 &&
+		// 	props.mode === 'edit'
+		// ) {
+		// 	adj = parseFloat(form.value.adjustment_price)
+		// } else if (total + tax_price <= 0) {
+		if (total <= 0) {
 			console.log(
 				'percentKBL.value',
 				percentKBL.value,
 				'fixedKBL.value',
 				fixedKBL.value
 			)
-			console.log(total, tax_price)
-			console.log(total + tax_price)
+			// console.log(total, tax_price)
+			// console.log(total + tax_price)
 			adj =
 				parseFloat(percentKBL.value) > 0
-					? (parseFloat(percentKBL.value) * (total + tax_price)) / 100
+					? (parseFloat(percentKBL.value) * total) / 100
 					: parseFloat(fixedKBL.value)
 		} else {
 			console.log(
@@ -1558,15 +1559,14 @@ watch(
 				'fixedTT.value',
 				fixedTT.value
 			)
-			console.log(total, tax_price)
-			console.log(total + tax_price)
+			// console.log(total, tax_price)
+			// console.log(total + tax_price)
 			adj =
 				parseFloat(percentTT.value) > 0
-					? (parseFloat(percentTT.value) *
-							(Number(total) + Number(tax_price))) /
-						100
+					? (parseFloat(percentTT.value) * Number(total)) / 100
 					: parseFloat(fixedTT.value)
 		}
+		console.log('ft:', adj)
 		form.value.adjustment_price = adj
 		form.value.total_price = total + tax_price + adj
 	},
