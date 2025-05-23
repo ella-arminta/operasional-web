@@ -481,32 +481,32 @@
 					/>
 				</div>
 				<div class="md:col-start-4 col-span-2 space-y-2">
-					<div class="h-6 grid grid-cols-2 w-full items-center">
+					<div class="grid grid-cols-2 w-full items-center">
 						<div class="text-start">Weight Total</div>
 						<div class="text-pinkDark text-md text-end">
 							{{ form.weight_total }} gram
 						</div>
 					</div>
-					<div class="h-6 grid grid-cols-2 w-full items-center">
+					<div class="grid grid-cols-2 w-full items-center">
 						<div class="text-start">SubTotal</div>
 						<div class="text-pinkDark text-md text-end">
 							{{ formatNumber(form.sub_total_price) }}
 						</div>
 					</div>
-					<div class="h-6 grid grid-cols-2 w-full items-center">
+					<div class="grid grid-cols-2 w-full items-center">
 						<div class="text-start">Poin Earned</div>
 						<div class="text-pinkDark text-md text-end">
 							{{ form.poin_earned }}
 						</div>
 					</div>
-					<div class="h-6 grid grid-cols-2 w-full items-center">
+					<div class="grid grid-cols-2 w-full items-center">
 						<div class="text-start">Voucher Discount</div>
 						<div class="text-pinkDark text-md text-end">
 							{{ formatNumber(form.voucher_discount) }}
 						</div>
 					</div>
 					<!-- Cuman waktu tukar tambah -->
-					<div class="h-6 grid grid-cols-2 w-full items-center">
+					<div class="grid grid-cols-2 w-full items-center">
 						<div class="text-start">Tax Percentage</div>
 						<div class="text-end text-pinkDark">
 							<input
@@ -522,7 +522,7 @@
 						</div>
 					</div>
 					<!-- Cuman waktu tukar tambah -->
-					<div class="h-6 grid grid-cols-2 w-full items-center">
+					<div class="grid grid-cols-2 w-full items-center">
 						<div class="text-start">
 							Tax Value <span>({{ tax }}%)</span>
 						</div>
@@ -530,7 +530,7 @@
 							{{ formatNumber(form.tax_price) }}
 						</div>
 					</div>
-					<div class="h-6 grid grid-cols-2 w-full items-center">
+					<div class="grid grid-cols-2 w-full items-center">
 						<div class="text-start">Trade In Fee</div>
 						<div class="text-end text-pinkDark">
 							<input
@@ -546,7 +546,7 @@
 						</div>
 					</div>
 					<hr />
-					<div class="h-6 grid grid-cols-2 w-full items-center">
+					<div class="grid grid-cols-2 w-full items-center">
 						<div class="text-start font-bold">Total</div>
 						<div class="text-pinkDark text-md text-end font-bold">
 							{{ formatNumber(form.total_price) }}
@@ -683,6 +683,7 @@ const id = router.currentRoute.value.params.id
 const scanningCust = ref(false)
 const scanningSales = ref(false)
 const scanningPurchase = ref(false)
+const firstRender = ref(true)
 // Form
 // Form Data
 const form = ref({
@@ -736,11 +737,13 @@ const fixedTT = ref(0)
 const percentKBL = ref(0)
 const fixedKBL = ref(0)
 const tax = ref(null)
+const tradeInFee = ref('Rp. 0')
 const fetchConfig = async () => {
 	const store_id = form.value.store_id
 	const response = await axiosInstance.get(`/master/store/${store_id}`)
 
 	if (response.data.success) {
+		console.log('config:', response.data.data)
 		tax.value = parseFloat(response.data.data.tax_percentage)
 		percentTT.value = parseFloat(response.data.data.percent_tt_adjustment)
 		fixedTT.value = parseFloat(response.data.data.fixed_tt_adjustment)
@@ -839,15 +842,11 @@ const calculateTax = () => {
 	let adj = 0
 	if (parseFloat(form.value.adjustment_price) > 0 && props.mode !== 'add') {
 		adj = parseFloat(form.value.adjustment_price)
-	} else if (
-		sub_total_purchase - (sub_total_sales + form.value.tax_price) >=
-		0
-	) {
+	} else if (sub_total_purchase - sub_total_sales >= 0) {
 		adj =
 			parseFloat(percentKBL.value) > 0
 				? (parseFloat(percentKBL.value) *
-						(sub_total_purchase -
-							(sub_total_sales + form.value.tax_price))) /
+						(sub_total_purchase - sub_total_sales)) /
 					100
 				: parseFloat(fixedKBL.value)
 		console.log('ft:', adj)
@@ -855,9 +854,7 @@ const calculateTax = () => {
 		adj =
 			parseFloat(percentTT.value) > 0
 				? (parseFloat(percentTT.value) *
-						(sub_total_sales +
-							form.value.tax_price -
-							sub_total_purchase)) /
+						(sub_total_sales - sub_total_purchase)) /
 					100
 				: parseFloat(fixedTT.value)
 		console.log('ft:', adj)
@@ -1054,6 +1051,14 @@ const fetchOperation = async () => {
 
 // Handle for insert item [SALES]
 const handleInsertSales = async () => {
+	if (itemSelectedSales.value == null) {
+		store.dispatch('triggerAlert', {
+			type: 'error',
+			title: 'Error!',
+			message: 'Please select an item.',
+		})
+		return
+	}
 	if (selectedTypeSales.value == 1) {
 		// Handle for Product
 		try {
@@ -1533,13 +1538,10 @@ watch(
 		form.value.tax_price = tax_price
 		form.value.sub_total_price = total
 		let adj = 0
-		// if (
-		// 	parseFloat(form.value.adjustment_price) > 0 &&
-		// 	props.mode === 'edit'
-		// ) {
-		// 	adj = parseFloat(form.value.adjustment_price)
-		// } else if (total + tax_price <= 0) {
-		if (total <= 0) {
+		if (props.mode === 'edit' && firstRender.value) {
+			adj = parseFloat(form.value.adjustment_price)
+			firstRender.value = false
+		} else if (total <= 0) {
 			console.log(
 				'percentKBL.value',
 				percentKBL.value,
@@ -1805,8 +1807,9 @@ onMounted(async () => {
 		selectedWay.value = [2]
 		await fetchTransaction()
 	}
-	if (tax.value == null) {
-		await fetchConfig()
-	}
+	// if (tax.value == null) {
+	// await fetchConfig()
+	// }
+	await fetchConfig()
 })
 </script>
