@@ -120,9 +120,6 @@ const initializeSocket = () => {
         console.log('✅ Connected to chat server')
         console.log('Socket ID:', socket?.id)
         console.log('Transport:', socket?.io?.engine?.transport?.name)
-
-        // Try to upgrade to websocket after successful connection
-        socket?.io?.engine?.upgrade()
     })
 
     socket.on('connect_error', (error) => {
