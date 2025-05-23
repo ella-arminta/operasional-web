@@ -333,7 +333,7 @@ import InputForm from './InputForm.vue'
 import ExcelJS from 'exceljs'
 import FileSaver from 'file-saver'
 import { useRouter } from 'vue-router'
-import { formatIDR } from '../utils/common'
+import { formatDate, formatDatetime, formatIDR } from '../utils/common'
 
 // Define props
 const props = defineProps({
@@ -924,93 +924,69 @@ defineExpose({
 	reloadData,
 })
 
+// Helper to apply render logic from columns
+const getRenderedValue = (column, rawValue, row) => {
+	if (typeof column.render === 'function') {
+		// Some render functions accept 3 params (data, type, row)
+		if (column.render.length === 3) {
+			return column.render(rawValue, 'display', row);
+		}
+		return column.render(rawValue);
+	}
+	return rawValue;
+};
+
 const exportTable = async () => {
-	const data = dt.rows().data().toArray()
-	const workbook = new ExcelJS.Workbook()
-	const worksheet = workbook.addWorksheet('Exported Data')
+	const data = dt.rows().data().toArray();
+	const workbook = new ExcelJS.Workbook();
+	const worksheet = workbook.addWorksheet('Exported Data');
 
-	// Get all column indexes
-	const columns = dt.settings()[0].aoColumns
+	const columns = dt.settings()[0].aoColumns;
+	const visibleColumns = dt.columns().header().toArray().map((header, index) => ({
+		header: header.innerText,
+		key: columns[index].data,
+		render: columns[index].render, // 👈 include render function
+		index: index,
+		hiddenExport: columns[index].hiddenExport || false,
+	})).filter(col => !col.hiddenExport && col.header !== 'Action');
 
-	// Filter visible columns and prepare for date handling
-	const visibleColumns = dt
-		.columns()
-		.header()
-		.toArray()
-		.map((header, index) => ({
-			header: header.innerText,
-			key: columns[index].data,
-			index: index,
-			hiddenExport: columns[index].hiddenExport || false,
-			type: columns[index].type || null, // Ensure type is stored
-		}))
-		.filter((col) => !col.hiddenExport && col.header !== 'Action')
-
-	// Identify which columns are dates
-	const dateColumns = new Set(
-		visibleColumns
-			.filter((col) => col.type === 'date')
-			.map((col) => col.header)
-	)
-
-	// Add headers
-	worksheet.addRow(visibleColumns.map((col) => col.header))
-
-	// Define column widths
-	worksheet.columns = visibleColumns.map((col) => ({
+	// Header
+	worksheet.addRow(visibleColumns.map(col => col.header));
+	worksheet.columns = visibleColumns.map(col => ({
 		header: col.header,
 		key: col.header,
-		width: 20,
-	}))
+		width: 25,
+	}));
 
-	// Add rows with formatted dates
-	data.forEach((row) => {
-		let filteredRow = {}
+	// Rows
+	data.forEach(row => {
+		const filteredRow = {};
 
-		visibleColumns.forEach((col) => {
-			let value = row[col.key]
+		visibleColumns.forEach(col => {
+			const rawValue = row[col.key];
+			const renderedValue = getRenderedValue(col, rawValue, row);
+			filteredRow[col.header] = renderedValue;
+		});
 
-			// Format date columns
-			if (dateColumns.has(col.header) && value) {
-				value = new Date(value)
-			}
+		worksheet.addRow(filteredRow);
+	});
 
-			filteredRow[col.header] = value
-		})
-
-		const rowData = worksheet.addRow(filteredRow)
-
-		// Apply Excel date formatting
-		rowData.eachCell((cell, colNumber) => {
-			if (dateColumns.has(visibleColumns[colNumber - 1].header)) {
-				cell.numFmt = 'dd/mm/yyyy'
-			}
-		})
-	})
-
-	// Add footer row if needed
+	// Optional footer
 	if (props.totalFooter) {
-		const footer = dt
-			.columns()
-			.footer()
-			.toArray()
-			.map((footer, index) =>
-				!columns[index].hiddenExport ? footer.innerText : null
-			)
-			.filter((value) => value !== null)
-
-		worksheet.addRow(footer)
+		const footer = dt.columns().footer().toArray()
+			.map((footer, index) => !columns[index].hiddenExport ? footer.innerText : null)
+			.filter(value => value !== null);
+		worksheet.addRow(footer);
 	}
 
-	// Generate and save file
-	const buffer = await workbook.xlsx.writeBuffer()
+	// Export file
+	const buffer = await workbook.xlsx.writeBuffer();
 	const blob = new Blob([buffer], {
 		type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-	})
-
-	const filename = `${Date.now()}_${window.location.pathname.split('/').pop().replace(/-/g, '_')}.xlsx`
-	FileSaver.saveAs(blob, filename)
-}
+	});
+	const filename = `${Date.now()}_${window.location.pathname.split('/').pop().replace(/-/g, '_')}.xlsx`;
+	FileSaver.saveAs(blob, filename);
+};
 
 // Emit filterValues value when change
 const emit = defineEmits(['filterValuesChanged']) // Define emit event

@@ -6,6 +6,7 @@ import axiosInstance from '../../axios'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { useAuthStore } from '../../vuex/auth'
+import { formatIDR } from '../../utils/common'
 
 const columns = [
 	{ data: 'code', title: 'No' },
@@ -16,7 +17,7 @@ const columns = [
 		type: 'date',
 	},
 	{ data: 'account_name', title: 'Account' },
-	{ data: 'total', title: 'Total' },
+	{ data: 'total', title: 'Total', render:(data) => 'Rp. ' +formatIDR(data) },
 	{ data: 'description', title: 'Description' },
 	{
 		data: 'action',

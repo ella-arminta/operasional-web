@@ -12,6 +12,7 @@ import Cookies from 'js-cookie'
 const columns = [
 	{ data: 'code', title: 'Journal Entry', visible: false },
 	{ data: 'date', title: 'Date', 
+		type: 'date',
 		render: function (data) {
 		return formatDatetime(data);
 		}

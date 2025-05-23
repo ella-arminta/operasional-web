@@ -271,7 +271,7 @@ const mountUpdatedData = async () => {
 	form.value.trans_type = data.trans_type.name
 	form.value.amount = Math.abs(parseFloat(data.amount))
 	form.value.amount_paid = data.payable_receivables != null ? (parseFloat(data.payable_receivables.amount_paid)) : 0
-	form.value.description = data.Description
+	form.value.description = data.description
 	form.value.account = data.account
 	form.value.status = data.payable_receivables?.status ?? 0
 	formCopy.value = { ...form.value }

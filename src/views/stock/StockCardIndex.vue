@@ -10,6 +10,7 @@ const columns = [
     { 
         data: 'date', 
         title: 'Date', 
+        type: 'date',
         render: (data) => {
             const date = new Date(data);
             return date.toLocaleDateString('id-ID') + ' ' + 
@@ -39,21 +40,29 @@ const columns = [
       title: 'Balance (gr)', 
       render: (data) => data != null ? Number(data) : 0
     },
-    { data: 'avg_price_per_weight', title: 'Unit Price (per gram)', name: 'avg_price_per_weight', render:function(data) {
+    {
+      data: 'price',
+      title: 'In Price',
+      render: function(data, type, row) {
+        if (row.in > 0) {
+          let angka = parseFloat(data).toFixed(2);
+          return 'Rp. ' + formatIDR(angka);
+        } else {
+          return '-';
+        }
+      }
+    },
+    { data: 'unit_price', title: 'Unit Price (per gram)', name: 'unit_price', render:function(data) {
       return 'Rp. '+ formatIDR(data);
     } },
     {
-      data: null, 
+      data: 'stock_value', 
       title: 'Stock Value (Rp)', 
       render: function(data, type, row) {
-        if (!row || typeof row.balance_weight === 'undefined' || typeof row.avg_price_per_weight === 'undefined') {
+        if (!row || typeof row.stock_value === 'undefined' || typeof row.stock_value === 'undefined') {
           return '-';
         }
-
-        let angka1 = parseFloat(row.balance_weight).toFixed(2);
-        let angka2 = parseFloat(row.avg_price_per_weight).toFixed(2);
-        let hasil = angka1 * angka2;
-        return 'Rp. ' + formatIDR(hasil);
+        return 'Rp. ' + formatIDR(data);
       }
     }
 ];
