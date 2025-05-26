@@ -168,6 +168,10 @@
 									:readonly="
 										col.readonly ||
 										(col.key === 'quantity' &&
+											rows[rowIndex].type !==
+												'Operation') ||
+										(!isFlexible &&
+											col.key !== 'quantity' &&
 											rows[rowIndex].type !== 'Operation')
 									"
 									:placeholder="
@@ -291,6 +295,10 @@ const props = defineProps({
 	noDataState: {
 		type: String,
 		default: '',
+	},
+	isFlexible: {
+		type: Boolean,
+		default: false,
 	},
 })
 

@@ -349,6 +349,7 @@
 				:editPath="'/transaction/transaction-detail'"
 				:deletePath="'/transaction/transaction-detail'"
 				:noDataState="noDataState"
+				:isFlexible="isFlexible"
 			/>
 			<div
 				class="grid sm:grid-cols-1 md:grid-cols-5 gap-6 mt-8 place-items-end mr-4"
@@ -1115,6 +1116,24 @@ const fetchTransAccount = async () => {
 	}
 }
 
+// Fetch config for isFlexible
+const isFlexible = ref(false)
+const fetchConfig = async () => {
+	const store_id = form.value.store_id
+	const response = await axiosInstance.get(`/master/store/${store_id}`)
+
+	if (response.data.success) {
+		isFlexible.value =
+			response.data.data.is_flex_price ||
+			decryptData(Cookies.get('userdata')).is_owner
+	} else {
+		store.dispatch('triggerAlert', {
+			type: 'error',
+			title: 'Error!',
+			message: response.data.message,
+		})
+	}
+}
 onMounted(async () => {
 	await fetchCategory()
 	await fetchCustomer()
@@ -1130,5 +1149,6 @@ onMounted(async () => {
 		selectedWay.value = [2]
 		await fetchTransaction()
 	}
+	await fetchConfig()
 })
 </script>

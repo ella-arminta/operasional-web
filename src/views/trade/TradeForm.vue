@@ -458,6 +458,7 @@
 				:readonly="mode === 'detail' || form.payment_method[0] === 5"
 				:allActive="false"
 				:independent="mode !== 'add'"
+				:isFlexible="isFlexible"
 				:addable="false"
 				title="Items Detail"
 				@update:rows="handleRowsUpdate"
@@ -493,19 +494,22 @@
 							{{ formatNumber(form.sub_total_price) }}
 						</div>
 					</div>
-					<div class="grid grid-cols-2 w-full items-center">
-						<div class="text-start">Poin Earned</div>
-						<div class="text-pinkDark text-md text-end">
-							{{ form.poin_earned }}
-						</div>
-					</div>
-					<div class="grid grid-cols-2 w-full items-center">
-						<div class="text-start">Voucher Discount</div>
-						<div class="text-pinkDark text-md text-end">
-							{{ formatNumber(form.voucher_discount) }}
-						</div>
-					</div>
 					<!-- Cuman waktu tukar tambah -->
+					<div class="grid grid-cols-2 w-full items-center">
+						<div class="text-start">Trade In Fee</div>
+						<div class="text-end text-pinkDark">
+							<input
+								v-model="form.adjustment_price"
+								type="text"
+								class="border-b-2 border-pinkDark border-opacity-50 text-pinkDark text-md w-3/4 focus:border-b-2 focus:border-pinkDark focus:outline-none text-end bg-white"
+								placeholder="Trade In Fee"
+								:disabled="mode === 'detail' || !isFlexible"
+								:class="{
+									'border-none': mode === 'detail',
+								}"
+							/>
+						</div>
+					</div>
 					<div class="grid grid-cols-2 w-full items-center">
 						<div class="text-start">Tax Percentage</div>
 						<div class="text-end text-pinkDark">
@@ -514,7 +518,7 @@
 								type="decimal"
 								class="border-b-2 border-pinkDark border-opacity-50 text-pinkDark text-md w-3/4 focus:border-b-2 focus:border-pinkDark focus:outline-none text-end bg-white"
 								placeholder="Tax Percentage"
-								:disabled="mode === 'detail'"
+								:disabled="mode === 'detail' || !isFlexible"
 								:class="{
 									'border-none': mode === 'detail',
 								}"
@@ -528,21 +532,6 @@
 						</div>
 						<div class="text-pinkDark text-md text-end">
 							{{ formatNumber(form.tax_price) }}
-						</div>
-					</div>
-					<div class="grid grid-cols-2 w-full items-center">
-						<div class="text-start">Trade In Fee</div>
-						<div class="text-end text-pinkDark">
-							<input
-								v-model="form.adjustment_price"
-								type="text"
-								class="border-b-2 border-pinkDark border-opacity-50 text-pinkDark text-md w-3/4 focus:border-b-2 focus:border-pinkDark focus:outline-none text-end bg-white"
-								placeholder="Trade In Fee"
-								:disabled="mode === 'detail'"
-								:class="{
-									'border-none': mode === 'detail',
-								}"
-							/>
 						</div>
 					</div>
 					<hr />
@@ -737,18 +726,23 @@ const fixedTT = ref(0)
 const percentKBL = ref(0)
 const fixedKBL = ref(0)
 const tax = ref(null)
-const tradeInFee = ref('Rp. 0')
+const isFlexible = ref(false)
 const fetchConfig = async () => {
 	const store_id = form.value.store_id
 	const response = await axiosInstance.get(`/master/store/${store_id}`)
 
 	if (response.data.success) {
 		console.log('config:', response.data.data)
-		tax.value = parseFloat(response.data.data.tax_percentage)
+		tax.value =
+			form.value.tax_percent ??
+			parseFloat(response.data.data.tax_percentage)
 		percentTT.value = parseFloat(response.data.data.percent_tt_adjustment)
 		fixedTT.value = parseFloat(response.data.data.fixed_tt_adjustment)
 		percentKBL.value = parseFloat(response.data.data.percent_kbl_adjustment)
 		fixedKBL.value = parseFloat(response.data.data.fixed_kbl_adjustment)
+		isFlexible.value =
+			response.data.data.is_flex_price ||
+			decryptData(Cookies.get('userdata')).is_owner
 	} else {
 		store.dispatch('triggerAlert', {
 			type: 'error',
@@ -1051,7 +1045,10 @@ const fetchOperation = async () => {
 
 // Handle for insert item [SALES]
 const handleInsertSales = async () => {
-	if (itemSelectedSales.value == null) {
+	if (
+		itemSelectedSales.value == null &&
+		operationSelected.value.length == 0
+	) {
 		store.dispatch('triggerAlert', {
 			type: 'error',
 			title: 'Error!',
@@ -1807,9 +1804,6 @@ onMounted(async () => {
 		selectedWay.value = [2]
 		await fetchTransaction()
 	}
-	// if (tax.value == null) {
-	// await fetchConfig()
-	// }
 	await fetchConfig()
 })
 </script>
