@@ -733,9 +733,7 @@ const fetchConfig = async () => {
 
 	if (response.data.success) {
 		console.log('config:', response.data.data)
-		tax.value =
-			form.value.tax_percent ??
-			parseFloat(response.data.data.tax_percentage)
+		tax.value = tax.value ?? parseFloat(response.data.data.tax_percentage)
 		percentTT.value = parseFloat(response.data.data.percent_tt_adjustment)
 		fixedTT.value = parseFloat(response.data.data.fixed_tt_adjustment)
 		percentKBL.value = parseFloat(response.data.data.percent_kbl_adjustment)
@@ -743,6 +741,8 @@ const fetchConfig = async () => {
 		isFlexible.value =
 			response.data.data.is_flex_price ||
 			decryptData(Cookies.get('userdata')).is_owner
+		console.log('isFlexible:', isFlexible.value)
+		console.log('tax:', tax.value)
 	} else {
 		store.dispatch('triggerAlert', {
 			type: 'error',
@@ -807,6 +807,7 @@ watch(
 		}
 
 		form.value.adjustment_price = parseFloat(strValue)
+		console.log('hi: ', form.value.adjustment_price)
 		calculateTax()
 	}
 )
@@ -836,6 +837,7 @@ const calculateTax = () => {
 	let adj = 0
 	if (parseFloat(form.value.adjustment_price) > 0 && props.mode !== 'add') {
 		adj = parseFloat(form.value.adjustment_price)
+		console.log('ft1:', adj)
 	} else if (sub_total_purchase - sub_total_sales >= 0) {
 		adj =
 			parseFloat(percentKBL.value) > 0
@@ -843,7 +845,7 @@ const calculateTax = () => {
 						(sub_total_purchase - sub_total_sales)) /
 					100
 				: parseFloat(fixedKBL.value)
-		console.log('ft:', adj)
+		console.log('ft2:', adj)
 	} else {
 		adj =
 			parseFloat(percentTT.value) > 0
@@ -851,7 +853,7 @@ const calculateTax = () => {
 						(sub_total_sales - sub_total_purchase)) /
 					100
 				: parseFloat(fixedTT.value)
-		console.log('ft:', adj)
+		console.log('ft3:', adj)
 	}
 	form.value.adjustment_price = adj
 	form.value.total_price =
@@ -1537,7 +1539,6 @@ watch(
 		let adj = 0
 		if (props.mode === 'edit' && firstRender.value) {
 			adj = parseFloat(form.value.adjustment_price)
-			firstRender.value = false
 		} else if (total <= 0) {
 			console.log(
 				'percentKBL.value',
@@ -1724,9 +1725,9 @@ const fetchTransaction = async () => {
 			account_id: data.account_id ? [data.account_id] : [],
 			adjustment_price: parseFloat(data.adjustment_price),
 		}
-
 		form.value.status = [form.value.status]
 		form.value.payment_method = [form.value.payment_method]
+		form.value.adjustment_price = parseFloat(data.adjustment_price)
 		tax.value = form.value.tax_percent
 		formCopy.value = { ...form.value }
 		console.log('Ini Form Copy', formCopy.value)
@@ -1805,5 +1806,6 @@ onMounted(async () => {
 		await fetchTransaction()
 	}
 	await fetchConfig()
+	firstRender.value = false
 })
 </script>
