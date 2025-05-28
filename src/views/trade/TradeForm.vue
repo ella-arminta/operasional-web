@@ -720,146 +720,6 @@ const formError = ref({
 	account_id: '',
 })
 
-// Handle Fro Transaction CONFIG
-const percentTT = ref(0)
-const fixedTT = ref(0)
-const percentKBL = ref(0)
-const fixedKBL = ref(0)
-const tax = ref(null)
-const isFlexible = ref(false)
-const fetchConfig = async () => {
-	const store_id = form.value.store_id
-	const response = await axiosInstance.get(`/master/store/${store_id}`)
-
-	if (response.data.success) {
-		console.log('config:', response.data.data)
-		tax.value = tax.value ?? parseFloat(response.data.data.tax_percentage)
-		percentTT.value = parseFloat(response.data.data.percent_tt_adjustment)
-		fixedTT.value = parseFloat(response.data.data.fixed_tt_adjustment)
-		percentKBL.value = parseFloat(response.data.data.percent_kbl_adjustment)
-		fixedKBL.value = parseFloat(response.data.data.fixed_kbl_adjustment)
-		isFlexible.value =
-			response.data.data.is_flex_price ||
-			decryptData(Cookies.get('userdata')).is_owner
-		console.log('isFlexible:', isFlexible.value)
-		console.log('tax:', tax.value)
-	} else {
-		store.dispatch('triggerAlert', {
-			type: 'error',
-			title: 'Error!',
-			message: response.data.message,
-		})
-	}
-}
-// Watching Tax
-watch(
-	() => tax.value,
-	(newValue) => {
-		// Ensure it's a string
-		let strValue = newValue.toString()
-
-		strValue = strValue.replace(/[^0-9\,\.]+/g, '') // Remove non-numeric characters
-		strValue = strValue.replace('/[\,\.]+/g', '.')
-
-		// Allow only numbers and a single dot (prevent multiple dots)
-		const parts = strValue.split('.')
-		if (parts.length > 2) {
-			strValue = parts.shift() + '.' + parts.join('')
-		}
-
-		// ✅ If the user is still typing (e.g., "2."), don't convert yet
-		if (strValue.endsWith('.')) {
-			tax.value = strValue
-			return
-		}
-
-		// Convert to float and enforce min/max (0-100)
-		let numericValue = parseFloat(strValue)
-
-		if (!isNaN(numericValue)) {
-			numericValue = Math.min(Math.max(numericValue, 0), 100)
-			tax.value = numericValue.toString() // Keep it as a string for input field
-			calculateTax()
-		}
-	}
-)
-
-// Watching Adjustment Price
-watch(
-	() => form.value.adjustment_price,
-	(newValue) => {
-		// Ensure it's a string
-		let strValue = newValue.toString()
-
-		strValue = strValue.replace(/[^0-9\,\.]+/g, '') // Remove non-numeric characters
-		strValue = strValue.replace('/[\,\.]+/g', '.')
-
-		// Allow only numbers and a single dot (prevent multiple dots)
-		const parts = strValue.split('.')
-		if (parts.length > 2) {
-			strValue = parts.shift() + '.' + parts.join('')
-		}
-
-		// ✅ If the user is still typing (e.g., "2."), don't convert yet
-		if (strValue.endsWith('.')) {
-			form.value.adjustment_price = strValue
-			return
-		}
-
-		form.value.adjustment_price = parseFloat(strValue)
-		console.log('hi: ', form.value.adjustment_price)
-		calculateTax()
-	}
-)
-
-// Function to Calculate the Tax and Total by SubTotal [only for SALES]
-const calculateTax = () => {
-	let sub_total_sales = form.value.transaction_details
-		.filter((item) => item.transaction_type == 1)
-		.reduce(
-			(acc, item) =>
-				acc +
-				(parseFloat(item.quantity) * parseFloat(item.price) +
-					parseFloat(item.adjustment_price)),
-			0
-		)
-	form.value.tax_price = sub_total_sales * (Number(tax.value) / 100)
-	let sub_total_purchase = form.value.transaction_details
-		.filter((item) => item.transaction_type == 2)
-		.reduce(
-			(acc, item) =>
-				acc +
-				(parseFloat(item.quantity) * parseFloat(item.price) +
-					parseFloat(item.adjustment_price)),
-			0
-		)
-	form.value.sub_total_price = sub_total_sales - sub_total_purchase
-	let adj = 0
-	if (parseFloat(form.value.adjustment_price) > 0 && props.mode !== 'add') {
-		adj = parseFloat(form.value.adjustment_price)
-		console.log('ft1:', adj)
-	} else if (sub_total_purchase - sub_total_sales >= 0) {
-		adj =
-			parseFloat(percentKBL.value) > 0
-				? (parseFloat(percentKBL.value) *
-						(sub_total_purchase - sub_total_sales)) /
-					100
-				: parseFloat(fixedKBL.value)
-		console.log('ft2:', adj)
-	} else {
-		adj =
-			parseFloat(percentTT.value) > 0
-				? (parseFloat(percentTT.value) *
-						(sub_total_sales - sub_total_purchase)) /
-					100
-				: parseFloat(fixedTT.value)
-		console.log('ft3:', adj)
-	}
-	form.value.adjustment_price = adj
-	form.value.total_price =
-		form.value.sub_total_price + form.value.tax_price + adj
-}
-
 const submitAdminReply = async (item) => {
 	if (!item.adminReply || item.adminReply.trim() === '') {
 		store.dispatch('triggerAlert', {
@@ -1511,7 +1371,9 @@ const formatNumber = (value: number) => {
 watch(
 	() => form.value.transaction_details,
 	(newValue, oldValue) => {
-		if (props.mode === 'detail') return
+		if (firstRender.value) {
+			return
+		}
 		let total = 0
 		let weight = 0
 		let tax_price = 0
@@ -1534,7 +1396,6 @@ watch(
 			total += item.total_price
 		})
 		form.value.weight_total = weight
-		form.value.tax_price = tax_price
 		form.value.sub_total_price = total
 		let adj = 0
 		if (props.mode === 'edit' && firstRender.value) {
@@ -1546,8 +1407,6 @@ watch(
 				'fixedKBL.value',
 				fixedKBL.value
 			)
-			// console.log(total, tax_price)
-			// console.log(total + tax_price)
 			adj =
 				parseFloat(percentKBL.value) > 0
 					? (parseFloat(percentKBL.value) * total) / 100
@@ -1559,8 +1418,6 @@ watch(
 				'fixedTT.value',
 				fixedTT.value
 			)
-			// console.log(total, tax_price)
-			// console.log(total + tax_price)
 			adj =
 				parseFloat(percentTT.value) > 0
 					? (parseFloat(percentTT.value) * Number(total)) / 100
@@ -1568,10 +1425,151 @@ watch(
 		}
 		console.log('ft:', adj)
 		form.value.adjustment_price = adj
-		form.value.total_price = total + tax_price + adj
+		// Call for Calculate Tax
 	},
 	{ deep: true }
 )
+
+// Handle For Transaction CONFIG
+const percentTT = ref(0)
+const fixedTT = ref(0)
+const percentKBL = ref(0)
+const fixedKBL = ref(0)
+const tax = ref(null)
+const isFlexible = ref(false)
+const fetchConfig = async () => {
+	const store_id = form.value.store_id
+	const response = await axiosInstance.get(`/master/store/${store_id}`)
+
+	if (response.data.success) {
+		console.log('config:', response.data.data)
+		tax.value = tax.value ?? parseFloat(response.data.data.tax_percentage)
+		percentTT.value = parseFloat(response.data.data.percent_tt_adjustment)
+		fixedTT.value = parseFloat(response.data.data.fixed_tt_adjustment)
+		percentKBL.value = parseFloat(response.data.data.percent_kbl_adjustment)
+		fixedKBL.value = parseFloat(response.data.data.fixed_kbl_adjustment)
+		isFlexible.value =
+			response.data.data.is_flex_price ||
+			decryptData(Cookies.get('userdata')).is_owner
+		console.log('isFlexible:', isFlexible.value)
+		console.log('tax:', tax.value)
+	} else {
+		store.dispatch('triggerAlert', {
+			type: 'error',
+			title: 'Error!',
+			message: response.data.message,
+		})
+	}
+}
+// Watching Tax
+watch(
+	() => tax.value,
+	(newValue) => {
+		if (firstRender.value) {
+			return
+		}
+		// Ensure it's a string
+		let strValue = newValue.toString()
+
+		strValue = strValue.replace(/[^0-9\,\.]+/g, '') // Remove non-numeric characters
+		strValue = strValue.replace('/[\,\.]+/g', '.')
+
+		// Allow only numbers and a single dot (prevent multiple dots)
+		const parts = strValue.split('.')
+		if (parts.length > 2) {
+			strValue = parts.shift() + '.' + parts.join('')
+		}
+
+		// ✅ If the user is still typing (e.g., "2."), don't convert yet
+		if (strValue.endsWith('.')) {
+			tax.value = strValue
+			return
+		}
+
+		// Convert to float and enforce min/max (0-100)
+		let numericValue = parseFloat(strValue)
+
+		if (!isNaN(numericValue)) {
+			numericValue = Math.min(Math.max(numericValue, 0), 100)
+			tax.value = numericValue.toString() // Keep it as a string for input field
+			calculateTax()
+		}
+	}
+)
+
+// Watching Adjustment Price
+watch(
+	() => form.value.adjustment_price,
+	(newValue) => {
+		if (firstRender.value) {
+			return
+		}
+		// Ensure it's a string
+		let strValue = newValue.toString()
+
+		strValue = strValue.replace(/[^0-9\,\.]+/g, '') // Remove non-numeric characters
+		strValue = strValue.replace('/[\,\.]+/g', '.')
+
+		// Allow only numbers and a single dot (prevent multiple dots)
+		const parts = strValue.split('.')
+		if (parts.length > 2) {
+			strValue = parts.shift() + '.' + parts.join('')
+		}
+
+		// ✅ If the user is still typing (e.g., "2."), don't convert yet
+		if (strValue.endsWith('.')) {
+			form.value.adjustment_price = strValue
+			return
+		}
+
+		form.value.adjustment_price = parseFloat(strValue)
+		calculateTax()
+	}
+)
+
+// Function to Calculate the Tax and Total by SubTotal [only for SALES]
+const calculateTax = () => {
+	let sub_total_sales = form.value.transaction_details
+		.filter((item) => item.transaction_type == 1)
+		.reduce(
+			(acc, item) =>
+				acc +
+				(parseFloat(item.quantity) * parseFloat(item.price) +
+					parseFloat(item.adjustment_price)),
+			0
+		)
+	form.value.tax_price = sub_total_sales * (Number(tax.value) / 100)
+	let sub_total_purchase = form.value.transaction_details
+		.filter((item) => item.transaction_type == 2)
+		.reduce(
+			(acc, item) =>
+				acc +
+				(parseFloat(item.quantity) * parseFloat(item.price) +
+					parseFloat(item.adjustment_price)),
+			0
+		)
+	form.value.sub_total_price = sub_total_sales - sub_total_purchase
+	let adj = 0
+	if (sub_total_purchase - sub_total_sales >= 0) {
+		adj =
+			parseFloat(percentKBL.value) > 0
+				? (parseFloat(percentKBL.value) *
+						(sub_total_purchase - sub_total_sales)) /
+					100
+				: parseFloat(fixedKBL.value)
+	} else {
+		adj =
+			parseFloat(percentTT.value) > 0
+				? (parseFloat(percentTT.value) *
+						(sub_total_sales - sub_total_purchase)) /
+					100
+				: parseFloat(fixedTT.value)
+	}
+	form.value.adjustment_price = adj
+	form.value.tax_price += adj * (tax.value / 100)
+	form.value.total_price =
+		form.value.sub_total_price + form.value.tax_price + adj
+}
 
 const validateForm = () => {
 	let isValid = true
@@ -1806,6 +1804,8 @@ onMounted(async () => {
 		await fetchTransaction()
 	}
 	await fetchConfig()
-	firstRender.value = false
+	if (props.mode !== 'detail') {
+		firstRender.value = false
+	}
 })
 </script>
