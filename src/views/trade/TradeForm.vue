@@ -505,7 +505,8 @@
 								placeholder="Trade In Fee"
 								:disabled="mode === 'detail' || !isFlexible"
 								:class="{
-									'border-none': mode === 'detail',
+									'border-none':
+										mode === 'detail' || !isFlexible,
 								}"
 							/>
 						</div>
@@ -1465,6 +1466,7 @@ const fetchConfig = async () => {
 watch(
 	() => tax.value,
 	(newValue) => {
+		console.log('tax changed:', newValue)
 		if (firstRender.value) {
 			return
 		}
@@ -1501,9 +1503,12 @@ watch(
 watch(
 	() => form.value.adjustment_price,
 	(newValue) => {
+		console.log('adjustment_price changed:', newValue)
 		if (firstRender.value) {
+			// Skip the first render to avoid unnecessary calculations
 			return
 		}
+
 		// Ensure it's a string
 		let strValue = newValue.toString()
 
@@ -1523,12 +1528,12 @@ watch(
 		}
 
 		form.value.adjustment_price = parseFloat(strValue)
-		calculateTax()
+		calculateTax(form.value.adjustment_price)
 	}
 )
 
 // Function to Calculate the Tax and Total by SubTotal [only for SALES]
-const calculateTax = () => {
+const calculateTax = (adjusted: number) => {
 	let sub_total_sales = form.value.transaction_details
 		.filter((item) => item.transaction_type == 1)
 		.reduce(
@@ -1565,6 +1570,7 @@ const calculateTax = () => {
 					100
 				: parseFloat(fixedTT.value)
 	}
+	adj = adjusted ?? adj
 	form.value.adjustment_price = adj
 	form.value.tax_price += adj * (tax.value / 100)
 	form.value.total_price =
