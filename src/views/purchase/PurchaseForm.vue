@@ -987,6 +987,11 @@ const submit = async () => {
 	}
 	console.log('ini form value', form.value)
 	try {
+		store.dispatch('triggerAlert', {
+			type: 'loading',
+			title: 'Processing...',
+			message: 'Please wait while we process your request.',
+		})
 		const method = props.mode === 'edit' ? 'put' : 'post'
 		const url =
 			props.mode === 'edit'
@@ -996,6 +1001,7 @@ const submit = async () => {
 		const response = await axiosInstance[method](url, form.value)
 
 		if (response.data.success) {
+			await store.dispatch('hideAlert')
 			store.dispatch('triggerAlert', {
 				type: 'success',
 				title: 'Success!',
@@ -1013,6 +1019,7 @@ const submit = async () => {
 		form.value.customer_id = [form.value.customer_id]
 		form.value.status = [form.value.status]
 		form.value.account_id = [form.value.account_id]
+		await store.dispatch('hideAlert')
 		store.dispatch('triggerAlert', {
 			type: 'error',
 			title: 'Error!',

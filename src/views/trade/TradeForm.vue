@@ -1426,7 +1426,7 @@ watch(
 		}
 		console.log('ft:', adj)
 		form.value.adjustment_price = adj
-		// Call for Calculate Tax
+		calculateTax(adj)
 	},
 	{ deep: true }
 )
@@ -1557,14 +1557,14 @@ const calculateTax = (adjusted: number) => {
 	let adj = 0
 	if (sub_total_purchase - sub_total_sales >= 0) {
 		adj =
-			parseFloat(percentKBL.value) > 0
+			parseFloat(percentKBL.value) >= 0
 				? (parseFloat(percentKBL.value) *
 						(sub_total_purchase - sub_total_sales)) /
 					100
 				: parseFloat(fixedKBL.value)
 	} else {
 		adj =
-			parseFloat(percentTT.value) > 0
+			parseFloat(percentTT.value) >= 0
 				? (parseFloat(percentTT.value) *
 						(sub_total_sales - sub_total_purchase)) /
 					100
@@ -1658,6 +1658,11 @@ const submit = async () => {
 	form.value.tax_percent = tax.value
 	console.log(form.value)
 	try {
+		store.dispatch('triggerAlert', {
+			type: 'loading',
+			title: 'Processing...',
+			message: 'Please wait while we process your request.',
+		})
 		const method = props.mode === 'edit' ? 'put' : 'post'
 		const url =
 			props.mode === 'edit'
@@ -1667,6 +1672,7 @@ const submit = async () => {
 		const response = await axiosInstance[method](url, form.value)
 
 		if (response.data.success) {
+			await store.dispatch('hideAlert')
 			store.dispatch('triggerAlert', {
 				type: 'success',
 				title: 'Success!',
@@ -1684,6 +1690,7 @@ const submit = async () => {
 		form.value.customer_id = [form.value.customer_id]
 		form.value.status = [form.value.status]
 		form.value.account_id = [form.value.account_id]
+		await store.dispatch('hideAlert')
 		store.dispatch('triggerAlert', {
 			type: 'error',
 			title: 'Error!',
