@@ -262,8 +262,8 @@ watch(
 					)
 						.toISOString()
 						.split('T')[0]
-					acc.dateStart = start
-					acc.dateEnd = end
+					acc.start_date = start
+					acc.end_date = end
 					return acc
 				}
 				if (filter.type == 'select') {
