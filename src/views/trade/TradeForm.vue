@@ -884,7 +884,7 @@ const handleScanCustomer = (result) => {
 
 const handleScanSales = (result) => {
 	itemSelectedSales.value = result.split(';')[0]
-	handleInsert()
+	handleInsertSales()
 }
 
 // Data Operations [SALES]
