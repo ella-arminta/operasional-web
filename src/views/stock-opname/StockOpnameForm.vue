@@ -290,7 +290,7 @@ const scanProduct = async (scanned: bool) => {
 			throw new Error('Product already Scanned!')
 		}
 		const response = await axiosInstance.post(
-			`/inventory/stock-opname-detail/${id}`,
+			`/inventory/stock-opname-detail/${router.currentRoute.value.params.id}`,
 			{
 				product_code: data,
 				scanned: scanned,
@@ -359,7 +359,7 @@ const submit = async () => {
 		} else {
 			// Update the form
 			const response = await axiosInstance.put(
-				`/inventory/stock-opname/${id}`,
+				`/inventory/stock-opname/${router.currentRoute.value.params.id}`,
 				form.value
 			)
 			if (!response.data.success) {
