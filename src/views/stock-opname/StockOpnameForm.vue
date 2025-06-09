@@ -162,21 +162,62 @@
 										<div v-if="column.key !== 'scanned'">
 											{{ item[column.key] }}
 										</div>
-										<div
-											v-else
-											:class="
-												item[column.key]
-													? 'text-green-500 font-bold px-4 py-1 rounded-full bg-green-100'
-													: 'text-red-500 font-bold px-4 py-1 rounded-full bg-red-100'
-											"
-										>
-											{{
-												item[column.key]
-													? 'Yes'
-													: item['status'] == 2
-														? 'Sold Out'
-														: 'No'
-											}}
+
+										<!-- Toggle Switch for 'scanned' column -->
+										<div v-else class="flex items-center">
+											<label
+												class="relative inline-flex items-center cursor-pointer"
+											>
+												<input
+													type="checkbox"
+													:checked="item[column.key]"
+													:disabled="
+														mode === 'detail'
+													"
+													@change="
+														toggleScanned(item)
+													"
+													class="sr-only"
+												/>
+												<div
+													:class="[
+														'min-w-11 min-h-6 w-11 h-6 rounded-full transition-colors duration-200 ease-in-out',
+														item['status'] == 2
+															? 'bg-gray-300 cursor-not-allowed'
+															: item[column.key]
+																? 'bg-green-500'
+																: 'bg-red-400',
+													]"
+												>
+													<div
+														:class="[
+															'min-w-4 min-h-4 w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-200 ease-in-out mt-1 ml-1',
+															item[column.key]
+																? 'translate-x-5'
+																: 'translate-x-0',
+														]"
+													></div>
+												</div>
+												<span
+													:class="[
+														'ml-3 text-sm font-medium',
+														item['status'] == 2
+															? 'text-gray-500'
+															: item[column.key]
+																? 'text-green-600'
+																: 'text-red-600',
+													]"
+												>
+													{{
+														item['status'] == 1 &&
+														!item['scanned']
+															? 'Sold Out'
+															: item[column.key]
+																? 'Yes'
+																: 'No'
+													}}
+												</span>
+											</label>
 										</div>
 									</div>
 								</td>
@@ -264,7 +305,7 @@ const itemColumns = Object.freeze([
 	{ key: 'name', label: 'Name', type: 'text', width: '15%', readonly: true },
 	{ key: 'type', label: 'Type', type: 'text', readonly: true },
 	{ key: 'weight', label: 'Weight', type: 'text', readonly: true },
-	{ key: 'status', label: 'Status', type: 'text', readonly: true },
+	{ key: 'statusLabel', label: 'Status', type: 'text', readonly: true },
 	{ key: 'scanned', label: 'Scanned', type: 'text', readonly: true },
 ])
 
@@ -289,11 +330,59 @@ const scanProduct = async (scanned: bool) => {
 		) {
 			throw new Error('Product already Scanned!')
 		}
-		const response = await axiosInstance.post(
+		if (
+			productCodes.value.find(
+				(product) =>
+					product.code === data &&
+					!product.scanned &&
+					product.status == 1
+			)
+		) {
+			const result = await store.dispatch('triggerConfirm', {
+				type: 'confirm',
+				title: 'Confirmation',
+				message:
+					'The item already Sold, are you sure it is in the stock?',
+			})
+			if (!result) {
+				store.dispatch('triggerAlert', {
+					message: 'Action cancelled!',
+					type: 'info',
+					title: 'Cancel',
+				})
+				code.value = ''
+				return
+			}
+		}
+		if (
+			productCodes.value.find(
+				(product) =>
+					product.code === data &&
+					!product.scanned &&
+					product.status == 3
+			)
+		) {
+			const result = await store.dispatch('triggerConfirm', {
+				type: 'confirm',
+				title: 'Confirmation',
+				message:
+					'The item already taken out, are you sure it is in the stock?',
+			})
+			if (!result) {
+				store.dispatch('triggerAlert', {
+					message: 'Action cancelled!',
+					type: 'info',
+					title: 'Cancel',
+				})
+				code.value = ''
+				return
+			}
+		}
+		const response = await axiosInstance.put(
 			`/inventory/stock-opname-detail/${router.currentRoute.value.params.id}`,
 			{
-				product_code: data,
-				scanned: scanned,
+				product_code_id: data,
+				scanned: true,
 			}
 		)
 		if (!response.data.success) {
@@ -313,6 +402,67 @@ const scanProduct = async (scanned: bool) => {
 			title: 'Error',
 		})
 		code.value = ''
+	}
+}
+
+const toggleScanned = async (item) => {
+	console.log(item)
+	// Don't allow toggling if item is sold out
+	if (item.status == 1 && !item.scanned) {
+		const result = await store.dispatch('triggerConfirm', {
+			type: 'confirm',
+			title: 'Confirmation',
+			message: 'The item already Sold, are you sure it is in the stock?',
+		})
+		if (!result) {
+			store.dispatch('triggerAlert', {
+				message: 'Action cancelled!',
+				type: 'info',
+				title: 'Cancel',
+			})
+			return
+		}
+	}
+
+	if (item.status == 3 && !item.scanned) {
+		const result = await store.dispatch('triggerConfirm', {
+			type: 'confirm',
+			title: 'Confirmation',
+			message:
+				'The item already Taken Out, are you sure it is in the stock?',
+		})
+		if (!result) {
+			store.dispatch('triggerAlert', {
+				message: 'Action cancelled!',
+				type: 'info',
+				title: 'Cancel',
+			})
+			return
+		}
+	}
+
+	// Call API
+	try {
+		const response = await axiosInstance.put(
+			`/inventory/stock-opname-detail/${router.currentRoute.value.params.id}`,
+			{
+				product_code_id: item.id,
+				scanned: !item.scanned,
+			}
+		)
+		if (!response.data.success) {
+			throw new Error(response.data.message)
+		}
+
+		// Toggle the scanned status
+		item.scanned = !item.scanned
+	} catch (e) {
+		console.log(e)
+		store.dispatch('triggerAlert', {
+			message: e.response?.data?.message ?? e.message,
+			type: 'error',
+			title: 'Error',
+		})
 	}
 }
 
@@ -434,12 +584,8 @@ const getProductCodes = async () => {
 			name: product.product.name,
 			type: product.product.type.name,
 			weight: `${product.weight} gr`,
-			status: getStatusLabel(product.status),
-			// product.status == 0
-			// 	? 'Available'
-			// 	: product.status == 1
-			// 		? 'Sold'
-			// 		: 'Taken Out',
+			status: product.status,
+			statusLabel: getStatusLabel(product.status),
 			scanned:
 				form.value.details.filter(
 					(p) => p.product_code_id === product.id
