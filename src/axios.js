@@ -11,7 +11,10 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
 	(config) => {
-		if (config.url.includes('login')) {
+		if (
+			config.url.includes('login') ||
+			config.url.includes('verify-email')
+		) {
 			return config
 		}
 

@@ -1,6 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 // import Home from '../views/Home.vue'
 import Login from '../views/Login.vue'
+import verifyPending from '../views/verification/pending.vue'
+import verifyEmail from '../views/verification/verify.vue'
 import InternalLayout from '../layouts/InternalLayout.vue'
 import Logout from '../components/Logout.vue'
 import Cookies from 'js-cookie'
@@ -19,6 +21,14 @@ const router = createRouter({
 		{
 			path: '/logout',
 			component: Logout,
+		},
+		{
+			path: '/verify-email',
+			component: verifyEmail,
+		},
+		{
+			path: '/verify-pending',
+			component: verifyPending,
 		},
 		{
 			path: '/',
@@ -418,9 +428,7 @@ const router = createRouter({
 						{
 							path: 'chat',
 							component: () =>
-								import(
-									'../views/marketplace/Chat.vue'
-								),
+								import('../views/marketplace/Chat.vue'),
 						},
 						{
 							path: 'voucher',
@@ -504,29 +512,19 @@ const router = createRouter({
 const loa = ['add', 'edit', 'delete', 'detail', 'approve', 'disapprove']
 
 router.beforeEach(async (to, from, next) => {
-	const userdata = await decryptData(Cookies.get('userdata'))
-	// For Onboarding State Owner
-	if (
-		!['/', '/onboarding/company', '/logout'].includes(to.path) &&
-		userdata.company_id == null &&
-		userdata.is_owner
-	) {
-		next('/onboarding/company')
-		return
-	}
-
-	// For Onboarding State Employee wait to be assigned
-	if (
-		!['/', '/onboarding/employee', '/logout'].includes(to.path) &&
-		userdata.company_id == null &&
-		userdata.store_id == null &&
-		!userdata.is_owner
-	) {
-		next('/onboarding/employee')
-		return
-	}
-
 	if (to.path === '/') {
+		// If navigating to login, allow directly
+		next()
+		return
+	}
+
+	if (to.path === '/verify-email') {
+		// If navigating to login, allow directly
+		next()
+		return
+	}
+
+	if (to.path === '/verify-pending') {
 		// If navigating to login, allow directly
 		next()
 		return
@@ -536,6 +534,40 @@ router.beforeEach(async (to, from, next) => {
 		next()
 		return
 	}
+	const userdata = await decryptData(Cookies.get('userdata'))
+	// For Onboarding State Owner
+	if (
+		![
+			'/',
+			'/onboarding/company',
+			'/logout',
+			'/verify-email',
+			'/verify-pending',
+		].includes(to.path) &&
+		userdata.company_id == null &&
+		userdata.is_owner
+	) {
+		next('/onboarding/company')
+		return
+	}
+
+	// For Onboarding State Employee wait to be assigned
+	if (
+		![
+			'/',
+			'/onboarding/employee',
+			'/logout',
+			'/verify-email',
+			'/verify-pending',
+		].includes(to.path) &&
+		userdata.company_id == null &&
+		userdata.store_id == null &&
+		!userdata.is_owner
+	) {
+		next('/onboarding/employee')
+		return
+	}
+
 	if (!to.matched.some((record) => record.meta.requiresAuth)) {
 		next()
 		return
