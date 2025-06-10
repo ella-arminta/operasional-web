@@ -78,7 +78,14 @@ const columns = ref([
 	{
 		data: 'taken_out_reason',
 		title: 'Reason',
-		render: (data) => (data == 1 ? 'Repair' : data == 2 ? 'Lost' : 'Other'),
+		render: (data) =>
+			data == 1
+				? 'Repair'
+				: data == 2
+					? 'Lost'
+					: data == 4
+						? 'Lost in stock opname'
+						: 'Other',
 	},
 	{
 		data: 'action',
