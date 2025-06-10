@@ -557,6 +557,7 @@ const options = computed(() => ({
 			columns: ':not(:first-child)', // Exclude the first column from toggling
 		},
 	],
+	order: [[1, 'desc']], // Sort by the 3rd column (index 2) descending
 	ajax: ajaxOptions.value,
 	scrollX: true,
 	rowGroup: {

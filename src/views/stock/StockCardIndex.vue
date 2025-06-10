@@ -44,12 +44,12 @@ const columns = [
       data: 'price',
       title: 'In Price (per gram)',
       render: function(data, type, row) {
-        if (row.in > 0) {
+        // if (row.in > 0) {
           let angka = parseFloat(data).toFixed(2);
           return 'Rp. ' + formatIDR(angka);
-        } else {
-          return '-';
-        }
+        // } else {
+        //   return '-';
+        // }
       }
     },
     { data: 'unit_price', title: 'Unit Price (per gram)', name: 'unit_price', render:function(data) {

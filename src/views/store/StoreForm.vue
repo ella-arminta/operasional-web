@@ -333,6 +333,31 @@
 						</div>
 					</div>
 				</div>
+				<div class="space-y-3">
+					<!-- Dropdown Inv_Val_method -->
+					<div>
+						<label
+							for="inv_method"
+							class="block text-sm text-grey-900 font-medium mb-1"
+						>
+							Inventory Valuation Method<span class="text-pinkDark">*</span>
+						</label>
+						<Dropdown
+							:items="inv_val_methods"
+							v-model="form.inventory_val_method"
+							placeholder="Select Inventory Valuation Method"
+							:multiple="false"
+							:searchable="true"
+							:disabled="mode === 'detail'"
+						/>
+						<p
+							v-if="formError.inventory_val_method"
+							class="text-pinkDark text-xs italic transition duration-300"
+						>
+							{{ formError.inventory_val_method }}
+						</p>
+					</div>
+				</div>
 			</div>
 		</form>
 		<!-- Modal Mappicker -->
@@ -404,6 +429,10 @@ import { decryptData } from '../../utils/crypto'
 const smallMenu = computed(() => store.getters.smallMenu)
 // Dropdown Items
 const companies = ref([])
+const inv_val_methods = ref([
+	{ id: 1, label: 'Moving Average' },
+	{ id: 2, label: 'Precise Cost' },
+])
 
 const props = defineProps({
 	mode: { type: String, required: true },
@@ -432,6 +461,7 @@ const form = ref({
 	percent_tt_adjustment: 0,
 	fixed_kbl_adjustment: 0,
 	percent_kbl_adjustment: 0,
+	inventory_val_method: 1,
 })
 const formCopy = ref({ ...form.value })
 const formError = ref({
@@ -457,6 +487,7 @@ const formError = ref({
 	percent_tt_adjustment: '',
 	fixed_kbl_adjustment: '',
 	percent_kbl_adjustment: '',
+	inventory_val_method: '',
 })
 
 // MapPicker
@@ -538,6 +569,7 @@ onMounted(async () => {
 				lat: form.value.latitude,
 				lng: form.value.longitude,
 			}
+			form.value.inventory_val_method = [form.value.inventory_val_method]
 		} catch (error) {
 			console.error(error)
 			store.dispatch('triggerAlert', {
@@ -707,6 +739,9 @@ const submit = async () => {
 		if (Array.isArray(form.value.company_id)) {
 			form.value.company_id = form.value.company_id[0]
 		}
+		if (Array.isArray(form.value.inventory_val_method)) {
+			form.value.inventory_val_method = form.value.inventory_val_method[0]
+		}
 		form.value.fixed_kbl_adjustment = Number(
 			form.value.fixed_kbl_adjustment
 		)
@@ -736,6 +771,7 @@ const submit = async () => {
 		console.error(error.response.data)
 		const errors = error.response.data.errors || []
 		form.value.company_id = [form.value.company_id] // resetting the state to array
+		form.value.inventory_val_method = [form.value.inventory_val_method] // resetting the state to array
 		errors.forEach((err) => {
 			formError.value[err.field] = err.message
 		})
