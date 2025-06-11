@@ -36,7 +36,7 @@
 					<div
 						class="col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6"
 					>
-						<div class="space-y-2">
+						<div class="space-y-4">
 							<InputForm
 								id="name"
 								label="Name"
@@ -82,8 +82,17 @@
 								class="w-full"
 								v-model="form.weight"
 							/>
+							<InputForm
+								id="certificate_link"
+								label="Certificate Link"
+								placeholder="Certificate Link"
+								type="text"
+								readonly
+								class="w-full"
+								v-model="form.certificate_link"
+							/>
 						</div>
-						<div class="space-y-2">
+						<div class="space-y-4">
 							<InputForm
 								id="price"
 								label="Price/gram"
@@ -132,6 +141,11 @@
 								class="w-full"
 								v-model="form.product.store.company.name"
 							/>
+							<ToggleForm
+								v-model="form.is_active"
+								label="Post to Marketplace ?"
+								:disabled="mode === 'detail'"
+							/>
 						</div>
 						<div
 							v-if="props.mode === 'edit'"
@@ -162,6 +176,7 @@ import FormSectionHeader from '../../components/FormSectionHeader.vue'
 import InputForm from '../../components/InputForm.vue'
 import axiosInstance from '../../axios'
 import ImageUpload from '../../components/ImageUpload.vue'
+import ToggleForm from '../../components/ToggleForm.vue'
 import { formatIDR } from '../../utils/common'
 const router = useRouter()
 const store = useStore()
@@ -194,6 +209,8 @@ const form = ref({
 	account_id: '',
 	barcode: '',
 	status: 0,
+	is_active: true,
+	certificate_link: '',
 })
 const formCopy = ref({ ...form.value })
 const id = router.currentRoute.value.params.id

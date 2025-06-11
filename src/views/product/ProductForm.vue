@@ -267,12 +267,26 @@
 							placeholder="Select an account"
 							:multiple="false"
 							:searchable="true"
-							:disabled="
-								mode === 'detail' ||
-								(selectedType == 2 && account_id_disabled)
-							"
+							:disabled="selectedType == 2 && account_id_disabled"
 							:addRoute="'/master/account/add'"
 							id="account_id"
+						/>
+						<!-- Certificate link -->
+						<InputForm
+							v-model="formCode.certificate_link"
+							class="mt-4"
+							type="text"
+							id="certificate_link"
+							label="Certificate Link"
+							placeholder="Certificate Link"
+							required
+						/>
+						<!-- Is Active -->
+						<ToggleForm
+							v-model="formCode.is_active"
+							class="mt-4"
+							label="Post to Marketplace ?"
+							:disabled="false"
 						/>
 					</div>
 
@@ -287,7 +301,6 @@
 						<ImageUpload
 							v-model="formCode.image"
 							:uploadFile="'/upload-product'"
-							:readonly="mode === 'detail'"
 						/>
 					</div>
 
@@ -299,8 +312,8 @@
 							v-model="formCode.buy_price"
 							type="number"
 							id="buy_price"
-							label="Harga Beli (sebelum pajak)"
-							placeholder="Harga Beli (sebelum pajak)"
+							label="Bought Price (before tax)"
+							placeholder="Bought Price (before tax)"
 							:readonly="selectedType == 2"
 							required
 						/>
@@ -310,9 +323,11 @@
 							type="number"
 							id="tax_purchase"
 							class="mt-4"
-							:label="'PPN Beli (' + taxPurchasePercentage + '%)'"
+							:label="
+								'Bough Tax (' + taxPurchasePercentage + '%)'
+							"
 							:placeholder="
-								'PPN Beli (' + taxPurchasePercentage + '%)'
+								'Bough Tax (' + taxPurchasePercentage + '%)'
 							"
 							:editPath="'/master/store/edit/' + form.store_id"
 							:readonly="true"
@@ -472,6 +487,7 @@ import FormHeader from '../../components/FormHeader.vue'
 import Dropdown from '../../components/Dropdown.vue'
 import ImageUpload from '../../components/ImageUpload.vue'
 import TableData from '../../components/TableData.vue'
+import ToggleForm from '../../components/ToggleForm.vue'
 
 const props = defineProps({
 	mode: { type: String, required: true },
@@ -847,6 +863,8 @@ const formCode = ref({
 	account_id: [''],
 	image: '',
 	transref_id: [],
+	certificate_link: '',
+	is_active: true,
 })
 
 // submit generate code
@@ -879,6 +897,8 @@ const generateCode = async () => {
 			formCode.value.account_id = []
 			formCode.value.transref_id = []
 			formCode.value.image = ''
+			formCode.value.certificate_link = ''
+			formCode.value.is_active = true
 		}
 	} catch (error) {
 		formCode.value.account_id = [formCode.value.account_id]
@@ -1079,9 +1099,10 @@ watch(
 		) {
 			formCode.value.tax_purchase = 0
 		} else {
-			formCode.value.tax_purchase = Math.round(
-				(newVal * taxPurchasePercentage.value) / 100 * 100
-				) / 100;
+			formCode.value.tax_purchase =
+				Math.round(
+					((newVal * taxPurchasePercentage.value) / 100) * 100
+				) / 100
 		}
 	},
 	{ deep: true }
