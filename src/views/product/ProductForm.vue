@@ -565,7 +565,7 @@ const columns = Object.freeze([
 			// Ubah backslash ke forward slash
 			const formattedData = data.replace(/\\/g, '/')
 
-			return `<img src="http://127.0.0.1:3000/${formattedData}" onclick="window.showImage('${formattedData}')" class="w-12 h-12 cursor-pointer rounded-md shadow-md hover:shadow-lg transition" />`
+			return `<img src="${import.meta.env.VITE_BASE_URL}/${formattedData}" onclick="window.showImage('${formattedData}')" class="w-12 h-12 cursor-pointer rounded-md shadow-md hover:shadow-lg transition" />`
 		},
 	},
 	{
@@ -605,7 +605,7 @@ const closeModal = () => {
 const openImageModal = (imagePath) => {
 	// const sanitizedPath = imagePath.replace(/\\/g, '/');
 
-	selectedImage.value = `http://127.0.0.1:3000/${imagePath}`
+	selectedImage.value = `${import.meta.env.VITE_BASE_URL}/${imagePath}`
 	showImageModal.value = true
 }
 
