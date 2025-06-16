@@ -936,6 +936,14 @@ const getRenderedValue = (column, rawValue, row) => {
 	return rawValue;
 };
 
+const stripHtml = (html) => {
+    // Buat elemen DOM sementara di memori
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    // Ambil konten teks dari body, atau kembalikan string kosong jika tidak ada
+    return doc.body.textContent || "";
+};
+
+
 const exportTable = async () => {
 	const data = dt.rows().data().toArray();
 	const workbook = new ExcelJS.Workbook();
@@ -965,7 +973,7 @@ const exportTable = async () => {
 		visibleColumns.forEach(col => {
 			const rawValue = row[col.key];
 			const renderedValue = getRenderedValue(col, rawValue, row);
-			filteredRow[col.header] = renderedValue;
+			filteredRow[col.header] = stripHtml(renderedValue);
 		});
 
 		worksheet.addRow(filteredRow);
