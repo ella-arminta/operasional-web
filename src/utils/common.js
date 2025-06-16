@@ -20,7 +20,15 @@ export const formatDatetime = (dateString) => {
 	return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`
 }
 
-export function formatIDR(value) {
+export function formatIDR(value, reparsed = false) {
+	if (reparsed) {
+		let cleaned = String(value)
+		.replace(/\./g, '')
+		.replace(',', '.');
+		const parsed = parseFloat(cleaned);
+		return isNaN(parsed) ? 0 : parsed;
+	}
+
 	if (value == null || isNaN(value)) return '0,00';
 	
 	return parseFloat(value).toLocaleString('id-ID', {

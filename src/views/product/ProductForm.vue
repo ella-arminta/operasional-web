@@ -307,10 +307,10 @@
 					<!-- Kolom 3: Harga Beli, PPN Beli, & Generate -->
 					<div class="col-span-1">
 						<!-- Harga Beli (sebelum pajak) -->
-						<!-- format="currency" -->
 						<InputForm
 							v-model="formCode.buy_price"
-							type="number"
+							type="text"
+							format="currency"
 							id="buy_price"
 							label="Bought Price (before tax)"
 							placeholder="Bought Price (before tax)"
@@ -320,14 +320,15 @@
 						<!-- PPN Beli -->
 						<InputForm
 							v-model="formCode.tax_purchase"
-							type="number"
+							type="text"
+							format="currency"
 							id="tax_purchase"
 							class="mt-4"
 							:label="
-								'Bough Tax (' + taxPurchasePercentage + '%)'
+								'Bought Tax (' + taxPurchasePercentage + '%)'
 							"
 							:placeholder="
-								'Bough Tax (' + taxPurchasePercentage + '%)'
+								'Bought Tax (' + taxPurchasePercentage + '%)'
 							"
 							:editPath="'/master/store/edit/' + form.store_id"
 							:readonly="true"
@@ -488,6 +489,7 @@ import Dropdown from '../../components/Dropdown.vue'
 import ImageUpload from '../../components/ImageUpload.vue'
 import TableData from '../../components/TableData.vue'
 import ToggleForm from '../../components/ToggleForm.vue'
+import { formatIDR } from '../../utils/common'
 
 const props = defineProps({
 	mode: { type: String, required: true },
@@ -572,6 +574,26 @@ const columns = Object.freeze([
 		data: 'action',
 		title: 'Action',
 		width: '5%',
+		render: (data, type, row) => {
+				// data === 0
+				// ? 'In Stock'
+				// : data === 3
+				// 	? 'Taken Out'
+				// 	: data === 2
+				// 		? 'Bought Back'
+				// 		: 'Sold',
+			if (row.status != 0 && row.status != 2) {
+				data = data.replace(
+					/<div\s+[^>]*title="Edit"[^>]*>[\s\S]*?<\/div>/g,
+					''
+				)
+				data = data.replace(
+					/<div\s+[^>]*title="Delete"[^>]*>[\s\S]*?<\/div>/g,
+					''
+				)
+			}
+			return data;
+		}
 	},
 ])
 
@@ -879,6 +901,16 @@ const generateCode = async () => {
 		} else {
 			formCode.value.transref_id = null
 		}
+				// convert buy_price and tax_purchase from IDR to number
+		if (formCode.value.buy_price) {
+			formCode.value.buy_price = formatIDR(formCode.value.buy_price, true)
+		}
+		console.log('bef tax_purchase', formCode.value.tax_purchase)
+		if (formCode.value.tax_purchase) {
+			formCode.value.tax_purchase = formatIDR(formCode.value.tax_purchase, true)
+		}
+		console.log('the tax_pruchase', formCode.value.tax_purchase)
+
 		const response = await axiosInstance.post(
 			`/inventory/generate-product-code/${id}`,
 			formCode.value
@@ -901,6 +933,12 @@ const generateCode = async () => {
 			formCode.value.is_active = true
 		}
 	} catch (error) {
+		if (formCode.value.tax_purchase) {
+			formCode.value.tax_purchase = formatIDR(formCode.value.tax_purchase)
+		}
+		if (formCode.value.buy_price) {
+			formCode.value.buy_price = formatIDR(formCode.value.buy_price)
+		}
 		formCode.value.account_id = [formCode.value.account_id]
 		formCode.value.transref_id = [formCode.value.transref_id]
 		console.log(error)
@@ -1036,7 +1074,7 @@ watch(
 			} else {
 				account_id_disabled.value = false
 			}
-			formCode.value.buy_price = Math.abs(parseFloat(val.total_price))
+			formCode.value.buy_price = formatIDR(Math.abs(parseFloat(val.total_price)))
 			formCode.value.tax_purchase = 0
 		} else {
 			account_id_disabled.value = false
@@ -1093,16 +1131,19 @@ onMounted(async () => {
 watch(
 	() => formCode.value.buy_price,
 	(newVal) => {
+		var formatedVal = formatIDR(newVal, true)
+
 		if (
 			formCode.value.transref_id != null &&
 			formCode.value.transref_id != ''
 		) {
 			formCode.value.tax_purchase = 0
 		} else {
-			formCode.value.tax_purchase =
+			formCode.value.tax_purchase = formatIDR(
 				Math.round(
-					((newVal * taxPurchasePercentage.value) / 100) * 100
+					((formatedVal * taxPurchasePercentage.value) / 100) * 100
 				) / 100
+			)
 		}
 	},
 	{ deep: true }

@@ -20,6 +20,8 @@
 			:readonly="readonly"
 			v-model="inputValue"
 			@input="onInput"
+			@blur="onBlur"
+			@focus="onFocus"
 			class="w-full bg-pinkGray border border-pinkOrange border-opacity-25 transition duration-300 placeholder-pinkOrange placeholder-opacity-25 rounded-lg px-3 py-2 text-pinkDark focus:outline-none focus:ring focus:ring-pinkOrange focus:ring-opacity-25"
 			:class="{
 				'border-pinkDark': error,
@@ -66,9 +68,17 @@ watch(
 )
 
 // Format input value based on type
+var onFirstCurrencyNumber = true;
 const formatValue = (value) => {
 	if (!value) return ''
-	if (props.format === 'currency') return formatIDR(value)
+	// if (props.format === 'currency') return formatIDR(value)
+	if (props.format === 'currency') {
+		// kalo isinya bukan 0, bukal null dan bukan undefined atau bukan ''
+		if (value != 0 && value != null && value != undefined && value != '' && onFirstCurrencyNumber) {
+			onFirstCurrencyNumber  = false
+			return formatIDR(value)
+		} 
+	}
 	if (props.format === 'date') return formatDate(value)
 	if (props.format === 'percent') return value
 	return value
@@ -79,8 +89,8 @@ const onInput = (event) => {
 	let rawValue = event.target.value
 
 	if (props.format === 'currency') {
-		rawValue = rawValue.replace(/\D/g, '')
-		inputValue.value = formatIDR(rawValue)
+		// rawValue = rawValue.replace(/\D/g, '')
+		// inputValue.value = formatIDR(rawValue)
 	} else if (props.format === 'percent') {
 		// ✅ Replace all `,` and `.` with a single `.`
 		rawValue = rawValue.replace(/[\,\.]+/g, '.')
@@ -112,5 +122,16 @@ const onInput = (event) => {
 		inputValue.value = rawValue
 	}
 	emit('update:modelValue', rawValue)
+}
+const onBlur = () => {
+	if (props.format === 'currency') {
+		inputValue.value = formatIDR(inputValue.value)
+	}
+}
+const onFocus = () => {
+	if (props.format === 'currency') {		
+		const numberValue = formatIDR(inputValue.value, true)
+		inputValue.value = numberValue
+	}
 }
 </script>
