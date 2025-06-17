@@ -53,7 +53,7 @@
 
             <!-- The Profit & Loss -->
             <br>
-            <div v-if="!isLoading" class="w-full bg-white shadow-lg rounded-lg md:px-14 md:py-12 sm:py-4" id="profit-loss">
+            <div v-if="!isLoading" class="w-full bg-white shadow-lg rounded-lg p-4 md:px-14 md:py-12" id="profit-loss">
                 <h1 class="text-center text-lg font-bold">Proft & Lost Statement</h1>
                 <h1 class="text-center text-lg font-bold">{{ labelRangeSelected }}</h1>
                 <span class="h-[10px]"></span>
