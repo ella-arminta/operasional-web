@@ -10,10 +10,10 @@
 				<h1 class="text-xl text-pinkDark">
 					{{
 						mode === 'edit'
-							? 'Edit Miscellaneous Expenses'
+							? (props.trans_type_id == 2 ? 'Edit Miscellaneous Incomes' : 'Edit Miscellaneous Expenses')
 							: mode === 'add'
-								? 'Add Miscellaneous Expenses'
-								: 'Miscellaneous Expenses Detail'
+								? (props.trans_type_id == 2 ? 'Add Miscellaneous Incomes' : 'Add Miscellaneous Expenses')
+								: (props.trans_type_id == 2 ? 'Miscellaneous Incomes Detail' : 'Miscellaneous Expenses Detail')
 					}}
 				</h1>
 				<div class="flex gap-4">
@@ -42,7 +42,7 @@
 			</div>
 			<!-- Form Basic Information -->
 			<FormSectionHeader
-				title="Basic Miscellaneous Expenses Information"
+				title="Basic Miscellaneous Information"
 				icon="info"
 			/>
 			<div class="grid grid-cols-2 gap-3 mt-4">
