@@ -313,7 +313,7 @@ const submit = async () => {
 			store.dispatch('triggerAlert', {
 				type: 'success',
 				title: 'Success!',
-				message: `Price ${response.data.data.name} ${action}.`,
+				message: `Price ${action}.`,
 				actions: [
 					{
 						label: 'close',
