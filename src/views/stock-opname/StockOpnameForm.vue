@@ -378,10 +378,11 @@ const scanProduct = async (scanned: bool) => {
 				return
 			}
 		}
+		const p_id = productCodes.value.find((p) => p.code == data).id
 		const response = await axiosInstance.put(
 			`/inventory/stock-opname-detail/${router.currentRoute.value.params.id}`,
 			{
-				product_code_id: data,
+				product_code_id: p_id,
 				scanned: true,
 			}
 		)
