@@ -101,6 +101,7 @@
 							id="price"
 							label="Active Price"
 							placeholder="Active Price"
+							format="currency"
 							required
 							:error="formError.price"
 							:readonly="true"
@@ -575,13 +576,13 @@ const columns = Object.freeze([
 		title: 'Action',
 		width: '5%',
 		render: (data, type, row) => {
-				// data === 0
-				// ? 'In Stock'
-				// : data === 3
-				// 	? 'Taken Out'
-				// 	: data === 2
-				// 		? 'Bought Back'
-				// 		: 'Sold',
+			// data === 0
+			// ? 'In Stock'
+			// : data === 3
+			// 	? 'Taken Out'
+			// 	: data === 2
+			// 		? 'Bought Back'
+			// 		: 'Sold',
 			if (row.status != 0 && row.status != 2) {
 				data = data.replace(
 					/<div\s+[^>]*title="Edit"[^>]*>[\s\S]*?<\/div>/g,
@@ -592,8 +593,8 @@ const columns = Object.freeze([
 					''
 				)
 			}
-			return data;
-		}
+			return data
+		},
 	},
 ])
 
@@ -901,13 +902,16 @@ const generateCode = async () => {
 		} else {
 			formCode.value.transref_id = null
 		}
-				// convert buy_price and tax_purchase from IDR to number
+		// convert buy_price and tax_purchase from IDR to number
 		if (formCode.value.buy_price) {
 			formCode.value.buy_price = formatIDR(formCode.value.buy_price, true)
 		}
 		console.log('bef tax_purchase', formCode.value.tax_purchase)
 		if (formCode.value.tax_purchase) {
-			formCode.value.tax_purchase = formatIDR(formCode.value.tax_purchase, true)
+			formCode.value.tax_purchase = formatIDR(
+				formCode.value.tax_purchase,
+				true
+			)
 		}
 		console.log('the tax_pruchase', formCode.value.tax_purchase)
 
@@ -1074,7 +1078,9 @@ watch(
 			} else {
 				account_id_disabled.value = false
 			}
-			formCode.value.buy_price = formatIDR(Math.abs(parseFloat(val.total_price)))
+			formCode.value.buy_price = formatIDR(
+				Math.abs(parseFloat(val.total_price))
+			)
 			formCode.value.tax_purchase = 0
 		} else {
 			account_id_disabled.value = false
