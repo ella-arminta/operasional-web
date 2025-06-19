@@ -1,45 +1,78 @@
 <template>
 	<div>
-
-		<div v-if="isMobile" @click="toggleMobileMenu" class="mobile-menu-toggle" :class="{ 'active': showMobileMenu }">
-			<i class="material-icons">{{ showMobileMenu ? 'close' : 'menu' }}</i>
+		<div
+			v-if="isMobile"
+			@click="toggleMobileMenu"
+			class="mobile-menu-toggle"
+			:class="{ active: showMobileMenu }"
+		>
+			<i class="material-icons">{{
+				showMobileMenu ? 'close' : 'menu'
+			}}</i>
 		</div>
 
+		<div
+			v-if="isMobile && showMobileMenu"
+			class="mobile-overlay"
+			@click="toggleMobileMenu"
+		></div>
 
-		<div v-if="isMobile && showMobileMenu" class="mobile-overlay" @click="toggleMobileMenu"></div>
-
-
-		<div class="menu" :class="{
-			'small-menu': smallMenu && !isMobile,
-			'mobile-menu': isMobile,
-			'mobile-expanded': isMobile && showMobileMenu
-		}">
-
-			<div class="store-header" :class="{ 'store-header-small': smallMenu && !isMobile }">
-
+		<div
+			class="menu"
+			:class="{
+				'small-menu': smallMenu && !isMobile,
+				'mobile-menu': isMobile,
+				'mobile-expanded': isMobile && showMobileMenu,
+			}"
+		>
+			<div
+				class="store-header"
+				:class="{ 'store-header-small': smallMenu && !isMobile }"
+			>
 				<div class="store-info">
-					<div class="text-xl uppercase text-pinkDark font-bold text-center">
+					<div
+						class="text-xl uppercase text-pinkDark font-bold text-center"
+					>
 						{{ dataStore?.code }}
 					</div>
-					<div class="text-sm text-gray-800 text-center italic" :class="{ 'hidden': smallMenu && !isMobile }">
+					<div
+						class="text-sm text-gray-800 text-center italic"
+						:class="{ hidden: smallMenu && !isMobile }"
+					>
 						{{ dataStore?.name }}
 					</div>
 				</div>
 
-
-				<router-link :to="'/settings/change-store'" class="material-icons text-md change-store-icon">
+				<router-link
+					:to="'/settings/change-store'"
+					class="material-icons text-md change-store-icon"
+				>
 					change_circle
 				</router-link>
 			</div>
 
-
-			<div v-if="!isMobile" class="toggle-button" :class="{ 'collapsed': smallMenu }" @click="toggleMenu">
-				<i class="material-icons">{{ smallMenu ? 'chevron_right' : 'chevron_left' }}</i>
+			<div
+				v-if="!isMobile"
+				class="toggle-button"
+				:class="{ collapsed: smallMenu }"
+				@click="toggleMenu"
+			>
+				<i class="material-icons">{{
+					smallMenu ? 'chevron_right' : 'chevron_left'
+				}}</i>
 			</div>
 
-
-			<MenuItem v-for="(item, index) in menuTree" :key="index" :data="item.children" :label="item.label"
-				:path="item.path" :icon="item.icon" :depth="0" :is-mobile="isMobile" :small-menu="smallMenu" />
+			<MenuItem
+				v-for="(item, index) in menuTree"
+				:key="index"
+				:data="item.children"
+				:label="item.label"
+				:path="item.path"
+				:icon="item.icon"
+				:depth="0"
+				:is-mobile="isMobile"
+				:small-menu="smallMenu"
+			/>
 		</div>
 	</div>
 </template>
@@ -54,7 +87,6 @@ import axiosInstance from '../axios'
 import { decryptData } from '../utils/crypto'
 import Cookies from 'js-cookie'
 
-
 const emit = defineEmits(['sidebar-toggle'])
 
 const store = useStore()
@@ -64,7 +96,6 @@ const smallMenu = computed(() => store.getters.smallMenu)
 const isMobile = ref(false)
 const showMobileMenu = ref(false)
 const savedSmallMenuState = ref(false)
-
 
 const initSidebarState = () => {
 	const savedState = localStorage.getItem('smallMenu')
@@ -169,7 +200,7 @@ const menuTree = ref([
 			{
 				label: 'Receivables & Payables',
 				path: '/finance/receivable-payable',
-			}
+			},
 		],
 	},
 	{
@@ -302,8 +333,6 @@ const explorePath = async () => {
 	paths.push('/home')
 	paths.push('/logout')
 	paths.push('/faq')
-	paths.push('/marketplace/chat')
-	paths.push('/marketplace/dashboard')
 
 	menuTree.value = await filterMenu(menuTree.value, new Set(paths))
 }
@@ -323,7 +352,6 @@ const getStore = async () => {
 }
 
 const filterMenu = async (menu, allowedPaths, depth = 0) => {
-
 	const filteredItems = await Promise.all(
 		menu.map(async (item) => {
 			if (item.path) {
@@ -346,7 +374,6 @@ const filterMenu = async (menu, allowedPaths, depth = 0) => {
 		})
 	)
 
-
 	return filteredItems.filter(Boolean)
 }
 
@@ -368,12 +395,9 @@ const checkMobile = () => {
 	const wasMobile = isMobile.value
 	isMobile.value = window.innerWidth < 768
 
-
 	if (!wasMobile && isMobile.value) {
-
 		savedSmallMenuState.value = smallMenu.value
 	}
-
 
 	if (wasMobile && !isMobile.value) {
 		if (showMobileMenu.value) {
@@ -382,7 +406,6 @@ const checkMobile = () => {
 		}
 	}
 }
-
 
 watch(route, () => {
 	if (isMobile.value && showMobileMenu.value) {
@@ -403,23 +426,18 @@ onMounted(() => {
 	getStore()
 	initSidebarState()
 
-
 	checkMobile()
-
 
 	window.addEventListener('resize', checkMobile)
 
-
 	emit('sidebar-toggle', smallMenu.value)
 })
-
 
 watch(smallMenu, (newValue) => {
 	emit('sidebar-toggle', newValue)
 })
 
 onBeforeUnmount(() => {
-
 	window.removeEventListener('resize', checkMobile)
 
 	document.body.style.overflow = ''
@@ -434,7 +452,6 @@ onBeforeUnmount(() => {
 	--pink-dark: #d23f57;
 }
 
-
 .store-header {
 	display: flex;
 	flex-direction: column;
@@ -443,7 +460,6 @@ onBeforeUnmount(() => {
 	margin-bottom: 20px;
 	width: 100%;
 
-
 	.store-info {
 		display: flex;
 		flex-direction: column;
@@ -451,13 +467,11 @@ onBeforeUnmount(() => {
 		margin-bottom: 8px;
 	}
 
-
 	.change-store-icon {
 		color: var(--pink-dark);
 		font-size: 20px;
 		margin-top: 5px;
 	}
-
 
 	&.store-header-small {
 		padding: 0 5px;
@@ -468,7 +482,6 @@ onBeforeUnmount(() => {
 		}
 	}
 }
-
 
 .mobile-menu-toggle {
 	position: fixed;
@@ -496,7 +509,6 @@ onBeforeUnmount(() => {
 	}
 }
 
-
 .mobile-overlay {
 	position: fixed;
 	top: 0;
@@ -505,9 +517,7 @@ onBeforeUnmount(() => {
 	height: 100%;
 	background-color: rgba(0, 0, 0, 0.5);
 	z-index: 90;
-
 }
-
 
 .toggle-button {
 	position: absolute;
@@ -526,7 +536,6 @@ onBeforeUnmount(() => {
 
 	&.collapsed {
 		right: 20px;
-
 	}
 
 	&:hover {
@@ -538,7 +547,6 @@ onBeforeUnmount(() => {
 		color: var(--pink-dark);
 	}
 }
-
 
 .menu {
 	position: fixed;
@@ -558,14 +566,12 @@ onBeforeUnmount(() => {
 	box-shadow: 0px 4px 35.2px 0px #0000001a;
 	z-index: 100;
 
-
 	&.small-menu {
 		width: var(--sidebar-collapsed-width, 70px);
 		min-width: var(--sidebar-collapsed-width, 70px);
 		padding: 0;
 		padding-top: 50px;
 	}
-
 
 	&.mobile-menu {
 		transform: translateX(-100%);
@@ -579,7 +585,6 @@ onBeforeUnmount(() => {
 	}
 }
 
-
 @media (max-width: 1024px) {
 	.menu {
 		--sidebar-width: 250px;
@@ -591,7 +596,6 @@ onBeforeUnmount(() => {
 		width: var(--sidebar-width, 280px);
 		min-width: var(--sidebar-width, 280px);
 	}
-
 
 	.store-header .store-info div:nth-child(2) {
 		display: block !important;
