@@ -4,7 +4,7 @@
 		<TableData
 			:columns="columns"
 			:addPath="actions.includes('add') ? '/inventory/product/add' : ''"
-			:export="false"
+			:export="true"
 			:reload="true"
 			:ajaxPath="'/inventory/product'"
 			:editPath="
