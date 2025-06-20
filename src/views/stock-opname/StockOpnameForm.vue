@@ -505,6 +505,7 @@ const submit = async () => {
 			store.dispatch('triggerAlert', {
 				message: response.data.message,
 				type: 'success',
+				title: 'Success',
 			})
 			router.push('/inventory/stock-opname/edit/' + response.data.data.id)
 		} else {

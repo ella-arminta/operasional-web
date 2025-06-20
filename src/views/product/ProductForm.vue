@@ -935,6 +935,7 @@ const generateCode = async () => {
 			formCode.value.image = ''
 			formCode.value.certificate_link = ''
 			formCode.value.is_active = true
+			router.push('/inventory/product/edit/' + id)
 		}
 	} catch (error) {
 		if (formCode.value.tax_purchase) {
