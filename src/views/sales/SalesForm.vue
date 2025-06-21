@@ -779,7 +779,7 @@ const paymentMethod = [
 	{ id: 2, label: 'Transfer' },
 	{ id: 3, label: 'Credit Card' },
 	{ id: 4, label: 'Debit' },
-	{ id: 5, label: 'MidTrans' },
+	{ id: 5, label: 'Marketplace' },
 ]
 
 // Reset Form
