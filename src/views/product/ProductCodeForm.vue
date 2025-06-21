@@ -9,6 +9,12 @@
 				accentColor="pinkOrange"
 			/>
 			<div class="flex flex-col gap-6">
+				<!-- Warning  -->
+				<div class="bg-orange-100 border-l-4 border-orange-500 text-orange-700 p-4" role="alert" v-if="disableEditPrice">
+					<p class="font-bold">Kind Warning</p>
+					<p v-if="disableReason == 1">This product has been through <b>repairment</b>. Changes to the <b>buy price</b> and <b>weight</b> can now only be made through the <i><b><a :href="`/inventory/stock-out?code=${form.barcode}`">Stock Out page (Click here)</a></b></i>.</p>
+					<p v-if="disableReason == 2">This product has been through <b>bought back</b>. Can not made changes to the <b>buy price</b> and <b>weight</b>.</p>
+				</div>
 				<!-- Photo -->
 				<div class="grid sm:grid-cols-1 md:grid-cols-3 gap-6">
 					<div class="space-y-2">
@@ -78,7 +84,7 @@
 								label="Weight"
 								placeholder="Weight"
 								type="text"
-								:readonly="props.mode === 'detail'"
+								:readonly="props.mode === 'detail' || disableEditPrice"
 								class="w-full"
 								v-model="form.weight"
 							/>
@@ -98,7 +104,7 @@
 								label="Price/gram"
 								placeholder="Price/gram"
 								type="text"
-								:readonly="props.mode === 'detail'"
+								:readonly="props.mode === 'detail' || disableEditPrice"
 								class="w-full"
 								v-model="form.price"
 								format="currency"
@@ -108,7 +114,7 @@
 								label="Buy Price/gram"
 								placeholder="Buy Price/gram"
 								type="text"
-								:readonly="props.mode === 'detail'"
+								:readonly="props.mode === 'detail' || disableEditPrice"
 								class="w-full"
 								v-model="form.buy_price"
 								format="currency"
@@ -118,7 +124,7 @@
 								label="Tax Purchase"
 								placeholder="Tax Purchase"
 								type="text"
-								:readonly="props.mode === 'detail'"
+								:readonly="props.mode === 'detail' || disableEditPrice"
 								class="w-full"
 								v-model="form.tax_purchase"
 								format="currency"
@@ -214,7 +220,8 @@ const form = ref({
 })
 const formCopy = ref({ ...form.value })
 const id = router.currentRoute.value.params.id
-
+const disableEditPrice = ref(false);
+const disableReason =  ref(0); // 1 -> repair , 2 -> bought back
 onMounted(async () => {
 	if (!['edit', 'detail'].includes(props.mode)) {
 		// redirect 404
@@ -226,8 +233,19 @@ onMounted(async () => {
 			const response = await axiosInstance.get(
 				`/inventory/product-code/${id}`
 			)
-			form.value = { ...response.data.data }
+			const formatedData = response.data.data
+			form.value = { ...formatedData }
 			formCopy.value = { ...form.value }
+
+			console.log('ini formated data okey', formatedData, formatedData.taken_out_reason)
+			if (formatedData.taken_out_reason != 0) {
+				disableEditPrice.value = true
+				disableReason.value = 1
+			}
+			if (formatedData.status == 2) {
+				disableEditPrice.value = true
+				disableReason.value = 2
+			}
 		} catch (error) {
 			console.error(error)
 			store.dispatch('triggerAlert', {

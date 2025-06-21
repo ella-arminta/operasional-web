@@ -30,7 +30,7 @@ import { useStore } from 'vuex'
 import PageTitle from '../../components/PageTitle.vue'
 import TableData from '../../components/TableData.vue'
 import { computed, onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../../vuex/auth'
 import axiosInstance from '../../axios'
 
@@ -97,8 +97,11 @@ const columns = ref([
 			var htmldata =
 				`<div style="display:flex;justify-content: space-around;align-items:center;">` +
 				data
+
+			// Kalau repair
 			if (row.taken_out_reason == 1) {
-				htmldata += `<div
+				if (row.status == 3){
+					htmldata += `<div
 								class="w-8 h-8 bg-pinkLight text-white flex justify-center items-center rounded-full cursor-pointer hover:bg-pinkDark transition duration-300 ease-in-out approve-repair"
 								title="Approve"
 								data-id="${row.id}"
@@ -106,6 +109,26 @@ const columns = ref([
 							>
 								<i class="material-icons text-sm">check</i>
 							</div>`
+				} else if (row.status == 0) {
+					htmldata = htmldata.replace(
+						/<div\s+[^>]*title="Delete"[^>]*>[\s\S]*?<\/div>/g,
+						''
+					)
+					htmldata += `<div
+								class="w-8 h-8 bg-pinkLight text-white flex justify-center items-center rounded-full cursor-pointer hover:bg-pinkDark transition duration-300 ease-in-out disapprove-repair"
+								title="Disapprove"
+								data-id="${row.id}"
+								data-title="Disapprove"
+							>
+								<i class="material-icons text-sm">close</i>
+							</div>`
+							
+				} else {
+					htmldata = htmldata.replace(
+						/<div\s+[^>]*title="Delete"[^>]*>[\s\S]*?<\/div>/g,
+						''
+					)
+				}
 			}
 			htmldata += '</div>'
 			return htmldata
@@ -127,11 +150,18 @@ onMounted(() => {
 	document.addEventListener('click', (event) => {
 		const target = event.target as HTMLElement
 		const button = target.closest('.approve-repair') as HTMLElement
+		const disapproveBtn = target.closest('.disapprove-repair') as HTMLElement
 
 		if (button) {
 			const id = button.getAttribute('data-id')
 			if (id) {
 				approveRepair(id)
+			}
+		}
+		if (disapproveBtn) {
+			const id = disapproveBtn.getAttribute('data-id')
+			if (id) {
+				disapproveRepair(id)
 			}
 		}
 	})
@@ -192,12 +222,73 @@ const approveRepair = (id: string) => {
 		],
 	})
 }
+
+const disapproveRepair = (id: string) => {
+	console.log(`Disapproving repair for ID: ${id}`)
+	store.dispatch('triggerAlert', {
+		type: 'warning',
+		title: 'Warning!',
+		message: `Are you sure you want to disapprove this data?`,
+		actions: [
+			{
+				label: 'cancel',
+				type: 'secondary',
+				handler: () => store.dispatch('hideAlert'),
+			},
+			{
+				label: 'proceed',
+				type: 'primary',
+				handler: async () => {
+					try {
+						const response = await axiosInstance.post(
+							`/finance/stock-unrepaired`, { id }
+						)
+						if (response.data) {
+							store.dispatch('triggerAlert', {
+								type: 'success',
+								title: 'Success!',
+								message: 'Data deleted successfully.',
+								actions: [
+									{
+										label: 'close',
+										type: 'secondary',
+										handler: () => {
+											store.dispatch('hideAlert')
+											handleReload()
+										},
+									},
+								],
+							})
+						}
+					} catch (error) {
+						store.dispatch('triggerAlert', {
+							type: 'error',
+							title: 'Error!',
+							message:
+								error.response?.data.message ??
+								'Failed to delete data.',
+							actions: [
+								{
+									label: 'close',
+									type: 'secondary',
+									handler: () => store.dispatch('hideAlert'),
+								},
+							],
+						})
+					}
+				},
+			},
+		],
+	})
+}
 const filters = ref([])
 
 // META-ACTIONS RBAC
 const router = useRouter()
 const authStore = useAuthStore()
 const actions = ref([])
+const route = useRoute()
+
 onMounted(async () => {
 	const currentPath = router.currentRoute.value.path
 	const path = authStore.allowedPaths.find(
@@ -227,5 +318,12 @@ onMounted(async () => {
 			],
 		},
 	]
+
+	if (route.query.code) {
+		console.log('Route query code:', route.query.code)
+		document.querySelector('input[placeholder="Search..."]').value = route.query.code
+		handleReload()
+	}
+
 })
 </script>
