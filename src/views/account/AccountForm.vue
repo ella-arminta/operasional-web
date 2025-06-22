@@ -216,7 +216,8 @@ onMounted(async () => {
 		label: store.name,
 		id: store.id,
 	}))
-	const accountData = await axiosInstance.get('/finance/account-type')
+	storeItems.value.unshift({ label: 'Select a store', id: '' })
+ 	const accountData = await axiosInstance.get('/finance/account-type')
 	accountItems.value = accountData.data.data.map((account) => ({
 		label: account.name,
 		id: account.id,
@@ -309,7 +310,11 @@ const submit = async () => {
 			form.value.company_id = form.value.company_id[0]
 		}
 		if (form.value.store_id != null) {
-			form.value.store_id = form.value.store_id[0]
+			if (form.value.store_id[0] != '') {
+				form.value.store_id = form.value.store_id[0]
+			} else {
+				form.value.store_id = null
+			}
 		}
 		const endpoint =
 			props.mode === 'edit'
