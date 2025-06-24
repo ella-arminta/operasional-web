@@ -640,7 +640,7 @@ const closeImageModal = () => {
 const printQR = async (productId: string) => {
 	try {
 		const response = await axiosInstance.get(
-			`/print-product-qr/${productId}`,
+			`/inventory/print-product-qr/${productId}`,
 			{
 				responseType: 'blob', // Ensure response is a Blob
 			}

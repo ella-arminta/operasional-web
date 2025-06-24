@@ -847,9 +847,12 @@ const submitAdminReply = async (item) => {
 // Handle for download [NOTA]
 const downloadNota = async () => {
 	try {
-		const response = await axiosInstance.get(`/nota/${id}`, {
-			responseType: 'blob', // Important to handle binary data correctly
-		})
+		const response = await axiosInstance.get(
+			`/transaction/transaction-nota/${id}`,
+			{
+				responseType: 'blob', // Important to handle binary data correctly
+			}
+		)
 
 		const contentDisposition = response.headers['content-disposition']
 		let filename = `${form.value.code}.pdf` // Default filename

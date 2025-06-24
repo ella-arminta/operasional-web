@@ -433,9 +433,12 @@ const scanning = ref(false)
 // Handle for download
 const downloadNota = async () => {
 	try {
-		const response = await axiosInstance.get(`/nota/${id}`, {
-			responseType: 'blob', // Important to handle binary data correctly
-		})
+		const response = await axiosInstance.get(
+			`/transaction/transaction-nota/${id}`,
+			{
+				responseType: 'blob', // Important to handle binary data correctly
+			}
+		)
 
 		const contentDisposition = response.headers['content-disposition']
 		let filename = `${form.value.code}.pdf` // Default filename
@@ -558,6 +561,7 @@ const fetchCategory = async () => {
 			label: `${category.code}|${category.name}`,
 		}))
 	} else {
+		console.log('GAGAL FETCH CATEGORY')
 		store.dispatch('triggerAlert', {
 			type: 'error',
 			title: 'Error!',
@@ -578,6 +582,7 @@ const fetchType = async () => {
 			label: `${type.code}|${type.name}`,
 		}))
 	} else {
+		console.log('GAGAL FETCH CATEGORY')
 		store.dispatch('triggerAlert', {
 			type: 'error',
 			title: 'Error!',
@@ -858,6 +863,7 @@ const fetchCustomer = async () => {
 			label: `${customer.email} - ${customer.phone}`,
 		}))
 	} else {
+		console.log('GAGAL FETCH CATEGORY')
 		store.dispatch('triggerAlert', {
 			type: 'error',
 			title: 'Error!',
@@ -1111,6 +1117,7 @@ const fetchTransAccount = async () => {
 			form.value.account_id = [fetchTransAction.data.data[0].account_id]
 		}
 	} catch (error) {
+		console.log('GAGAL FETCH ACCOUNT')
 		store.dispatch('triggerAlert', {
 			type: 'error',
 			title: 'Error!',
@@ -1134,6 +1141,7 @@ const fetchConfig = async () => {
 			response.data.data.is_flex_price ||
 			decryptData(Cookies.get('userdata')).is_owner
 	} else {
+		console.log('GAGAL FETCH MASTER STORE')
 		store.dispatch('triggerAlert', {
 			type: 'error',
 			title: 'Error!',

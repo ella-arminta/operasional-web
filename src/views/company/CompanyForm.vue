@@ -186,7 +186,9 @@ const submit = async () => {
 		store.dispatch('triggerAlert', {
 			type: 'error',
 			title: 'Error!',
-			message: `Company ${props.mode === 'edit' ? 'update' : 'creation'} failed.`,
+			message:
+				error.response?.data.message ??
+				`Company ${props.mode === 'edit' ? 'update' : 'creation'} failed.`,
 		})
 	}
 }
