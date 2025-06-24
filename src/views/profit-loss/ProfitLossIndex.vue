@@ -4,21 +4,6 @@
 
         <!-- Content Container -->
         <div class="w-full bg-white h-auto rounded-lg shadow-sm py-3 px-4">
-            <!-- Header -->
-            <div class="flex justify-between flex-wrap items-center">
-                <div class="flex justify-center items-center gap-4">
-                </div>
-                <!-- Action Button -->
-                <div class="flex items-center gap-2 justify-center">
-                    <div
-                        @click="printPdf"
-                        class="bg-pinkDark hover:bg-pinkMed text-white cursor-pointer font-bold py-1 px-2 flex justify-evenly items-center rounded-lg gap-2">
-                        <div><i class="material-icons text-xl">download</i></div>
-                        <div class="text-sm">PDF</div>
-                    </div>
-                </div>
-            </div>
-
             <!-- Filters -->
             <div class="transition-all duration-300" :class="{
                 'max-h-0 overflow-hidden': !isFiltersOpen,
@@ -51,9 +36,36 @@
                 </div>
             </div>
 
+            <br>
+            <!-- Profit Loss Chart Yearly -->
+            <ProfitLossChart
+                :apiPath="'/finance/profit-loss-year'"
+                :title="`Profit Loss ${new Date(filterValues.start_date).getFullYear()}`"
+                :companyId="filterValues.company_id ? filterValues.company_id[0] : ''"
+                :storeId="filterValues.store ? filterValues.store[0] : ''"
+                :startDate="filterValues.start_date"
+                :endDate="filterValues.end_date"
+                />
+
+
             <!-- The Profit & Loss -->
             <br>
             <div v-if="!isLoading" class="w-full bg-white shadow-lg rounded-lg p-4 md:px-14 md:py-12" id="profit-loss">
+                <!-- Header -->
+                <div class="flex justify-between flex-wrap items-center">
+                    <div class="flex justify-center items-center gap-4">
+                    </div>
+                    <!-- Action Button -->
+                    <div class="flex items-center gap-2 justify-center">
+                        <div
+                            @click="printPdf"
+                            class="bg-pinkDark hover:bg-pinkMed text-white cursor-pointer font-bold py-1 px-2 flex justify-evenly items-center rounded-lg gap-2">
+                            <div><i class="material-icons text-xl">download</i></div>
+                            <div class="text-sm">PDF</div>
+                        </div>
+                    </div>
+                </div>
+
                 <h1 class="text-center text-lg font-bold">Proft & Lost Statement</h1>
                 <h1 class="text-center text-lg font-bold">{{ labelRangeSelected }}</h1>
                 <span class="h-[10px]"></span>
@@ -118,6 +130,8 @@ import { useStore } from 'vuex';
 import DropdownFinance from '../../components/DropdownFinance.vue';
 import { decryptData } from '../../utils/crypto';
 import Cookies from 'js-cookie'
+import LineChart from '../../components/chart/LineChart.vue';
+import ProfitLossChart from '../../components/chart/ProfitLossChart.vue';
 
 const columns = [
     { data: 'name', title: 'Name' },
