@@ -348,7 +348,7 @@
 							placeholder="Select Inventory Valuation Method"
 							:multiple="false"
 							:searchable="true"
-							:disabled="mode === 'detail'"
+							:disabled="mode === 'detail' || disableInvValMethod"
 						/>
 						<p
 							v-if="formError.inventory_val_method"
@@ -433,6 +433,7 @@ const inv_val_methods = ref([
 	{ id: 1, label: 'Moving Average' },
 	{ id: 2, label: 'Precise Cost' },
 ])
+const disableInvValMethod = ref(false);
 
 const props = defineProps({
 	mode: { type: String, required: true },
@@ -570,6 +571,24 @@ onMounted(async () => {
 				lng: form.value.longitude,
 			}
 			form.value.inventory_val_method = [form.value.inventory_val_method]
+			const response2 = await axiosInstance.get('/finance/journal', {
+				params: {
+					store_id: id,
+				},
+			})
+			console.log('Journal Response', response2.data, response2)
+			if (response2.data) {
+				const journalData = response2.data.data
+				console.log('Journal Data', journalData)
+				if (journalData.length > 0) {
+					disableInvValMethod.value = true
+				} else {
+					disableInvValMethod.value = false
+				}
+			} 
+			else {
+				disableInvValMethod.value = false
+			}
 		} catch (error) {
 			console.error(error)
 			store.dispatch('triggerAlert', {
