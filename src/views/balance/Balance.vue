@@ -34,8 +34,8 @@
 
         <!-- Payout Requests Table -->
         <h3 class="mt-6 text-lg font-semibold">Payout Requests</h3>
-         <!-- Filter Section -->
-         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 my-4">
+        <!-- Filter Section -->
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 my-4">
             <input type="number" v-model="filters.payoutMin" placeholder="Min Amount" class="border p-2 rounded-lg">
             <input type="number" v-model="filters.payoutMax" placeholder="Max Amount" class="border p-2 rounded-lg">
             <select v-model="filters.payoutStatus" class="border p-2 rounded-lg">
@@ -45,12 +45,14 @@
             </select>
             <div>
                 <label class="block text-sm font-medium mb-1">Start Date</label>
-                <input type="date" v-model="filters.payoutStartDate" class="border p-2 rounded-lg w-full">
+                <input type="date" v-model="filters.payoutStartDate" class="border p-2 rounded-lg w-full" />
             </div>
             <div>
                 <label class="block text-sm font-medium mb-1">End Date</label>
-                <input type="date" v-model="filters.payoutEndDate" class="border p-2 rounded-lg w-full">
+                <input type="date" v-model="filters.payoutEndDate" :min="filters.payoutStartDate"
+                    class="border p-2 rounded-lg w-full" />
             </div>
+
         </div>
         <TableDataV2 :columns="payoutColumns" :data="filteredPayoutRequests" :exportable="true" />
 
@@ -71,7 +73,8 @@
             </div>
             <div>
                 <label class="block text-sm font-medium mb-1">End Date</label>
-                <input type="date" v-model="filters.balanceEndDate" class="border p-2 rounded-lg w-full">
+                <input type="date" v-model="filters.balanceEndDate" class="border p-2 rounded-lg w-full"
+                    :min="filters.balanceStartDate">
             </div>
         </div>
         <TableDataV2 :columns="balanceColumns" :data="filteredBalanceLogs" :exportable="true" />
@@ -185,6 +188,18 @@ const showProof = (proofUrl) => {
     proofImage.value = proofUrl;
     showProofModal.value = true;
 }
+
+watch(() => filters.payoutEndDate, (newEnd) => {
+    if (
+        filters.payoutStartDate &&
+        newEnd &&
+        new Date(newEnd) < new Date(filters.payoutStartDate)
+    ) {
+        alert('End date must be the same or after the start date.')
+        filters.payoutEndDate = ''
+    }
+})
+
 
 // Fungsi untuk menutup modal
 const closeModal = () => {
