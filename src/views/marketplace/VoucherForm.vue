@@ -11,54 +11,105 @@
 					" :showSaveButton="mode !== 'detail'" />
 				<FormSectionHeader title="Voucher Information" icon="info" />
 
-				<div class="grid grid-cols-2 gap-6 mt-4">
-					<!-- Voucher Name -->
-					<InputForm id="voucher_name" v-model="form.voucher_name" label="Voucher Name"
-						placeholder="Enter voucher name" required :error="formError.voucher_name"
-						:readonly="mode === 'detail'" />
+				<div class="space-y-8">
+					<!-- Basic Information Section -->
+					<div class="bg-white rounded-lg border border-gray-200 p-6">
+						<h3 class="text-lg font-semibold text-gray-900 mb-4">Basic Information</h3>
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+							<!-- Voucher Name -->
+							<div class="md:col-span-2">
+								<InputForm id="voucher_name" v-model="form.voucher_name" label="Voucher Name"
+									placeholder="Enter voucher name" required :error="formError.voucher_name"
+									:readonly="mode === 'detail'" />
+							</div>
 
-					<!-- Discount Amount -->
-					<div>
-						<InputForm id="discount_amount" v-model="form.discount_amount" label="Discount Amount (%)"
-							type="number" placeholder="Enter discount amount" required
-							:error="formError.discount_amount" :readonly="mode === 'detail'" />
-						<p class="text-sm text-gray-500 mt-1">
-							* Amount entered is in percentage (%)
-						</p>
+							<!-- Description -->
+							<div class="md:col-span-2">
+								<TextareaForm id="description" v-model="form.description" label="Description"
+									placeholder="Enter voucher description" :error="formError.description"
+									:readonly="mode === 'detail'" rows="3" />
+							</div>
+						</div>
 					</div>
 
-					<!-- Max Discount -->
-					<InputForm id="max_discount" v-model="form.max_discount" label="Max Discount" type="number"
-						placeholder="Enter max discount" required :error="formError.max_discount"
-						:readonly="mode === 'detail'" />
+					<!-- Discount Configuration Section -->
+					<div class="bg-white rounded-lg border border-gray-200 p-6">
+						<h3 class="text-lg font-semibold text-gray-900 mb-4">Discount Configuration</h3>
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+							<!-- Discount Amount -->
+							<div>
+								<InputForm id="discount_amount" v-model="form.discount_amount" label="Discount Amount"
+									type="number" placeholder="0" required :error="formError.discount_amount"
+									:readonly="mode === 'detail'" />
+								<p class="text-sm text-gray-500 mt-1 flex items-center">
+									<svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+										<path fill-rule="evenodd"
+											d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+											clip-rule="evenodd"></path>
+									</svg>
+									Amount entered is in percentage (%)
+								</p>
+							</div>
 
-					<!-- Minimum Purchase -->
-					<InputForm id="minimum_purchase" v-model="form.minimum_purchase" label="Minimum Purchase"
-						type="number" placeholder="Enter minimum purchase" required :error="formError.minimum_purchase"
-						:readonly="mode === 'detail'" />
+							<!-- Max Discount -->
+							<div>
+								<InputForm id="max_discount" v-model="form.max_discount" label="Max Discount Amount"
+									type="number" placeholder="0" required :error="formError.max_discount"
+									:readonly="mode === 'detail'" />
+								<p class="text-sm text-gray-500 mt-1">Maximum discount in currency</p>
+							</div>
 
-					<!-- Poin Price -->
-					<InputForm id="poin_price" v-model="form.poin_price" label="Poin Price" type="number"
-						placeholder="Enter poin price" required :error="formError.poin_price"
-						:readonly="mode === 'detail'" />
+							<!-- Minimum Purchase -->
+							<div>
+								<InputForm id="minimum_purchase" v-model="form.minimum_purchase"
+									label="Minimum Purchase" type="number" placeholder="0" required
+									:error="formError.minimum_purchase" :readonly="mode === 'detail'" />
+								<p class="text-sm text-gray-500 mt-1">Minimum amount to use voucher</p>
+							</div>
 
-					<!-- Start Date -->
-					<InputFormCustom id="start_date" v-model="form.start_date" label="Start Date" type="date" required
-						:error="formError.start_date" :readonly="mode === 'detail'" :min="minStartDate" />
+							<!-- Point Price -->
+							<div>
+								<InputForm id="poin_price" v-model="form.poin_price" label="Point Price" type="number"
+									placeholder="0" required :error="formError.poin_price"
+									:readonly="mode === 'detail'" />
+								<p class="text-sm text-gray-500 mt-1">Points required to redeem</p>
+							</div>
+						</div>
+					</div>
 
-					<!-- End Date -->
-					<InputFormCustom id="end_date" v-model="form.end_date" label="End Date" type="date" required
-						:error="formError.end_date" :readonly="mode === 'detail'" :disabled="!form.start_date"
-						:min="form.start_date" />
+					<!-- Validity Period Section -->
+					<div class="bg-white rounded-lg border border-gray-200 p-6">
+						<h3 class="text-lg font-semibold text-gray-900 mb-4">Validity Period</h3>
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+							<!-- Start Date -->
+							<div>
+								<InputFormCustom id="start_date" v-model="form.start_date" label="Start Date"
+									type="date" required :error="formError.start_date" :readonly="mode === 'detail'"
+									:min="minStartDate" />
+								<p class="text-sm text-gray-500 mt-1">When voucher becomes active</p>
+							</div>
 
+							<!-- End Date -->
+							<div>
+								<InputFormCustom id="end_date" v-model="form.end_date" label="End Date" type="date"
+									required :error="formError.end_date" :readonly="mode === 'detail'"
+									:disabled="!form.start_date" :min="form.start_date" />
+								<p class="text-sm text-gray-500 mt-1">When voucher expires</p>
+							</div>
+						</div>
+					</div>
 
-					<!-- Active Status -->
-					<ToggleForm v-model="form.is_active" label="Active Status" :disabled="mode === 'detail'" />
-
-					<!-- Description -->
-					<TextareaForm id="description" v-model="form.description" label="Description"
-						placeholder="Enter voucher description" :error="formError.description"
-						:readonly="mode === 'detail'" />
+					<!-- Status Section -->
+					<div class="bg-white rounded-lg border border-gray-200 p-6">
+						<h3 class="text-lg font-semibold text-gray-900 mb-4">Status</h3>
+						<div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+							<div>
+								<label class="text-sm font-medium text-gray-900">Active Status</label>
+								<p class="text-sm text-gray-500">Enable or disable this voucher</p>
+							</div>
+							<ToggleForm v-model="form.is_active" label="" :disabled="mode === 'detail'" />
+						</div>
+					</div>
 				</div>
 
 				<!-- Show totalSold when in view mode -->
