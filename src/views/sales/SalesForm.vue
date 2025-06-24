@@ -1,62 +1,145 @@
 <template>
 	<div class="content min-h-screen" :class="{ 'full-width': smallMenu }">
 		<PageTitle />
-		<form class="w-full bg-white h-auto rounded-lg shadow-sm py-3 px-4" @submit.prevent="submit">
-			<FormHeader :title="mode === 'edit'
-				? 'Edit Sales Transaction'
-				: mode === 'add'
-					? 'Sales Transaction Form'
-					: 'Sales Transaction Detail'
-				" :showResetButton="false" :showSaveButton="mode !== 'detail'" @reset="resetForm" />
+		<form
+			class="w-full bg-white h-auto rounded-lg shadow-sm py-3 px-4"
+			@submit.prevent="submit"
+		>
+			<FormHeader
+				:title="
+					mode === 'edit'
+						? 'Edit Sales Transaction'
+						: mode === 'add'
+							? 'Sales Transaction Form'
+							: 'Sales Transaction Detail'
+				"
+				:showResetButton="false"
+				:showSaveButton="mode !== 'detail'"
+				@reset="resetForm"
+			/>
 			<FormSectionHeader title="Transaction Information" icon="info" />
 			<div class="grid sm:grid-cols-1 md:grid-cols-3 gap-6 mt-4">
 				<div class="space-y-3">
-					<InputForm v-if="mode !== 'add'" v-model="form.code" id="code" label="Code" placeholder="Code"
-						required :error="formError.code" :readonly="mode !== 'add'" />
-					<InputForm v-model="form.date" id="date" type="date" label="Date" placeholder="Date" required
-						:error="formError.date" :readonly="mode !== 'add'" />
-					<InputForm v-if="mode !== 'add'" v-model="form.employee" id="employee" label="employee"
-						placeholder="employee" required :error="formError.employee" :readonly="mode !== 'add'" />
+					<InputForm
+						v-if="mode !== 'add'"
+						v-model="form.code"
+						id="code"
+						label="Code"
+						placeholder="Code"
+						required
+						:error="formError.code"
+						:readonly="mode !== 'add'"
+					/>
+					<InputForm
+						v-model="form.date"
+						id="date"
+						type="date"
+						label="Date"
+						placeholder="Date"
+						required
+						:error="formError.date"
+						:readonly="mode !== 'add'"
+					/>
+					<InputForm
+						v-if="mode !== 'add'"
+						v-model="form.employee"
+						id="employee"
+						label="employee"
+						placeholder="employee"
+						required
+						:error="formError.employee"
+						:readonly="mode !== 'add'"
+					/>
 					<!-- Toogle Button to either SELECT from DROPDOWN or QR CODE SCANNER -->
 					<div v-if="mode === 'add'">
-						<label for="dropdown" class="block text-sm text-grey-900 font-medium mb-1">
+						<label
+							for="dropdown"
+							class="block text-sm text-grey-900 font-medium mb-1"
+						>
 							Select Customer<span class="text-pinkDark">*</span>
 						</label>
-						<Dropdown :items="customerSelection" v-model="selectedWay"
-							placeholder="Select a way to select customer" :multiple="false" :searchable="false"
-							:disabled="mode === 'detail'" :addRoute="''" />
-						<a href="/customer" class="text-pinkDark text-sm underline">+ Add Customer</a>
+						<Dropdown
+							:items="customerSelection"
+							v-model="selectedWay"
+							placeholder="Select a way to select customer"
+							:multiple="false"
+							:searchable="false"
+							:disabled="mode === 'detail'"
+							:addRoute="''"
+						/>
+						<a
+							href="/customer"
+							class="text-pinkDark text-sm underline"
+							>+ Add Customer</a
+						>
 					</div>
 					<!-- Use Dropdown Search email -->
 					<div v-if="mode === 'add' && selectedWay == 2">
-						<label for="dropdown" class="block text-sm text-grey-900 font-medium mb-1">
+						<label
+							for="dropdown"
+							class="block text-sm text-grey-900 font-medium mb-1"
+						>
 							Customer ID<span class="text-pinkDark">*</span>
 						</label>
-						<Dropdown :items="customers" v-model="form.customer_id" placeholder="Select a customer"
-							:multiple="false" :searchable="true" :disabled="mode === 'detail'"
-							:addRoute="'/customer'" />
-						<p v-if="formError.customer_id" class="text-pinkDark text-xs italic transition duration-300">
+						<Dropdown
+							:items="customers"
+							v-model="form.customer_id"
+							placeholder="Select a customer"
+							:multiple="false"
+							:searchable="true"
+							:disabled="mode === 'detail'"
+							:addRoute="'/customer'"
+						/>
+						<p
+							v-if="formError.customer_id"
+							class="text-pinkDark text-xs italic transition duration-300"
+						>
 							{{ formError.customer_id }}
 						</p>
 					</div>
 					<div v-if="mode === 'add' && selectedWay == 1">
-						<button type="button"
+						<button
+							type="button"
 							class="w-full bg-pinkDark text-white rounded-lg py-2 px-4 hover:bg-pinkOrange transition duration-300"
-							@click="scanningCust = true">
+							@click="scanningCust = true"
+						>
 							Scan QR Code
 						</button>
 					</div>
 				</div>
 				<div class="space-y-3">
-					<InputForm v-model="form.name" id="name" label="Customer Name" placeholder="Customer" required
-						:error="formError.name" :readonly="true" />
-					<InputForm v-model="form.email" id="email" label="Email" placeholder="Email" required
-						:error="formError.email" :readonly="true" />
-					<InputForm v-model="form.phone" id="phone" label="Phone Number" placeholder="Phone Number" required
-						:error="formError.phone" :readonly="true" />
+					<InputForm
+						v-model="form.name"
+						id="name"
+						label="Customer Name"
+						placeholder="Customer"
+						required
+						:error="formError.name"
+						:readonly="true"
+					/>
+					<InputForm
+						v-model="form.email"
+						id="email"
+						label="Email"
+						placeholder="Email"
+						required
+						:error="formError.email"
+						:readonly="true"
+					/>
+					<InputForm
+						v-model="form.phone"
+						id="phone"
+						label="Phone Number"
+						placeholder="Phone Number"
+						required
+						:error="formError.phone"
+						:readonly="true"
+					/>
 				</div>
 				<div class="space-y-3">
-					<div class="space-y-3 px-3 py-3 rounded-lg border border-pinkOrange border-opacity-25">
+					<div
+						class="space-y-3 px-3 py-3 rounded-lg border border-pinkOrange border-opacity-25"
+					>
 						<div>
 							<h4 class="text-md mb-0">Pembayaran</h4>
 							<h1 class="text-pinkDark text-2xl mt-0 pt-0">
@@ -64,22 +147,47 @@
 							</h1>
 						</div>
 						<div>
-							<label for="dropdown" class="block text-sm text-grey-900 font-medium mb-1">Payment
-								Method<span class="text-pinkDark">*</span></label>
-							<Dropdown :items="paymentMethod" v-model="form.payment_method"
-								placeholder="Select a payment method" :multiple="false" :searchable="false"
-								:disabled="mode === 'detail'" :addRoute="''" />
+							<label
+								for="dropdown"
+								class="block text-sm text-grey-900 font-medium mb-1"
+								>Payment Method<span class="text-pinkDark"
+									>*</span
+								></label
+							>
+							<Dropdown
+								:items="paymentMethod"
+								v-model="form.payment_method"
+								placeholder="Select a payment method"
+								:multiple="false"
+								:searchable="false"
+								:disabled="mode === 'detail'"
+								:addRoute="''"
+							/>
 						</div>
 						<div>
-							<label for="dropdown" class="block text-sm text-grey-900 font-medium mb-1">Status<span
-									class="text-pinkDark">*</span></label>
-							<Dropdown :items="status" v-model="form.status" placeholder="Select a status"
-								:multiple="false" :searchable="false" :disabled="mode === 'detail'" :addRoute="''" />
+							<label
+								for="dropdown"
+								class="block text-sm text-grey-900 font-medium mb-1"
+								>Status<span class="text-pinkDark"
+									>*</span
+								></label
+							>
+							<Dropdown
+								:items="status"
+								v-model="form.status"
+								placeholder="Select a status"
+								:multiple="false"
+								:searchable="false"
+								:disabled="mode === 'detail'"
+								:addRoute="''"
+							/>
 						</div>
 						<div v-if="mode !== 'add'">
-							<button type="button"
+							<button
+								type="button"
 								class="w-full bg-pinkDark text-white rounded-lg py-2 px-4 hover:bg-pinkOrange transition duration-300"
-								@click="downloadNota">
+								@click="downloadNota"
+							>
 								Download Nota
 							</button>
 						</div>
@@ -90,70 +198,121 @@
 				<FormSectionHeader title="Add Product" icon="shop" />
 				<div class="grid grid-cols-2 gap-4 mb-3">
 					<div>
-						<button type="button" class="w-full rounded-lg py-2 px-4 transition duration-300"
-							@click="switchForm(1)" :class="{
+						<button
+							type="button"
+							class="w-full rounded-lg py-2 px-4 transition duration-300"
+							@click="switchForm(1)"
+							:class="{
 								'bg-pinkGray text-pinkOrange ':
 									selectedType == 2,
 								'bg-pinkDark text-white hover:bg-pinkOrange':
 									selectedType == 1,
-							}">
+							}"
+						>
 							Add Product
 						</button>
 					</div>
 					<div>
-						<button type="button" class="w-full rounded-lg py-2 px-4 transition duration-300"
-							@click="switchForm(2)" :class="{
+						<button
+							type="button"
+							class="w-full rounded-lg py-2 px-4 transition duration-300"
+							@click="switchForm(2)"
+							:class="{
 								'bg-pinkGray text-pinkOrange':
 									selectedType == 1,
 								'bg-pinkDark text-white hover:bg-pinkOrange':
 									selectedType == 2,
-							}">
+							}"
+						>
 							Add Operation
 						</button>
 					</div>
 				</div>
-				<div v-if="mode !== 'detail' && form.payment_method[0] != 5"
-					class="grid grid-cols-3 gap-6 mb-4 items-end">
+				<div
+					v-if="mode !== 'detail' && form.payment_method[0] != 5"
+					class="grid grid-cols-3 gap-6 mb-4 items-end"
+				>
 					<div v-if="selectedType == 1">
-						<InputForm v-model="itemSelected" id="item" label="Product Code" placeholder="Product Code"
-							required :readonly="mode === 'detail'" />
+						<InputForm
+							v-model="itemSelected"
+							id="item"
+							label="Product Code"
+							placeholder="Product Code"
+							required
+							:readonly="mode === 'detail'"
+						/>
 					</div>
 					<div v-if="selectedType == 2">
-						<label for="dropdown" class="block text-sm text-grey-900 font-medium mb-1">
+						<label
+							for="dropdown"
+							class="block text-sm text-grey-900 font-medium mb-1"
+						>
 							Operation<span class="text-pinkDark">*</span>
 						</label>
-						<Dropdown :items="operations" v-model="operationSelected" placeholder="Select an Operation"
-							:multiple="false" :searchable="true" :disabled="mode === 'detail'"
-							:addRoute="'/inventory/operation'" />
+						<Dropdown
+							:items="operations"
+							v-model="operationSelected"
+							placeholder="Select an Operation"
+							:multiple="false"
+							:searchable="true"
+							:disabled="mode === 'detail'"
+							:addRoute="'/inventory/operation'"
+						/>
 					</div>
 					<div>
-						<button type="button"
+						<button
+							type="button"
 							class="w-full bg-pinkDark text-white rounded-lg py-2 px-4 hover:bg-pinkOrange transition duration-300"
-							@click="handleInsert">
+							@click="handleInsert"
+						>
 							Add Item
 						</button>
 					</div>
 					<div>
-						<button type="button"
+						<button
+							type="button"
 							class="w-full bg-pinkDark text-white rounded-lg py-2 px-4 hover:bg-pinkOrange transition duration-300"
-							@click="scanning = true">
+							@click="scanning = true"
+						>
 							Scan QR Code
 						</button>
 					</div>
 				</div>
 			</template>
 
-			<FormSectionHeader title="Transaction Details" icon="shopping_cart" />
-			<EditableTrans :initialRows="form.transaction_details" :columns="transactionDetailsColumns"
-				:required="false" :readonly="mode === 'detail' || form.payment_method[0] === 5" :allActive="false"
-				:independent="mode !== 'add'" :addable="false" title="Items Detail" @update:rows="handleRowsUpdate"
-				:addPath="'/transaction/transaction-detail'" :editPath="'/transaction/transaction-detail'"
-				:deletePath="'/transaction/transaction-detail'" :noDataState="noDataState" :isFlexible="isFlexible" />
-			<div class="grid sm:grid-cols-1 md:grid-cols-5 gap-6 mt-8 mr-4 mb-4">
+			<FormSectionHeader
+				title="Transaction Details"
+				icon="shopping_cart"
+			/>
+			<EditableTrans
+				:initialRows="form.transaction_details"
+				:columns="transactionDetailsColumns"
+				:required="false"
+				:readonly="mode === 'detail' || form.payment_method[0] === 5"
+				:allActive="false"
+				:independent="mode !== 'add'"
+				:addable="false"
+				title="Items Detail"
+				@update:rows="handleRowsUpdate"
+				:addPath="'/transaction/transaction-detail'"
+				:editPath="'/transaction/transaction-detail'"
+				:deletePath="'/transaction/transaction-detail'"
+				:noDataState="noDataState"
+				:isFlexible="isFlexible"
+			/>
+			<div
+				class="grid sm:grid-cols-1 md:grid-cols-5 gap-6 mt-8 mr-4 mb-4"
+			>
 				<div class="col-start-1 col-span-2 w-full">
-					<TextareaForm v-model="form.comment" id="comment" label="Notes Transaksi"
-						placeholder="Notes Transaksi" required :error="formError.comment"
-						:readonly="mode === 'detail'" />
+					<TextareaForm
+						v-model="form.comment"
+						id="comment"
+						label="Notes Transaksi"
+						placeholder="Notes Transaksi"
+						required
+						:error="formError.comment"
+						:readonly="mode === 'detail'"
+					/>
 				</div>
 				<div class="md:col-start-4 col-span-2 space-y-2">
 					<div class="grid grid-cols-2 w-full items-center">
@@ -183,15 +342,21 @@
 					<div class="grid grid-cols-2 w-full items-center">
 						<div class="text-start">Tax Percentage</div>
 						<div class="text-end text-pinkDark">
-							<input v-model="tax" type="decimal"
+							<input
+								v-model="tax"
+								type="decimal"
 								class="border-b-2 border-pinkDark border-opacity-50 text-pinkDark text-md w-3/4 focus:border-b-2 focus:border-pinkDark focus:outline-none text-end bg-white"
-								placeholder="Tax Percentage" :disabled="mode === 'detail' ||
+								placeholder="Tax Percentage"
+								:disabled="
+									mode === 'detail' ||
 									form.payment_link ||
 									!isFlexible
-									" :class="{
-										'border-none':
-											mode === 'detail' || form.payment_link,
-									}" />%
+								"
+								:class="{
+									'border-none':
+										mode === 'detail' || form.payment_link,
+								}"
+							/>%
 						</div>
 					</div>
 					<div class="grid grid-cols-2 w-full items-center">
@@ -215,13 +380,18 @@
 			<div v-if="mode !== 'add'" class="mt-6">
 				<FormSectionHeader title="Customer Reviews" icon="star" />
 
-				<div v-if="
-					form.transaction_details.some(
-						(item) => item.TransactionReview
-					)
-				">
-					<div v-for="item in form.transaction_details" :key="item.id"
-						class="bg-white p-4 rounded-lg shadow-md border border-gray-200 mb-4">
+				<div
+					v-if="
+						form.transaction_details.some(
+							(item) => item.TransactionReview
+						)
+					"
+				>
+					<div
+						v-for="item in form.transaction_details"
+						:key="item.id"
+						class="bg-white p-4 rounded-lg shadow-md border border-gray-200 mb-4"
+					>
 						<h5 class="font-semibold text-gray-800">
 							{{
 								item.product_code
@@ -245,38 +415,66 @@
 							<br />
 
 							<!-- Tambahkan ini untuk menampilkan gambar review -->
-							<div v-if="item.TransactionReview.images && item.TransactionReview.images.length"
-								class="mt-2 flex flex-wrap gap-2">
-								<div v-for="(img, index) in item.TransactionReview.images" :key="index"
-									class="w-20 h-20 overflow-hidden rounded border border-gray-200">
-									<img :src="`http://127.0.0.1:3001${img}`" alt="review image"
+							<div
+								v-if="
+									item.TransactionReview.images &&
+									item.TransactionReview.images.length
+								"
+								class="mt-2 flex flex-wrap gap-2"
+							>
+								<div
+									v-for="(img, index) in item
+										.TransactionReview.images"
+									:key="index"
+									class="w-20 h-20 overflow-hidden rounded border border-gray-200"
+								>
+									<img
+										:src="`http://127.0.0.1:3001${img}`"
+										alt="review image"
 										class="w-full h-full object-cover cursor-pointer"
-										@click="openImagePreview(`http://127.0.0.1:3001${img}`)" />
-
+										@click="
+											openImagePreview(
+												`http://127.0.0.1:3001${img}`
+											)
+										"
+									/>
 								</div>
 							</div>
 
 							<!-- Show admin reply (read-only) if reply_admin exists -->
-							<p v-if="item.TransactionReview.reply_admin" class="text-gray-700 text-sm mt-2">
+							<p
+								v-if="item.TransactionReview.reply_admin"
+								class="text-gray-700 text-sm mt-2"
+							>
 								<b class="text-gray-800">Admin Reply:</b>
 								{{ item.TransactionReview.reply_admin }}
 							</p>
 
 							<!-- Show input field for reply only if there's no reply_admin yet -->
-							<div v-else-if="mode === 'edit' || mode === 'detail'" class="mt-2">
-								<label class="text-gray-700 text-sm font-semibold">
+							<div
+								v-else-if="mode === 'edit' || mode === 'detail'"
+								class="mt-2"
+							>
+								<label
+									class="text-gray-700 text-sm font-semibold"
+								>
 									Admin Reply:
 								</label>
-								<input v-model="item.adminReply" type="text"
+								<input
+									v-model="item.adminReply"
+									type="text"
 									class="border rounded px-2 py-1 w-full mt-1 text-gray-800 focus:border-pinkDark focus:ring-pinkDark"
-									placeholder="Type your reply here..." />
-								<button type="button" @click="submitAdminReply(item)"
-									class="mt-2 px-3 py-1 bg-pinkDark text-white text-sm rounded hover:bg-pinkOrange transition">
+									placeholder="Type your reply here..."
+								/>
+								<button
+									type="button"
+									@click="submitAdminReply(item)"
+									class="mt-2 px-3 py-1 bg-pinkDark text-white text-sm rounded hover:bg-pinkOrange transition"
+								>
 									Submit Reply
 								</button>
 							</div>
 						</div>
-
 
 						<p v-else class="text-gray-500 italic">
 							No review available for this product.
@@ -291,38 +489,57 @@
 		</form>
 	</div>
 	<!-- Customer Scanner -->
-	<QrScanner :show="scanningCust" @close="scanningCust = false" @scanned="handleScanCustomer" />
+	<QrScanner
+		:show="scanningCust"
+		@close="scanningCust = false"
+		@scanned="handleScanCustomer"
+	/>
 	<!-- Product Scanner -->
-	<QrScanner :show="scanning" @close="scanning = false" @scanned="handleScan" />
+	<QrScanner
+		:show="scanning"
+		@close="scanning = false"
+		@scanned="handleScan"
+	/>
 
 	<!-- Modal Preview Gambar -->
-	<div v-if="showImagePreview"
-		class="fixed inset-0 z-50 bg-gray-900 bg-opacity-75 flex justify-center items-center p-4">
+	<div
+		v-if="showImagePreview"
+		class="fixed inset-0 z-50 bg-gray-900 bg-opacity-75 flex justify-center items-center p-4"
+	>
 		<div class="bg-white p-4 rounded-lg shadow-lg max-w-4xl w-full">
 			<!-- Header dengan judul dan tombol close -->
 			<div class="flex justify-between items-center mb-4">
-				<h2 class="text-lg font-semibold text-center flex-1">Preview Gambar</h2>
-				<button class="text-gray-500 hover:text-gray-700 text-2xl font-bold ml-4" @click="closeImagePreview">
+				<h2 class="text-lg font-semibold text-center flex-1">
+					Preview Gambar
+				</h2>
+				<button
+					class="text-gray-500 hover:text-gray-700 text-2xl font-bold ml-4"
+					@click="closeImagePreview"
+				>
 					&times;
 				</button>
 			</div>
 
 			<!-- Container gambar -->
 			<div class="flex justify-center">
-				<img :src="previewImageUrl" alt="Preview"
-					class="w-auto max-w-full max-h-[70vh] object-contain rounded-md shadow-md border border-gray-200" />
+				<img
+					:src="previewImageUrl"
+					alt="Preview"
+					class="w-auto max-w-full max-h-[70vh] object-contain rounded-md shadow-md border border-gray-200"
+				/>
 			</div>
 
 			<!-- Footer dengan tombol tutup -->
 			<div class="text-center mt-4">
-				<button @click="closeImagePreview"
-					class="bg-pinkDark text-white px-6 py-2 rounded-lg hover:bg-pinkDarker transition">
+				<button
+					@click="closeImagePreview"
+					class="bg-pinkDark text-white px-6 py-2 rounded-lg hover:bg-pinkDarker transition"
+				>
 					Tutup
 				</button>
 			</div>
 		</div>
 	</div>
-
 </template>
 
 <script setup lang="ts">
@@ -364,7 +581,6 @@ const closeImagePreview = () => {
 	showImagePreview.value = false
 	previewImageUrl.value = ''
 }
-
 
 // columns for EditableCat
 const transactionDetailsColumns = [
@@ -491,7 +707,10 @@ const handleInsert = async () => {
 				}
 			)
 			if (response.data.success) {
-				if (response.data.data.status != 0) {
+				if (
+					response.data.data.status != 0 &&
+					response.data.data.status != 2
+				) {
 					store.dispatch('triggerAlert', {
 						type: 'error',
 						title: 'Error!',
@@ -783,7 +1002,7 @@ const paymentMethod = [
 ]
 
 // Reset Form
-const resetForm = () => { }
+const resetForm = () => {}
 
 // Formatter
 const formatNumber = (value: number) => {
@@ -1001,8 +1220,8 @@ const fetchTransaction = async () => {
 		const voucherDiscount =
 			data.voucher_own_id !== null
 				? parseFloat(data.sub_total_price) +
-				parseFloat(data.tax_price) -
-				parseFloat(data.total_price)
+					parseFloat(data.tax_price) -
+					parseFloat(data.total_price)
 				: 0
 
 		form.value = {

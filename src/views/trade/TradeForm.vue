@@ -577,47 +577,74 @@
 
 					<!-- Display Review If Available -->
 					<div v-if="item.TransactionReview">
-							<span class="text-yellow-500 font-bold">
-								⭐ {{ item.TransactionReview.rating }} / 5
-							</span>
-							<br />
-							<span class="text-gray-700 italic">
-								"{{ item.TransactionReview.review }}"
-							</span>
-							<br />
+						<span class="text-yellow-500 font-bold">
+							⭐ {{ item.TransactionReview.rating }} / 5
+						</span>
+						<br />
+						<span class="text-gray-700 italic">
+							"{{ item.TransactionReview.review }}"
+						</span>
+						<br />
 
-							<!-- Tambahkan ini untuk menampilkan gambar review -->
-							<div v-if="item.TransactionReview.images && item.TransactionReview.images.length"
-								class="mt-2 flex flex-wrap gap-2">
-								<div v-for="(img, index) in item.TransactionReview.images" :key="index"
-									class="w-20 h-20 overflow-hidden rounded border border-gray-200">
-									<img :src="`http://127.0.0.1:3001${img}`" alt="review image"
-										class="w-full h-full object-cover cursor-pointer"
-										@click="openImagePreview(`http://127.0.0.1:3001${img}`)" />
-
-								</div>
-							</div>
-
-							<!-- Show admin reply (read-only) if reply_admin exists -->
-							<p v-if="item.TransactionReview.reply_admin" class="text-gray-700 text-sm mt-2">
-								<b class="text-gray-800">Admin Reply:</b>
-								{{ item.TransactionReview.reply_admin }}
-							</p>
-
-							<!-- Show input field for reply only if there's no reply_admin yet -->
-							<div v-else-if="mode === 'edit' || mode === 'detail'" class="mt-2">
-								<label class="text-gray-700 text-sm font-semibold">
-									Admin Reply:
-								</label>
-								<input v-model="item.adminReply" type="text"
-									class="border rounded px-2 py-1 w-full mt-1 text-gray-800 focus:border-pinkDark focus:ring-pinkDark"
-									placeholder="Type your reply here..." />
-								<button type="button" @click="submitAdminReply(item)"
-									class="mt-2 px-3 py-1 bg-pinkDark text-white text-sm rounded hover:bg-pinkOrange transition">
-									Submit Reply
-								</button>
+						<!-- Tambahkan ini untuk menampilkan gambar review -->
+						<div
+							v-if="
+								item.TransactionReview.images &&
+								item.TransactionReview.images.length
+							"
+							class="mt-2 flex flex-wrap gap-2"
+						>
+							<div
+								v-for="(img, index) in item.TransactionReview
+									.images"
+								:key="index"
+								class="w-20 h-20 overflow-hidden rounded border border-gray-200"
+							>
+								<img
+									:src="`http://127.0.0.1:3001${img}`"
+									alt="review image"
+									class="w-full h-full object-cover cursor-pointer"
+									@click="
+										openImagePreview(
+											`http://127.0.0.1:3001${img}`
+										)
+									"
+								/>
 							</div>
 						</div>
+
+						<!-- Show admin reply (read-only) if reply_admin exists -->
+						<p
+							v-if="item.TransactionReview.reply_admin"
+							class="text-gray-700 text-sm mt-2"
+						>
+							<b class="text-gray-800">Admin Reply:</b>
+							{{ item.TransactionReview.reply_admin }}
+						</p>
+
+						<!-- Show input field for reply only if there's no reply_admin yet -->
+						<div
+							v-else-if="mode === 'edit' || mode === 'detail'"
+							class="mt-2"
+						>
+							<label class="text-gray-700 text-sm font-semibold">
+								Admin Reply:
+							</label>
+							<input
+								v-model="item.adminReply"
+								type="text"
+								class="border rounded px-2 py-1 w-full mt-1 text-gray-800 focus:border-pinkDark focus:ring-pinkDark"
+								placeholder="Type your reply here..."
+							/>
+							<button
+								type="button"
+								@click="submitAdminReply(item)"
+								class="mt-2 px-3 py-1 bg-pinkDark text-white text-sm rounded hover:bg-pinkOrange transition"
+							>
+								Submit Reply
+							</button>
+						</div>
+					</div>
 
 					<p v-else class="text-gray-500 italic">
 						No review available for this product.
@@ -648,27 +675,39 @@
 		@scanned="handleScanPurchase"
 	/>
 	<!-- Modal Preview Gambar -->
-	<div v-if="showImagePreview"
-		class="fixed inset-0 z-50 bg-gray-900 bg-opacity-75 flex justify-center items-center p-4">
+	<div
+		v-if="showImagePreview"
+		class="fixed inset-0 z-50 bg-gray-900 bg-opacity-75 flex justify-center items-center p-4"
+	>
 		<div class="bg-white p-4 rounded-lg shadow-lg max-w-4xl w-full">
 			<!-- Header dengan judul dan tombol close -->
 			<div class="flex justify-between items-center mb-4">
-				<h2 class="text-lg font-semibold text-center flex-1">Preview Gambar</h2>
-				<button class="text-gray-500 hover:text-gray-700 text-2xl font-bold ml-4" @click="closeImagePreview">
+				<h2 class="text-lg font-semibold text-center flex-1">
+					Preview Gambar
+				</h2>
+				<button
+					class="text-gray-500 hover:text-gray-700 text-2xl font-bold ml-4"
+					@click="closeImagePreview"
+				>
 					&times;
 				</button>
 			</div>
 
 			<!-- Container gambar -->
 			<div class="flex justify-center">
-				<img :src="previewImageUrl" alt="Preview"
-					class="w-auto max-w-full max-h-[70vh] object-contain rounded-md shadow-md border border-gray-200" />
+				<img
+					:src="previewImageUrl"
+					alt="Preview"
+					class="w-auto max-w-full max-h-[70vh] object-contain rounded-md shadow-md border border-gray-200"
+				/>
 			</div>
 
 			<!-- Footer dengan tombol tutup -->
 			<div class="text-center mt-4">
-				<button @click="closeImagePreview"
-					class="bg-pinkDark text-white px-6 py-2 rounded-lg hover:bg-pinkDarker transition">
+				<button
+					@click="closeImagePreview"
+					class="bg-pinkDark text-white px-6 py-2 rounded-lg hover:bg-pinkDarker transition"
+				>
 					Tutup
 				</button>
 			</div>
@@ -975,7 +1014,10 @@ const handleInsertSales = async () => {
 				}
 			)
 			if (response.data.success) {
-				if (response.data.data.status != 0) {
+				if (
+					response.data.data.status != 0 &&
+					response.data.data.status != 2
+				) {
 					store.dispatch('triggerAlert', {
 						type: 'error',
 						title: 'Error!',

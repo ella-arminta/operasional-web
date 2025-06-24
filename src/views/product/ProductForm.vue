@@ -1079,9 +1079,14 @@ watch(
 			} else {
 				account_id_disabled.value = false
 			}
-			formCode.value.buy_price = formatIDR(
-				Math.abs(parseFloat(val.total_price))
+			console.log(
+				'hello asdf',
+				val.total_price,
+				val,
+				formatIDR(Math.abs(parseFloat(val.total_price)))
 			)
+			formCode.value.buy_price = Math.abs(parseFloat(val.total_price))
+
 			formCode.value.tax_purchase = 0
 		} else {
 			account_id_disabled.value = false

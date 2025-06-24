@@ -513,7 +513,7 @@ const noDataState = `<p class="text-center text-gray-500 w-full py-2 px-4">Add T
 
 const status = [
 	// { id: 0, label: 'Pending' },
-	{ id: 1, label: 'Paid' },
+	// { id: 1, label: 'Paid' },
 	{ id: 2, label: 'Done' },
 ]
 const accounts = ref([])
@@ -797,7 +797,7 @@ const form = ref({
 	tax_percent: 0,
 	tax_price: 0,
 	total_price: 0,
-	status: [1],
+	status: [2],
 	account_id: [],
 })
 const formCopy = ref({ ...form.value })

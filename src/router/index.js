@@ -512,69 +512,71 @@ const router = createRouter({
 const loa = ['add', 'edit', 'delete', 'detail', 'approve', 'disapprove']
 
 router.beforeEach(async (to, from, next) => {
-	if (to.path === '/') {
-		// If navigating to login, allow directly
-		next()
-		return
-	}
-
-	if (to.path === '/verify-email') {
-		// If navigating to login, allow directly
-		next()
-		return
-	}
-
-	if (to.path === '/verify-pending') {
-		// If navigating to login, allow directly
-		next()
-		return
-	}
-
-	if (to.path === '/faq') {
-		next()
-		return
-	}
-	const userdata = await decryptData(Cookies.get('userdata'))
-	// For Onboarding State Owner
-	if (
-		![
-			'/',
-			'/onboarding/company',
-			'/logout',
-			'/verify-email',
-			'/verify-pending',
-		].includes(to.path) &&
-		userdata.company_id == null &&
-		userdata.is_owner
-	) {
-		next('/onboarding/company')
-		return
-	}
-
-	// For Onboarding State Employee wait to be assigned
-	if (
-		![
-			'/',
-			'/onboarding/employee',
-			'/logout',
-			'/verify-email',
-			'/verify-pending',
-		].includes(to.path) &&
-		userdata.company_id == null &&
-		userdata.store_id == null &&
-		!userdata.is_owner
-	) {
-		next('/onboarding/employee')
-		return
-	}
-
-	if (!to.matched.some((record) => record.meta.requiresAuth)) {
-		next()
-		return
-	}
-
 	try {
+		if (to.path === '/') {
+			// If navigating to login, allow directly
+			next()
+			return
+		}
+
+		if (to.path === '/verify-email') {
+			// If navigating to login, allow directly
+			next()
+			return
+		}
+
+		if (to.path === '/verify-pending') {
+			// If navigating to login, allow directly
+			next()
+			return
+		}
+
+		if (to.path === '/faq') {
+			next()
+			return
+		}
+		const userdata = await decryptData(Cookies.get('userdata'))
+		if (!userdata) throw new Error('Expired Session')
+		// For Onboarding State Owner
+		if (
+			![
+				'/',
+				'/onboarding/company',
+				'/logout',
+				'/verify-email',
+				'/verify-pending',
+			].includes(to.path) &&
+			userdata.company_id == null &&
+			userdata.is_owner
+		) {
+			next('/onboarding/company')
+			return
+		}
+
+		// For Onboarding State Employee wait to be assigned
+		if (
+			![
+				'/',
+				'/onboarding/employee',
+				'/logout',
+				'/verify-email',
+				'/verify-pending',
+			].includes(to.path) &&
+			userdata.company_id == null &&
+			userdata.store_id == null &&
+			!userdata.is_owner
+		) {
+			next('/onboarding/employee')
+			return
+		}
+
+		if (!to.matched.some((record) => record.meta.requiresAuth)) {
+			next()
+			return
+		}
+
 		// Decrypt token
+		if (!Cookies.get('token')) throw new Error('Token Expired')
 		const token = await decryptData(Cookies.get('token'))
 		if (!token) throw new Error('Invalid token')
 
@@ -626,6 +628,7 @@ router.beforeEach(async (to, from, next) => {
 		}
 	} catch (error) {
 		// Cleanup expired/invalid session
+		console.log('Error Router: ', error)
 		Cookies.remove('token')
 		Cookies.remove('userdata')
 		next('/')

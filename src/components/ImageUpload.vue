@@ -33,7 +33,7 @@
 			</p>
 			<button
 				v-if="!readonly && preview"
-				@click="deleteImage"
+				@click.stop="deleteImage"
 				type="button"
 				class="w-full rounded-md px-4 py-2 text-sm text-white bg-pinkDark hover:bg-pinkOrange focus:outline-none focus:ring focus:ring-pinkDark focus:ring-opacity-25"
 			>
@@ -148,6 +148,9 @@ const handleFileChange = async (event) => {
 			loading.value = false
 		}
 	}
+
+	// Clear the file input value to ensure change event fires for same file
+	event.target.value = ''
 }
 
 // Watch `modelValue` to update the preview when it changes from the parent
