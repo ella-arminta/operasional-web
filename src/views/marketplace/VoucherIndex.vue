@@ -1,16 +1,9 @@
 <template>
 	<div class="content min-h-screen" :class="{ 'full-width': smallMenu }">
 		<PageTitle title="Voucher List" />
-		<TableData
-			:columns="columns"
-			:addPath="'/marketplace/voucher/add'"
-			:export="false"
-			:reload="true"
-			:ajaxPath="`/transaction/voucher/${storeId}/store`"
-			:editPath="'/marketplace/voucher/edit'"
-			:deletePath="'/transaction/voucher'"
-			:infoPath="'/marketplace/voucher/detail'"
-		/>
+		<TableData :columns="columns" :addPath="'/marketplace/voucher/add'" :export="false" :reload="true"
+			:ajaxPath="`/transaction/voucher/${storeId}/store`" :editPath="'/marketplace/voucher/edit'"
+			:deletePath="'/transaction/voucher'" :infoPath="'/marketplace/voucher/detail'" />
 	</div>
 </template>
 
@@ -73,10 +66,18 @@ const columns = [
 	{
 		data: 'is_active',
 		title: 'Status',
-		render: (data) => {
+		render: function (data, type, row) {
+			const now = new Date()
+			const endDate = new Date(row.end_date)
+
+			if (now > endDate) {
+				return `<span style="color: gray; font-weight: bold;">Expired</span>`
+			}
+
 			return `<span style="color: ${data ? 'green' : 'red'}; font-weight: bold;">${data ? 'Active' : 'Inactive'}</span>`
 		},
 	},
+
 	{
 		data: 'action',
 		title: 'Action',
